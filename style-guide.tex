@@ -1,0 +1,739 @@
+%==============================================================================
+% LATEX NOTES STYLE GUIDE
+% Reference this file when creating new lecture notes
+%==============================================================================
+
+%------------------------------------------------------------------------------
+% WRITING PHILOSOPHY
+%------------------------------------------------------------------------------
+%
+% PRIORITY: Clarity over brevity. These are learning notes, not cheat sheets.
+%
+% 1. BE DETAILED IN PROCESS:
+%    - Show every step in derivations (don't skip algebra)
+%    - State what you're doing before you do it ("By LOTP:", "Rearranging:")
+%    - Use LHS/RHS labels when comparing expressions
+%    - Explain WHY each step works, not just WHAT it is
+%
+% 2. BE CLEAR IN EXPLANATIONS:
+%    - Use plain English, avoid jargon abbreviations (not "W.p." but "with probability")
+%    - State goals explicitly ("Goal: Show that X does not imply Y")
+%    - Add intuition boxes after formal proofs
+%    - Use concrete examples with actual numbers
+%
+% 3. STRUCTURE FOR UNDERSTANDING:
+%    - Label steps: "Step 1:", "Step 2:", etc.
+%    - Use parallel structure (if example A has 4 steps, example B should too)
+%    - Put key formulas in boxes, but show the work to get there
+%    - End with "Intuition:" or boxed takeaway
+%
+% 4. WHAT TO AVOID:
+%    - Cryptic abbreviations without definition
+%    - Skipping "obvious" steps (nothing is obvious when learning)
+%    - Dense walls of math without prose guidance
+%    - Assuming the reader remembers earlier definitions
+%    - Em dashes (---). Use colons, semicolons, or break into sentences instead
+%
+%------------------------------------------------------------------------------
+% DOCUMENT CLASS & LAYOUT
+%------------------------------------------------------------------------------
+\documentclass[10pt, twocolumn]{article}
+\usepackage[margin=0.75in, columnsep=0.3in]{geometry}
+
+% Two-column layout for compact reading (2 pages per page feel)
+% 10pt font for density, 0.75in margins for space efficiency
+
+%------------------------------------------------------------------------------
+% REQUIRED PACKAGES
+%------------------------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}   % Math essentials
+\usepackage{enumitem}                    % List customization
+\usepackage{fancyhdr}                    % Headers/footers
+\usepackage{titlesec}                    % Section formatting
+\usepackage{tcolorbox}                   % Boxed results
+\usepackage{booktabs}                    % Professional tables
+\usepackage{tikz}                        % Diagrams (Venn, etc.)
+\usetikzlibrary{trees, calc}             % For probability trees
+\usepackage{graphicx}                    % Image scaling
+
+%------------------------------------------------------------------------------
+% IMPROVED SPACING FOR READABILITY
+%------------------------------------------------------------------------------
+\linespread{1.08}                        % Slightly more space between lines
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}  % Space between paragraphs
+
+%------------------------------------------------------------------------------
+% BOX STYLES (for key results and formulas)
+%------------------------------------------------------------------------------
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+% Light highlight for key results (no heavy border) - PREFERRED for formulas
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING (compact)
+%------------------------------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING (balanced readability)
+%------------------------------------------------------------------------------
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+% itemsep: space between items (1pt for breathing room)
+% topsep: space before/after list (3pt)
+% parsep: space between paragraphs within items (1pt)
+% leftmargin: consistent indentation (1.5em)
+
+%------------------------------------------------------------------------------
+% HEADER/FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small STAT 110}           % Change course name as needed
+\fancyhead[R]{\small Lecture X}          % Change lecture number
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{property}{Property}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\PP}{\mathbb{P}}             % Probability
+\newcommand{\EE}{\mathbb{E}}             % Expectation
+\newcommand{\Var}{\text{Var}}            % Variance
+\newcommand{\Cov}{\text{Cov}}            % Covariance
+\newcommand{\indep}{\perp \!\!\! \perp}  % Independence symbol
+
+%==============================================================================
+%==============================================================================
+%
+%                         STYLE REFERENCE GUIDE
+%
+%==============================================================================
+%==============================================================================
+
+%------------------------------------------------------------------------------
+% 1. DOCUMENT STRUCTURE
+%------------------------------------------------------------------------------
+%
+% TITLE BLOCK (use minipage for consistent spacing):
+%
+%   \noindent
+%   \begin{minipage}{\linewidth}
+%       \centering
+%       \textbf{\Large Lecture X: Topic Name} \\[0.5em]
+%       \hrule
+%   \end{minipage}
+%   \vspace{1em}
+%
+% KEY TAKEAWAYS (at end of document):
+%
+%   \vfill
+%   \begin{center}
+%   \rule{0.5\linewidth}{0.4pt}
+%   \textit{Key Takeaways}
+%   \end{center}
+%   \begin{enumerate}
+%       \item \textbf{First point:} explanation.
+%       \item \textbf{Second point:} explanation.
+%   \end{enumerate}
+
+%------------------------------------------------------------------------------
+% 2. BOX HIERARCHY (from most to least prominent)
+%------------------------------------------------------------------------------
+%
+% LEVEL 1 - KEY FORMULAS (light gray background, NO border - PREFERRED):
+%
+%   Pattern A: Pure formula
+%   \begin{result}
+%   \[
+%       \PP(A^c) = 1 - \PP(A)
+%   \]
+%   \end{result}
+%
+%   Pattern B: Formula with title/label
+%   \begin{result}
+%   \textbf{Law of Total Probability:}
+%   \[
+%       \PP(B) = \sum_{i=1}^n \PP(B \mid A_i) \cdot \PP(A_i)
+%   \]
+%   \end{result}
+%
+%   Pattern C: For long formulas, use \small
+%   \begin{result}
+%   {\small
+%   \begin{align*}
+%       \PP(A \cup B \cup C) &= \PP(A) + \PP(B) + \PP(C) \\
+%       &\quad - \PP(A \cap B) - \PP(A \cap C) - \PP(B \cap C) \\
+%       &\quad + \PP(A \cap B \cap C)
+%   \end{align*}}
+%   \end{result}
+%
+% LEVEL 1-ALT - INLINE BOXED (for simple property statements):
+%
+%   \begin{property}[Complement Rule]
+%   For any event $A$: $\boxed{\PP(A^c) = 1 - \PP(A)}$
+%   \end{property}
+%
+% LEVEL 2 - AXIOMS/DEFINITIONS (black border - use sparingly):
+%
+%   \begin{tcolorbox}
+%   \textbf{Axiom 1} (Nonnegativity): $\PP(A) \ge 0$ for all events $A$.
+%   \end{tcolorbox}
+%
+% LEVEL 3 - STRATEGIES/INSIGHTS (gray border):
+%
+%   \begin{tcolorbox}[colframe=black!50]
+%   \textbf{Strategy:} Compute the complement instead.
+%   \end{tcolorbox}
+%
+% LEVEL 4 - PROOFS (light gray border with title):
+%
+%   \begin{tcolorbox}[colframe=black!40, title={\small Proof}]
+%   \textbf{Step 1:} First step here.
+%
+%   \textbf{Step 2:} Second step here.
+%
+%   Therefore, result follows. \hfill $\square$
+%   \end{tcolorbox}
+%
+% LEVEL 5 - SIDE NOTES/DEFINITIONS (gray border with title):
+%
+%   \begin{tcolorbox}[colframe=black!50, title={\small Note: Derangements}]
+%   A \textbf{derangement} is a permutation with no fixed points.
+%   {\small
+%   \[
+%       D_n = n! \sum_{k=0}^{n} \frac{(-1)^k}{k!}, \quad \PP(\text{no match}) \approx e^{-1}
+%   \]}
+%   \end{tcolorbox}
+
+%------------------------------------------------------------------------------
+% 3. STEP-BY-STEP DERIVATIONS
+%------------------------------------------------------------------------------
+%
+% Use bold labels for each step:
+%
+%   \textbf{Step 1: Count total outcomes.}
+%
+%   Each of $K$ people can have any of 365 birthdays:
+%   \[
+%       |\text{sample space}| = 365^K.
+%   \]
+%
+%   \textbf{Step 2: Count favorable outcomes.}
+%
+%   ...
+%
+% After key results, add sanity checks:
+%
+%   \textit{Sanity check:} When $K=1$, we get $\PP = 0$. \checkmark
+
+%------------------------------------------------------------------------------
+% 3.5 FRACTIONS AND MATHEMATICAL DISPLAY
+%------------------------------------------------------------------------------
+%
+% FRACTION FORMATTING:
+%
+%   ALWAYS use stacked fractions with \frac{}{}, NEVER use slash notation:
+%
+%   GOOD:  $\frac{1}{3}$, $\frac{a}{b}$, $s_i = \frac{1}{r_i}$
+%   BAD:   $1/3$, $a/b$, $s_i = 1/r_i$
+%
+%   For vectors/tuples with fractions:
+%   GOOD:  $\left(\frac{1}{3}, \frac{2}{3}, \frac{1}{2}\right)$
+%   BAD:   $(1/3, 2/3, 1/2)$
+%
+% DISPLAY EQUATIONS IN PROOFS:
+%
+%   Use align* for multi-step calculations with vertical spacing:
+%
+%   \begin{align*}
+%   p^{(2)}_1 &= \frac{1}{3}\cdot\frac{1}{3} + \frac{1}{3}\cdot 0 = \frac{1}{9}\\[3pt]
+%   p^{(2)}_2 &= \frac{1}{3}\cdot\frac{1}{3} + \frac{1}{3}\cdot 1 = \frac{4}{9}
+%   \end{align*}
+%
+%   The \\[3pt] adds vertical spacing between lines for readability.
+%
+% MATRICES WITH FRACTIONS:
+%
+%   Add vertical spacing between rows using \\[4pt]:
+%
+%   \begin{pmatrix}
+%   \frac{1}{3} & \frac{2}{3}\\[4pt]
+%   \frac{1}{2} & \frac{1}{2}
+%   \end{pmatrix}
+%
+% BOXED ANSWERS:
+%
+%   Use \boxed{} for final answers in worked examples:
+%
+%   Solve: $\boxed{a = \frac{3}{7}}$, \quad $b = \boxed{\frac{4}{7}}$
+%
+
+%------------------------------------------------------------------------------
+% 4. PROPERTIES AND THEOREMS
+%------------------------------------------------------------------------------
+%
+% Format: Statement first (boxed), then proof (boxed separately):
+%
+%   \begin{property}[Complement Rule]
+%   For any event $A$:
+%   \begin{tcolorbox}
+%   \vspace{-0.8em}
+%   \[
+%       P(A^c) = 1 - P(A)
+%   \]
+%   \vspace{-0.8em}
+%   \end{tcolorbox}
+%   \end{property}
+%
+%   \begin{tcolorbox}[colframe=black!40, title={\small Proof}]
+%   \begin{enumerate}
+%       \item $S = A \cup A^c$ (disjoint union)
+%       \item By Axiom 2: $P(S) = P(A) + P(A^c)$
+%       \item Therefore: $1 = P(A) + P(A^c).$ \hfill $\square$
+%   \end{enumerate}
+%   \end{tcolorbox}
+%
+%   \textbf{Intuition:} Brief intuitive explanation here.
+
+%------------------------------------------------------------------------------
+% 5. TABLES
+%------------------------------------------------------------------------------
+%
+% Use booktabs for professional tables:
+%
+%   \begin{center}
+%   \begin{tabular}{@{}ccc@{}}
+%   \toprule
+%   $K$ & $\PP(\text{match})$ & Note \\
+%   \midrule
+%   23 & $\approx 50.7\%$ & First $> 50\%$ \\
+%   50 & $\approx 97\%$ & Almost certain \\
+%   \bottomrule
+%   \end{tabular}
+%   \end{center}
+
+%------------------------------------------------------------------------------
+% 6. VENN DIAGRAMS (TikZ)
+%------------------------------------------------------------------------------
+%
+% Two-set Venn diagram (grayscale, compact for two-column):
+%
+%   \begin{center}
+%   \begin{tikzpicture}[scale=0.55]
+%       \def\firstcircle{(0,0) circle (1.4cm)}
+%       \def\secondcircle{(0:1.8cm) circle (1.4cm)}
+%
+%       % Set A (light gray)
+%       \fill[black!15] \firstcircle;
+%       % Set B (light gray)
+%       \fill[black!15] \secondcircle;
+%       % Intersection (darker)
+%       \begin{scope}
+%         \clip \firstcircle;
+%         \fill[black!35] \secondcircle;
+%       \end{scope}
+%
+%       \draw[thick] \firstcircle node[left=0.8cm] {$A$};
+%       \draw[thick] \secondcircle node[right=0.8cm] {$B$};
+%       \node at (0.9,0) {\small $A \cap B$};
+%   \end{tikzpicture}
+%   \end{center}
+%
+% Three-set Venn diagram:
+%
+%   \begin{center}
+%   \begin{tikzpicture}[scale=0.5]
+%       \def\circleA{(90:1cm) circle (1.5cm)}
+%       \def\circleB{(210:1cm) circle (1.5cm)}
+%       \def\circleC{(330:1cm) circle (1.5cm)}
+%
+%       \fill[black!15] \circleA;
+%       \fill[black!15] \circleB;
+%       \fill[black!15] \circleC;
+%
+%       \draw[thick] \circleA node[above=1cm] {$A$};
+%       \draw[thick] \circleB node[below left=0.8cm] {$B$};
+%       \draw[thick] \circleC node[below right=0.8cm] {$C$};
+%   \end{tikzpicture}
+%   \end{center}
+
+%------------------------------------------------------------------------------
+% 7. MATH FORMATTING
+%------------------------------------------------------------------------------
+%
+% ELLIPSIS:
+%   - Multiplication: $365 \cdot 364 \cdots (365-K+1)$
+%   - Lists: $1, 2, \ldots, n$
+%   - Never use ... (three periods)
+%
+% PUNCTUATION IN DISPLAY MATH:
+%   - End equations with period or comma as appropriate:
+%     \[
+%         P(A \cup B) = P(A) + P(B) - P(A \cap B).
+%     \]
+%
+% ABBREVIATIONS:
+%   - Use backslash-space after abbreviations: Fig.\ 1, Eq.\ 2
+%
+% ALIGN ENVIRONMENT (for multi-line equations):
+%   \begin{align*}
+%       \PP(M^c) &= \prod_{i=1}^{K-1} \left(1 - \frac{i}{365}\right) \\
+%       &\approx \exp\left(-\frac{K(K-1)}{2 \cdot 365}\right).
+%   \end{align*}
+
+%------------------------------------------------------------------------------
+% 8. TEXT FORMATTING
+%------------------------------------------------------------------------------
+%
+% EMPHASIS HIERARCHY:
+%   - \textbf{} : Key terms on first use, step labels
+%   - \emph{}   : Emphasis within sentences
+%   - \textit{} : Side comments ("Sanity check:", "Remark:")
+%
+% QUOTATION MARKS:
+%   - Use `` and '' for proper LaTeX quotes
+%   - Example: ``at least one match''
+
+%------------------------------------------------------------------------------
+% 9. APPROXIMATIONS SECTION (common in probability)
+%------------------------------------------------------------------------------
+%
+% When showing approximations (e.g., Birthday Problem):
+%
+%   \subsection{The $e^{-x}$ Approximation}
+%
+%   Using $1-x \approx e^{-x}$ for small $x$:
+%   \begin{align*}
+%       \PP(M^c) &= \prod_{i=1}^{K-1} \left(1 - \frac{i}{365}\right) \\
+%       &\approx \exp\left(-\frac{K(K-1)}{2 \cdot 365}\right).
+%   \end{align*}
+%
+%   Setting $\PP(M^c) = 0.5$ and solving:
+%   \begin{tcolorbox}
+%   \vspace{-0.8em}
+%   \[
+%       K \approx \sqrt{2 \cdot 365 \cdot \ln 2} \approx 22.5
+%   \]
+%   \vspace{-0.8em}
+%   \end{tcolorbox}
+
+%------------------------------------------------------------------------------
+% 10. PROBABILITY TREES (for Bayes/Total Probability)
+%------------------------------------------------------------------------------
+%
+%   \begin{center}
+%   \begin{tikzpicture}[
+%       grow=right,
+%       level 1/.style={sibling distance=2.5cm, level distance=2.5cm},
+%       level 2/.style={sibling distance=1.2cm, level distance=2.2cm},
+%       edge from parent/.style={draw, -latex},
+%       every node/.style={scale=0.8}
+%   ]
+%   \node {}
+%       child {
+%           node {$D^c$}
+%           child {node {$T^c$} edge from parent node[below] {\scriptsize 0.95}}
+%           child {node {$T$} edge from parent node[above] {\scriptsize 0.05}}
+%           edge from parent node[below] {\scriptsize 0.99}
+%       }
+%       child {
+%           node {$D$}
+%           child {node {$T^c$} edge from parent node[below] {\scriptsize 0.05}}
+%           child {node {$T$} edge from parent node[above] {\scriptsize 0.95}}
+%           edge from parent node[above] {\scriptsize 0.01}
+%       };
+%   \end{tikzpicture}
+%   \end{center}
+
+%------------------------------------------------------------------------------
+% 11. DAG DIAGRAMS (for Conditional Independence)
+%------------------------------------------------------------------------------
+%
+% Common Cause pattern (A <- C -> B):
+%   \begin{tikzpicture}[scale=0.8, >=latex]
+%       \node[draw, circle] (C) at (0,1.2) {$C$};
+%       \node[draw, circle] (A) at (-1,0) {$A$};
+%       \node[draw, circle] (B) at (1,0) {$B$};
+%       \draw[->] (C) -- (A);
+%       \draw[->] (C) -- (B);
+%   \end{tikzpicture}
+%   Caption: $A \indep B \mid C$ but $A \not\indep B$
+%
+% Collider pattern (A -> C <- B):
+%   \begin{tikzpicture}[scale=0.8, >=latex]
+%       \node[draw, circle] (A) at (-1,1.2) {$A$};
+%       \node[draw, circle] (B) at (1,1.2) {$B$};
+%       \node[draw, circle] (C) at (0,0) {$C$};
+%       \draw[->] (A) -- (C);
+%       \draw[->] (B) -- (C);
+%   \end{tikzpicture}
+%   Caption: $A \indep B$ but $A \not\indep B \mid C$ (explaining away)
+
+%------------------------------------------------------------------------------
+% 12. INDICATOR RANDOM VARIABLES
+%------------------------------------------------------------------------------
+%
+% Notation: $I_j = \mathbf{1}\{\text{event description}\}$
+%
+% Usage pattern for counting:
+%   Let $I_j = \mathbf{1}\{\text{position } j \text{ is local max}\}$.
+%   \[
+%       \#\text{local maxima} = I_1 + I_2 + \cdots + I_n
+%   \]
+%   By linearity:
+%   \[
+%       \EE[\#\text{local maxima}] = \sum_{j=1}^n \PP(I_j = 1)
+%   \]
+
+%------------------------------------------------------------------------------
+% 13. WARNING BOXES (common mistakes)
+%------------------------------------------------------------------------------
+%
+%   \begin{tcolorbox}[colframe=black!50]
+%   \textbf{Warning:} Pairwise independence does \emph{not} imply
+%   mutual independence. Counterexamples exist!
+%   \end{tcolorbox}
+%
+%   \begin{tcolorbox}
+%   \textbf{You CANNOT move $\EE$ into the exponent!}
+%   \[
+%       \EE[2^X] \neq 2^{\EE[X]}
+%   \]
+%   \end{tcolorbox}
+%
+%   \begin{tcolorbox}[colframe=black!50]
+%   \textbf{Common mistake:} Saying $\frac{1}{4}$ by multiplying two
+%   ``$\frac{1}{2}$'' events. The comparisons are \emph{not} independent!
+%   \end{tcolorbox}
+
+%------------------------------------------------------------------------------
+% 14. COMPARISON TABLES
+%------------------------------------------------------------------------------
+%
+% Side-by-side comparison (e.g., Independence vs Disjoint):
+%   \begin{center}
+%   \begin{tabular}{@{}ll@{}}
+%   \toprule
+%   \textbf{Disjoint} & \textbf{Independent} \\
+%   \midrule
+%   $A \cap B = \emptyset$ & $\PP(A \cap B) = \PP(A)\PP(B)$ \\
+%   If $A$ occurs, $B$ cannot & Knowing $A$ tells nothing about $B$ \\
+%   \bottomrule
+%   \end{tabular}
+%   \end{center}
+%
+% Prior vs Posterior:
+%   \begin{center}
+%   \begin{tabular}{@{}ll@{}}
+%   \toprule
+%   \textbf{Prior} & $\PP(A)$ (before evidence) \\
+%   \textbf{Posterior} & $\PP(A \mid B)$ (after evidence) \\
+%   \bottomrule
+%   \end{tabular}
+%   \end{center}
+
+%------------------------------------------------------------------------------
+% 15. QUICK REFERENCE: BOX BORDER COLORS
+%------------------------------------------------------------------------------
+%
+%   black       : Key formulas (most important)
+%   black!50    : Strategies, insights, warnings, side notes
+%   black!40    : Proofs (with title)
+%   black!15    : Venn diagram fill (light)
+%   black!35    : Venn diagram intersection (darker)
+
+%------------------------------------------------------------------------------
+% 16. QUICK REFERENCE: SPACING
+%------------------------------------------------------------------------------
+%
+%   DOCUMENT-LEVEL SPACING (add after packages):
+%   \linespread{1.08}                                    % Line height
+%   \setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}  % Paragraph spacing
+%
+%   LIST SPACING (replaces noitemsep for readability):
+%   \setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+%
+%   PREFERRED: Use \begin{result}...\end{result} - NO vspace needed!
+%
+%   For long formulas that might overflow: wrap in {\small ... }
+%
+%   OLD PATTERN (avoid if possible):
+%   Pure formula box:           \vspace{-0.8em} before and after
+%   Formula with title:         \vspace{-0.5em} before, \vspace{-0.8em} after
+%
+%   OVERFLOW PREVENTION:
+%   - Use shorter index notation: $i < j$ instead of $1 \le i < j \le n$
+%   - Use abbreviations: $[n]$ for $\{1,\ldots,n\}$
+%   - Wrap in {\small ...} for multi-line formulas
+
+%------------------------------------------------------------------------------
+% 17. EXPECTATION PROOFS (Pebble World)
+%------------------------------------------------------------------------------
+%
+% Two equivalent definitions table:
+%   \begin{center}
+%   \begin{tabular}{@{}ll@{}}
+%   \toprule
+%   \textbf{Grouped} & $\displaystyle\EE[X] = \sum_x x \cdot \PP(X = x)$ \\[1em]
+%   \textbf{Ungrouped} & $\displaystyle\EE[X] = \sum_{s \in S} X(s) \cdot \PP(s)$ \\
+%   \bottomrule
+%   \end{tabular}
+%   \end{center}
+%
+% Proof of linearity pattern:
+%   \begin{tcolorbox}[colframe=black!40, title={\small Proof}]
+%   Let $T = X + Y$. Using the ungrouped definition:
+%   \begin{align*}
+%       \EE[T] &= \sum_{s \in S} T(s) \cdot \PP(s) \\
+%       &= \sum_{s \in S} (X(s) + Y(s)) \cdot \PP(s) \\
+%       &= \EE[X] + \EE[Y]. \quad \square
+%   \end{align*}
+%   \end{tcolorbox}
+
+%------------------------------------------------------------------------------
+% 18. DISTRIBUTION STORY PATTERNS
+%------------------------------------------------------------------------------
+%
+% Definition with story:
+%   \begin{definition}
+%   $X \sim \text{NBin}(r, p)$ is the number of \textbf{failures before
+%   the $r$-th success}.
+%   \[
+%       X \in \{0, 1, 2, \ldots\}
+%   \]
+%   \end{definition}
+%
+% PMF derivation pattern:
+%   \textbf{Step 1:} Probability of any specific valid sequence:
+%   \[
+%       p^r q^n
+%   \]
+%
+%   \textbf{Step 2:} Number of such sequences:
+%   \[
+%       \binom{n + r - 1}{r - 1}
+%   \]
+%
+%   \begin{tcolorbox}
+%   \textbf{PMF:}
+%   \vspace{-0.5em}
+%   \[
+%       \PP(X = n) = \binom{n + r - 1}{r - 1} p^r q^n
+%   \]
+%   \vspace{-0.8em}
+%   \end{tcolorbox}
+
+%------------------------------------------------------------------------------
+% 19. CONVENTION WARNINGS
+%------------------------------------------------------------------------------
+%
+%   \begin{tcolorbox}[colframe=black!50]
+%   \textbf{Be careful!} Different books use different conventions:
+%   \begin{itemize}
+%       \item Geometric on $\{0, 1, 2, \ldots\}$ (failures before success)
+%       \item Geometric on $\{1, 2, 3, \ldots\}$ (trial of first success)
+%   \end{itemize}
+%   Always check your source!
+%   \end{tcolorbox}
+
+%------------------------------------------------------------------------------
+% 20. PAYOFF/GAME TABLES
+%------------------------------------------------------------------------------
+%
+%   \begin{center}
+%   \begin{tabular}{@{}ccc@{}}
+%   \toprule
+%   First heads on flip & Probability & Payoff \\
+%   \midrule
+%   1 & $1/2$ & \$2 \\
+%   2 & $1/4$ & \$4 \\
+%   $k$ & $1/2^k$ & $\$2^k$ \\
+%   \bottomrule
+%   \end{tabular}
+%   \end{center}
+
+%==============================================================================
+
+\begin{document}
+
+% TEMPLATE TITLE
+\noindent
+\begin{minipage}{\linewidth}
+    \centering
+    \textbf{\Large Lecture X: Topic Name} \\[0.5em]
+    \hrule
+\end{minipage}
+\vspace{1em}
+
+%==============================================================================
+\section{First Section}
+%==============================================================================
+
+Your content here...
+
+\subsection{Subsection Example}
+
+\textbf{Step 1: Label your steps.}
+
+Explanation for step 1.
+
+\textbf{Step 2: Continue the derivation.}
+
+Explanation for step 2.
+
+\begin{tcolorbox}
+\vspace{-0.8em}
+\[
+    \text{Key result goes here.}
+\]
+\vspace{-0.8em}
+\end{tcolorbox}
+
+\textit{Sanity check:} Verify with a simple case. \checkmark
+
+%==============================================================================
+
+\vfill
+
+\begin{center}
+\rule{0.5\linewidth}{0.4pt}
+
+\textit{Key Takeaways}
+\end{center}
+
+\begin{enumerate}
+    \item \textbf{First insight:} brief explanation.
+    \item \textbf{Second insight:} brief explanation.
+\end{enumerate}
+
+\end{document}

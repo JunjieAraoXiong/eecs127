@@ -1,0 +1,105 @@
+%==============================================================================
+% EECS 127 - Lecture 4: Linear Algebra Review - Symmetric Matrices
+%==============================================================================
+
+\documentclass[10pt, twocolumn]{article}
+\usepackage[margin=0.75in, columnsep=0.3in]{geometry}
+
+%------------------------------------------------------------------------------
+% REQUIRED PACKAGES
+%------------------------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc}
+
+%------------------------------------------------------------------------------
+% SPACING
+%------------------------------------------------------------------------------
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+%------------------------------------------------------------------------------
+% BOX STYLES
+%------------------------------------------------------------------------------
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+%------------------------------------------------------------------------------
+% HEADER/FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Lecture 4}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\spn}{span}
+
+%==============================================================================
+
+\begin{document}
+
+\noindent
+\begin{minipage}{\linewidth}
+    \centering
+    \textbf{\Large Lecture 4: Linear Algebra Review - Symmetric Matrices} \\[0.5em]
+    \hrule
+\end{minipage}
+\vspace{1em}
+
+% Content will be added here
+
+\end{document}

@@ -1,0 +1,3167 @@
+\documentclass[11pt,letterpaper]{book}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ESSENTIAL PACKAGES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{bbm}
+\usepackage{microtype}  % Better typography
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PAGE LAYOUT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[margin=1in, headheight=14pt]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\textit{\nouppercase{\leftmark}}}
+\fancyhead[LO]{\textit{\nouppercase{\rightmark}}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Better paragraph spacing
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% GRAPHICS AND FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes,positioning,calc,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TABLES AND LISTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\setlist{itemsep=0.2em, topsep=0.5em}
+% Define alphabetic enumerate style for use with [(a)] labels
+\SetEnumitemKey{alph}{label=(\alph*)}
+\SetEnumitemKey{roman}{label=(\roman*)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COLORS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{xcolor}
+\definecolor{theoremblue}{RGB}{0, 51, 102}
+\definecolor{theorembg}{RGB}{230, 240, 250}
+\definecolor{definitiongreen}{RGB}{0, 100, 0}
+\definecolor{definitionbg}{RGB}{230, 245, 230}
+\definecolor{examplebrown}{RGB}{139, 69, 19}
+\definecolor{examplebg}{RGB}{255, 248, 220}
+\definecolor{strategypurple}{RGB}{75, 0, 130}
+\definecolor{strategybg}{RGB}{245, 235, 255}
+\definecolor{remarkgray}{RGB}{80, 80, 80}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COLORED BOXES FOR THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tcolorbox}
+\tcbuselibrary{theorems, skins, breakable}
+
+% Theorem box style
+\newtcbtheorem[number within=chapter]{theorembox}{Theorem}{
+    enhanced,
+    breakable,
+    colback=theorembg,
+    colframe=theoremblue,
+    fonttitle=\bfseries,
+    separator sign={.},
+    description font=\normalfont\itshape,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    before skip=10pt, after skip=10pt,
+}{thm}
+
+% Definition box style
+\newtcbtheorem[use counter from=theorembox]{definitionbox}{Definition}{
+    enhanced,
+    breakable,
+    colback=definitionbg,
+    colframe=definitiongreen,
+    fonttitle=\bfseries,
+    separator sign={.},
+    description font=\normalfont\itshape,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    before skip=10pt, after skip=10pt,
+}{def}
+
+% Example box style
+\newtcbtheorem[use counter from=theorembox]{examplebox}{Example}{
+    enhanced,
+    breakable,
+    colback=examplebg,
+    colframe=examplebrown,
+    fonttitle=\bfseries,
+    separator sign={.},
+    description font=\normalfont\itshape,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    before skip=10pt, after skip=10pt,
+}{ex}
+
+% Strategy box style
+\newtcbtheorem[use counter from=theorembox]{strategybox}{Problem Solving Strategy}{
+    enhanced,
+    breakable,
+    colback=strategybg,
+    colframe=strategypurple,
+    fonttitle=\bfseries,
+    separator sign={.},
+    description font=\normalfont\itshape,
+    left=3mm, right=3mm, top=2mm, bottom=2mm,
+    before skip=10pt, after skip=10pt,
+}{str}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HYPERLINKS AND CROSS-REFERENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=theoremblue,
+    citecolor=definitiongreen,
+    urlcolor=theoremblue,
+    pdftitle={EECS 127/227AT Course Reader},
+    pdfauthor={UC Berkeley}
+}
+\usepackage[nameinlink,capitalize]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ALGORITHMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREM ENVIRONMENTS (Plain style for non-boxed use)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{note}[theorem]{Note}
+\newtheorem{strategy}[theorem]{Problem Solving Strategy}
+
+% Custom commands for common notation
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\rank}{\mathrm{rank}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\epi}{\mathrm{epi}}
+\newcommand{\conv}{\mathrm{conv}}
+\newcommand{\cone}{\mathrm{cone}}
+\newcommand{\interior}{\mathrm{int}}
+\newcommand{\relint}{\mathrm{relint}}
+\newcommand{\cl}{\mathrm{cl}}
+\newcommand{\bd}{\mathrm{bd}}
+\newcommand{\aff}{\mathrm{aff}}
+\newcommand{\argmin}{\mathop{\mathrm{argmin}}}
+\newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+\newcommand{\minimize}{\mathop{\mathrm{minimize}}}
+\newcommand{\maximize}{\mathop{\mathrm{maximize}}}
+\newcommand{\subjectto}{\mathop{\mathrm{subject\ to}}}
+\newcommand{\st}{\mathrm{s.t.}}
+\newcommand{\prox}{\mathbf{prox}}
+\newcommand{\proj}{\mathbf{proj}}
+\newcommand{\grad}{\nabla}
+\newcommand{\Hess}{\nabla^2}
+
+% Vector and matrix notation
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\transpose}{^\top}
+\newcommand{\inv}{^{-1}}
+\newcommand{\pinv}{^{\dagger}}
+
+% Norms
+\newcommand{\norm}[1]{\left\| #1 \right\|}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\inner}[2]{\langle #1, #2 \rangle}
+
+% Optimization problem formatting
+\newenvironment{optimization}[1][]{%
+    \begin{equation}#1
+    \begin{aligned}
+}{%
+    \end{aligned}
+    \end{equation}
+}
+
+% Figure placeholder
+\newcommand{\figurePlaceholder}[1]{%
+    \begin{center}
+    \begin{tikzpicture}
+        \node[draw=gray!60, fill=gray!10, rounded corners, minimum width=0.7\textwidth, minimum height=3cm, align=center, font=\small\itshape\color{gray!70}] {
+            \textbf{Figure:} #1
+        };
+    \end{tikzpicture}
+    \end{center}
+}
+
+% Algorithm environment styling
+\algrenewcommand\algorithmicindent{1.5em}
+
+% Better spacing for aligned equations
+\setlength{\jot}{8pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DOCUMENT INFO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{%
+    \vspace{-2cm}
+    {\Huge\bfseries Optimization Models\\[0.3em] in Engineering}\\[1.5em]
+    {\Large Course Reader for EECS 127/227AT}\\[0.5em]
+    {\large University of California, Berkeley}
+}
+\author{%
+    \textbf{Instructors:} Laurent El Ghaoui, Somayeh Sojoudi\\[0.5em]
+    \small Department of Electrical Engineering and Computer Sciences
+}
+\date{\vspace{1em}Spring 2024}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FRONT MATTER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frontmatter
+
+% Custom title page
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+
+    {\Huge\bfseries Optimization Models\\[0.3em] in Engineering\par}
+
+    \vspace{1.5cm}
+
+    {\Large\itshape Course Reader\par}
+
+    \vspace{0.5cm}
+
+    {\large EECS 127/227AT\par}
+
+    \vspace{2cm}
+
+    {\large University of California, Berkeley\par}
+    {\large Department of Electrical Engineering and Computer Sciences\par}
+
+    \vspace{2cm}
+
+    {\large Spring 2024\par}
+
+    \vfill
+
+    \begin{center}
+    \rule{0.6\textwidth}{0.4pt}
+    \end{center}
+
+    \vspace{0.5cm}
+
+    {\small\itshape
+    This document contains lecture notes and supplementary material\\
+    for the optimization course EECS 127/227AT.
+    \par}
+
+\end{titlepage}
+
+% Acknowledgments page
+\chapter*{Acknowledgments}
+\addcontentsline{toc}{chapter}{Acknowledgments}
+
+These course notes have been developed over many years with contributions from numerous teaching assistants, graduate student instructors, and students. We gratefully acknowledge their efforts in improving the clarity and completeness of this material.
+
+The presentation draws heavily from the excellent textbooks by Boyd and Vandenberghe \cite{BV} and Calafiore and El Ghaoui \cite{CG}. Students are encouraged to consult these references for additional depth and examples.
+
+\vspace{1cm}
+
+\noindent\textit{Note:} Figure placeholders are marked with \texttt{\% TODO: Figure} comments throughout the text. These indicate where diagrams would appear in the original course materials.
+
+% Table of contents
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAIN MATTER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\mainmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CHAPTER 1: INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title={\small\sffamily References}, fonttitle=\bfseries, boxrule=0.5pt]
+\small
+\begin{itemize}[leftmargin=*, nosep]
+    \item Boyd \& Vandenberghe \cite{BV}: Chapter 1
+    \item Calafiore \& El Ghaoui \cite{CG}: Chapter 1
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+\section{What is Optimization?}
+
+Try to see what the following ``problems'' have in common.
+\begin{itemize}
+    \item A statistical model, such as a neural network, trains using finite data samples.
+    \item A robot learns a strategy using the environment, so that it does what you want.
+    \item A major gas company decides what mixture of different fuels to process in order to get maximum profit.
+    \item The EECS department decides how to set class sizes in order to maximize the number of credits offered subject to budget constraints.
+\end{itemize}
+
+While it might seem that these four examples are very distinct, they can all be formulated as \emph{minimizing} an \emph{objective function} over a \emph{feasible set}. Thus, they can all be put into the framework of optimization.
+
+To develop the basics of optimization, including precisely defining an objective function and a feasible set, we use some motivating examples from the third and fourth ``problems''. (The first and second ``problems'' will be discussed at the very end of the course.)
+
+\begin{example}[Oil and Gas]
+Say that we are a gas company with $10^5$ barrels of crude oil that we \emph{must} refine by an expiration date. There are two refineries: one which processes crude oil into jet fuel, and one which processes crude oil into gasoline. We can sell a barrel of jet fuel to consumers for \$0.10, while we can sell a barrel of gasoline fuel for \$0.20. So, letting $x_1$ be a variable denoting the number of barrels of jet fuel produced, and $x_2$ be a variable denoting the number of barrels of gasoline produced, we aim to solve the problem:
+\begin{align}
+    \max_{x_1, x_2} \quad & \frac{1}{10}x_1 + \frac{1}{5}x_2 \label{eq:oil1}\\
+    \st \quad & x_1 \geq 0 \notag\\
+    & x_2 \geq 0 \notag\\
+    & x_1 + x_2 = 10^5. \notag
+\end{align}
+That is, we aim to choose $x_1$ and $x_2$ which maximize the \emph{objective function} $\frac{1}{10}x_1 + \frac{1}{5}x_2$, but with the caveat that they must obey the \emph{constraints} $x_1 \geq 0$, $x_2 \geq 0$, and $x_1 + x_2 = 10^5$. The \emph{feasible set} is the set of all $(x_1, x_2)$ pairs which obey the constraints. As you may have noticed, constraints can be equalities or inequalities in the $x_i$, which we formalize shortly.
+
+The solution to this problem can be seen to be $(x_1^\star, x_2^\star) = (0, 10^5)$, which corresponds to refining all the crude oil into gasoline. This makes sense -- after all, gasoline sells for more! And with all else equal between gasoline and jet fuel, to maximize our profit, we just need to produce gasoline.
+
+To model another constraint, say that we need at least $10^3$ gallons of jet fuel and $5 \cdot 10^2$ gallons of gasoline, we can directly incorporate them into the constraint set:
+\begin{align}
+    \max_{x_1, x_2} \quad & \frac{1}{10}x_1 + \frac{1}{5}x_2 \label{eq:oil2}\\
+    \st \quad & x_1 \geq 0 \notag\\
+    & x_2 \geq 0 \notag\\
+    & x_1 \geq 10^3 \notag\\
+    & x_2 \geq 5 \cdot 10^2 \notag\\
+    & x_1 + x_2 = 10^5. \notag
+\end{align}
+
+We then notice that $x_1 \geq 0$ is made redundant by the constraint $x_1 \geq 10^3$. That is, no pair $(x_1, x_2)$ which satisfies $x_1 \geq 10^3$ is not going to satisfy $x_1 \geq 0$. Thus, we can eliminate the latter constraint, since it defines the same feasible set. We can do the same thing for the constraints $x_2 \geq 0$ and $x_2 \geq 5 \cdot 10^2$, the latter making the former redundant. Thus, we can simplify the above problem to only include the redundant constraints:
+\begin{align}
+    \max_{x_1, x_2} \quad & \frac{1}{10}x_1 + \frac{1}{5}x_2 \label{eq:oil3}\\
+    \st \quad & x_1 \geq 10^3 \notag\\
+    & x_2 \geq 5 \cdot 10^2 \notag\\
+    & x_1 + x_2 = 10^5. \notag
+\end{align}
+
+Let's say that we want to incorporate one final business need. Before, we were modeling that the oil refinement is free, since we don't have an objective or constraint term which involves this cost. Now, let us say that we can transport a total of $2 \cdot 10^6$ ``barrel-miles'' -- that is, the number of barrels times the number of miles we can transport is no greater than $2 \cdot 10^6$. Let us further say that the jet fuel refinery is 10 miles away from the crude oil storage, and the gasoline refinery is 30 miles away from the crude oil storage. We can incorporate this further constraint into the constraint set directly:
+\begin{align}
+    \max_{x_1, x_2} \quad & \frac{1}{10}x_1 + \frac{1}{5}x_2 \label{eq:oil4}\\
+    \st \quad & x_1 \geq 10^3 \notag\\
+    & x_2 \geq 5 \cdot 10^2 \notag\\
+    & 10x_1 + 30x_2 \leq 2 \cdot 10^6 \notag\\
+    & x_1 + x_2 = 10^5. \notag
+\end{align}
+
+This is a good first problem; we have a non-trivial objective function, non-trivial inequality and equality constraints, and even got to work with manipulating constraints (so as to remove redundant ones)!
+\end{example}
+
+This type of optimization problem is called a \emph{linear program}. We will learn more about how to formulate and solve linear programs later in the course.
+
+A more generic reformulation of the above optimization problem is the following ``standard form''.
+
+\begin{definition}[Standard Form of Optimization Problem]
+We say that an optimization problem is written in \emph{standard form} if it is of the form
+\begin{align}
+    \min_{\vec{x} \in \R^n} \quad & f_0(\vec{x}) \label{eq:standardform}\\
+    \st \quad & f_i(\vec{x}) \leq 0, \quad \forall i \in \{1, \ldots, m\} \notag\\
+    & h_j(\vec{x}) = 0, \quad \forall j \in \{1, \ldots, p\}. \notag
+\end{align}
+Here:
+\begin{itemize}
+    \item $\vec{x} \in \R^n$ is the \textbf{optimization variable}.
+    \item $f_1, \ldots, f_m$ and $h_1, \ldots, h_p$ are functions $\R^n \to \R$.
+    \item $f_0$ is the \textbf{objective function}.
+    \item $f_i$ are \textbf{inequality constraint functions}; the expression ``$f_i(\vec{x}) \leq 0$'' is an \textbf{inequality constraint}.
+    \item Similarly, $h_j$ are \textbf{equality constraint functions}, and the expression ``$h_j(\vec{x}) = 0$'' is an \textbf{equality constraint}.
+    \item The \textbf{feasible set}, i.e., the set of all $\vec{x}$ that satisfy all constraints, is
+    \begin{equation}
+        \Omega \triangleq \left\{ \vec{x} \in \R^n \;\middle|\; \begin{array}{l} f_i(\vec{x}) \leq 0, \quad \forall i \in \{1, \ldots, m\} \\ h_j(\vec{x}) = 0, \quad \forall j \in \{1, \ldots, p\} \end{array} \right\}. \label{eq:feasibleset}
+    \end{equation}
+    We can thus also write the problem \eqref{eq:standardform} as
+    \begin{equation}
+        \min_{\vec{x} \in \Omega} f_0(\vec{x}). \label{eq:standardform2}
+    \end{equation}
+    \item A \textbf{solution} to this optimization problem is any $\vec{x}^\star \in \Omega$ which attains the minimum value of $f(\vec{x})$ across all $\vec{x} \in \Omega$. Correspondingly, $\vec{x}^\star$ is also called a \textbf{minimizer} of $f_0$ over $\Omega$.
+\end{itemize}
+\end{definition}
+
+It's perfectly fine if $m = 0$ (in which case there are no inequality constraints) and/or $p = 0$ (in which case there are no equality constraints). If there are no constraints, then $\Omega = \R^n$ and the problem is called \emph{unconstrained}; otherwise it is called \emph{constrained}.
+
+Let us try another example now, which has vector-valued quantities.
+
+\begin{example}
+Consider the following table of EECS courses:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Class & Size & Credits & Resources per Student \\
+\midrule
+127 & $x_1$ & $c_1$ & $r_1$ \\
+126 & $x_2$ & $c_2$ & $r_2$ \\
+182 & $x_3$ & $c_3$ & $r_3$ \\
+189 & $x_4$ & $c_4$ & $r_4$ \\
+162 & $x_5$ & $c_5$ & $r_5$ \\
+188 & $x_6$ & $c_6$ & $r_6$ \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Suppose there are $n$ classes in total. Let $\vec{x} \triangleq \begin{bmatrix} x_1 & x_2 & \cdots & x_n \end{bmatrix}^\top \in \R^n$ be the decision variable, and let $\vec{c} \triangleq \begin{bmatrix} c_1 & c_2 & \cdots & c_n \end{bmatrix}^\top \in \R^n$ and $\vec{r} \triangleq \begin{bmatrix} r_1 & r_2 & \cdots & r_n \end{bmatrix}^\top \in \R^n$ be constants. Then, in order to maximize the total number of credit hours subject to a total resource budget $b$, we set up the linear program
+\begin{align}
+    \max_{\vec{x} \in \R^n} \quad & \vec{c}^\top \vec{x} \label{eq:eecs}\\
+    \st \quad & \vec{r}^\top \vec{x} \leq b \notag\\
+    & x_i \geq 0, \quad \forall i \in \{1, \ldots, n\}. \notag
+\end{align}
+As notation, instead of the last set of constraints $x_i \geq 0$, we can write the vector constraint $\vec{x} \geq \vec{0}$.
+\end{example}
+
+More generally, recall that if we have a vector equality constraint $\vec{h}(\vec{x}) = \vec{0}$, it can be viewed as short-hand for the several scalar equality constraints $h_1(\vec{x}) = 0, \ldots, h_p(\vec{x}) = 0$. Correspondingly, we define the vector inequality constraint $\vec{f}(\vec{x}) \leq \vec{0}$ to be short-hand for the several scalar inequality constraints $f_1(\vec{x}) \leq 0, \ldots, f_m(\vec{x}) \leq 0$.
+
+\section{Least Squares}
+
+We begin with one of the simplest optimization problems, that of least squares. We've probably seen this formulation before. Mathematically, we are given a data matrix $A \in \R^{m \times n}$ and a vector of outcomes $\vec{y} \in \R^m$, and attempt to find a parameter vector $\vec{x} \in \R^n$ which minimizes the residual $\norm{A\vec{x} - \vec{y}}_2^2$. Here $\norm{\cdot}_2$ is the standard Euclidean norm $\norm{\vec{z}}_2 \triangleq \sqrt{\vec{z}^\top \vec{z}} = \sqrt{\sum_{i=1}^n z_i^2}$; it is labeled with the 2 for a reason we will see later in the course.
+
+More precisely, we attempt to solve the following optimization problem:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2. \label{eq:leastsquares}
+\end{equation}
+
+\begin{theorem}[Least Squares Solution]
+\label{thm:leastsquares}
+Let $A \in \R^{m \times n}$ have full column rank, and let $\vec{y} \in \R^m$. Then the solution to \eqref{eq:leastsquares}, i.e., the solution to
+\[
+    \min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2,
+\]
+is given by
+\begin{equation}
+    \vec{x}^\star = (A^\top A)^{-1} A^\top \vec{y}. \label{eq:leastsquaressol}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The idea is to find $A\vec{x} \in \mathcal{R}(A)$ which is closest to $\vec{y}$. Here $\mathcal{R}(A)$ is the range, or column space, or column span, of $A$. In general, we have no guarantee that $\vec{y} \in \mathcal{R}(A)$, so there is not necessarily an $\vec{x}$ such that $A\vec{x} = \vec{y}$. Instead, we are finding an approximate solution to the equation $A\vec{x} = \vec{y}$.
+
+\figurePlaceholder{Geometry of least squares: $\mathcal{R}(A)$ subspace and $\vec{y}$ vector}
+
+Recall that $\mathcal{R}(A)$ is a subspace, and that $\vec{y}$ itself may not belong to $\mathcal{R}(A)$. We can now solve this problem using ideas from geometry. We claim that the closest point to $\vec{y}$ contained in $\mathcal{R}(A)$ is the orthogonal projection of $\vec{y}$ onto $\mathcal{R}(A)$; call this point $\vec{z}$. Also, define $\vec{e} \triangleq \vec{y} - \vec{z}$.
+
+\figurePlaceholder{Projection diagram: $\vec{y}$, $\vec{z}$, $\vec{e}$, and $\mathcal{R}(A)$}
+
+From this diagram, we see that $\vec{e}$ is orthogonal to any vector in $\mathcal{R}(A)$. But remember that we still have to prove that $\vec{z}$ is the closest point to $\vec{y}$ within $\mathcal{R}(A)$. To see this, consider any other point $\vec{u} \in \mathcal{R}(A)$ and define $\vec{v} \triangleq \vec{y} - \vec{u}$.
+
+\figurePlaceholder{Extended projection: $\vec{y}$, $\vec{z}$, $\vec{e}$, $\vec{u}$, $\vec{v}$, and $\mathcal{R}(A)$}
+
+To complete our proof, we define $\vec{w} \triangleq \vec{z} - \vec{u}$, noting that the angle $\vec{u} \to \vec{z} \to \vec{y}$ is a right angle; in other words, $\vec{w}$ and $\vec{e}$ are orthogonal.
+
+\figurePlaceholder{Complete least squares geometry with all vectors}
+
+By the Pythagorean theorem, we see that
+\begin{align}
+    \norm{\vec{y} - \vec{u}}_2^2 &= \norm{\vec{v}}_2^2 \\
+    &= \norm{\vec{w}}_2^2 + \norm{\vec{e}}_2^2 \\
+    &= \underbrace{\norm{\vec{z} - \vec{u}}_2^2}_{> 0} + \norm{\vec{e}}_2^2 \\
+    &> \norm{\vec{e}}_2^2 \\
+    &= \norm{\vec{y} - \vec{z}}_2^2.
+\end{align}
+Therefore, $\vec{z}$ is the closest point to $\vec{y}$ within $\mathcal{R}(A)$.
+
+Now, we want to find $\vec{z} \in \mathcal{R}(A)$, i.e., the orthogonal projection of $\vec{y}$ onto $\mathcal{R}(A)$, such that $\vec{e} = \vec{y} - \vec{z}$ is orthogonal to all vectors in $\mathcal{R}(A)$. By the definition of $\mathcal{R}(A)$, it's equivalent to find $\vec{x}^\star \in \R^n$ such that $\vec{y} - A\vec{x}^\star$ is orthogonal to all vectors in $\mathcal{R}(A)$. Since the columns of $A$ form a spanning set for $\mathcal{R}(A)$, it's equivalent to find $\vec{x}^\star \in \R^n$ such that $\vec{y} - A\vec{x}^\star$ is orthogonal to all columns of $A$. This implies
+\begin{align}
+    \vec{0} &= A^\top (\vec{y} - A\vec{x}^\star) \\
+    &= A^\top \vec{y} - A^\top A \vec{x}^\star \\
+    \implies A^\top A \vec{x}^\star &= A^\top \vec{y} \\
+    \implies \vec{x}^\star &= (A^\top A)^{-1} A^\top \vec{y}.
+\end{align}
+Here $A^\top A$ is invertible because $A$ has full column rank.
+\end{proof}
+
+We'll conclude with a statistical application of least squares to linear regression. Suppose we are given data $(x_1, y_1), \ldots, (x_n, y_n)$, and want to fit an affine model $y = mx + b$ through these data points. This corresponds to approximately solving the system
+\begin{align}
+    mx_1 + b &= y_1 \notag\\
+    mx_2 + b &= y_2 \notag\\
+    &\vdots \notag\\
+    mx_n + b &= y_n.
+\end{align}
+
+Formulating it in terms of vectors and matrices, we have
+\begin{equation}
+    \begin{bmatrix} x_1 & 1 \\ x_2 & 1 \\ \vdots & \vdots \\ x_n & 1 \end{bmatrix} \begin{bmatrix} m \\ b \end{bmatrix} = \begin{bmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{bmatrix}.
+\end{equation}
+
+In the case where the data is noisy or inconsistent with the model, as in the below figure, the linear system will be overdetermined and have no solutions. Then, we find an approximate solution -- a line of best fit -- via least squares on the above system.
+
+\figurePlaceholder{Scatter plot with line of best fit}
+
+As a last note, solving least squares (and similar problems) is easy because it is a so-called \emph{convex} problem. Convex problems are easy to solve because any local optimum is a global optimum, which allows us to use a variety of simple techniques to find global optima. It is generally much more difficult to solve non-convex problems, though we solve a few during this course.
+
+We discuss much more about convexity and convex problems later in the course.
+
+\section{Solution Concepts and Notation}
+
+Sometimes we assign values to our optimization problems. For example in the framework of \eqref{eq:standardform} we may write
+\begin{align}
+    p^\star = \min_{\vec{x} \in \R^n} \quad & f_0(\vec{x}) \label{eq:optval}\\
+    \st \quad & f_i(\vec{x}) \leq 0 \quad \forall i \in \{1, \ldots, m\} \notag\\
+    & h_j(\vec{x}) = 0 \quad \forall j \in \{1, \ldots, p\}. \notag
+\end{align}
+On the other hand, in the framework of \eqref{eq:standardform2} and using the definition of $\Omega$ in \eqref{eq:feasibleset}, we may write\footnote{For the case where the minimum does not exist, but the infimum is finite, please see Section~\ref{sec:infvsmin}}.
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \Omega} f_0(\vec{x}). \label{eq:optval2}
+\end{equation}
+This means that $p^\star \in \R$ is the minimum value of $f_0$ over all $\vec{x} \in \Omega$; formally,
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \Omega} f_0(\vec{x}) \triangleq \min\{f_0(\vec{x}) \mid \vec{x} \in \Omega\}.
+\end{equation}
+
+As an example, consider the two-element set $\Omega = \{0, 1\}$ and $f_0(x) = 3x^2 + 2$. Then $p^\star = \min\{f(0), f(1)\} = \min\{2, 5\} = 2$. We emphasize that $p^\star$ is a \emph{real number}, not a vector.
+
+To extract the minimizers, i.e., the points $\vec{x} \in \Omega$ which minimize $f_0(\vec{x})$, we use the $\argmin$ notation, which gives us the set of arguments which minimize our objective function. Formally, we define:
+\begin{equation}
+    \argmin_{\vec{x} \in \Omega} f_0(\vec{x}) \triangleq \left\{ \vec{x} \in \Omega \;\middle|\; f_0(\vec{x}) = \min_{\vec{u} \in \Omega} f_0(\vec{u}) \right\} \label{eq:argmin}
+\end{equation}
+
+We can thus write the set of solutions to \eqref{eq:standardform} as
+\begin{align}
+    \argmin_{\vec{x} \in \R^n} \quad & f_0(\vec{x}) \\
+    \st \quad & f_i(\vec{x}) \leq 0 \quad \forall i \in \{1, \ldots, m\} \notag\\
+    & h_j(\vec{x}) = 0 \quad \forall j \in \{1, \ldots, p\}. \notag
+\end{align}
+And, as just discussed, we can write the set of solutions to \eqref{eq:standardform2} as
+\begin{equation}
+    \argmin_{\vec{x} \in \Omega} f_0(\vec{x}).
+\end{equation}
+
+We emphasize that the $\argmin$ is a \emph{set of vectors}, any of which are an optimal solution, i.e., a minimizer, of the optimization problem at hand. It is possible for the $\argmin$ to contain 0 vectors (in which case the minimum value is not realized and the problem has no global optima), any positive number of vectors, or an infinite number of vectors.
+
+Let us consider the same example as before. In particular, consider the two-element set $\Omega = \{0, 1\}$ and $f_0(x) = 3x^2 + 2$. Then $\argmin_{x \in \Omega} f_0(x) = \{0\}$. But, in different scenarios, the $\argmin$ can have zero elements; for example, if $f_0(x) = 3x$, then $\argmin_{x \in \R} f_0(x) = \emptyset$. And it can have multiple elements; for example, if $f_0(x) = 3x^2(x-1)^2$, then $\argmin_{x \in \R} f_0(x) = \{0, 1\}$. It can even have infinitely many elements; for example, if $f_0(x) = 0$, then $\argmin_{x \in \R} f_0(x) = \R$.
+
+Though we must remember to keep in mind that technically $\argmin$ is a set, in the problems we study, it usually contains exactly one element. Thus, instead of writing, for example, $\vec{x}^\star \in \argmin_{\vec{x} \in \Omega} f_0(\vec{x})$, we may also write $\vec{x}^\star = \argmin_{\vec{x} \in \Omega} f_0(\vec{x})$. The former expression is technically more correct, but both usages are fine, if --- and only if --- the $\argmin$ in question contains exactly one element.
+
+\section{(OPTIONAL) Infimum Versus Minimum}
+\label{sec:infvsmin}
+
+There is one remaining issue with our formulation, which we can conceptually consider as a ``corner case''. What happens if the minimum does not exist? This may seem like a very esoteric case, yet one can construct a straightforward example, such as the following. We know that the minimum of any set of numbers must be contained in the set. But what happens if we try to find the minimum of the open interval $(0, 1)$? For any $x \in (0, 1)$ which we claim to be our minimum, we see that $\frac{x}{2}$ is also contained in $(0, 1)$ and is smaller than $x$, which is a contradiction to our claim. Thus the set $(0, 1)$ has no minimum.
+
+It seems like 0 is a useful notion of ``minimum'' for this set --- that is, it's the largest number which is $\leq$ all numbers in the set, i.e., its ``greatest lower bound'' --- but it isn't contained in the set and thus cannot be the minimum. Fortunately, this notion of greatest lower bound of a set is formalized in real analysis as the concept of an ``infimum'', denoted $\inf$. For our purposes, we can think of the infimum as a generalization of the minimum which takes care of these corner cases and always exists. When the minimum exists, it is always equal to the infimum.
+
+Based on this discussion, we can write our optimization problems as
+\begin{align}
+    p^\star = \inf_{\vec{x} \in \R^n} \quad & f_0(\vec{x}) \\
+    \st \quad & f_i(\vec{x}) \leq 0 \quad \forall i \in \{1, \ldots, m\} \notag\\
+    & h_j(\vec{x}) = 0 \quad \forall j \in \{1, \ldots, p\}. \notag
+\end{align}
+and
+\begin{equation}
+    p^\star = \inf_{\vec{x} \in \Omega} f_0(\vec{x}).
+\end{equation}
+
+However, the $\argmin$ retains the same definition. In fact, one can prove that if we replaced the $\min$ in the $\argmin$ definition \eqref{eq:argmin} with $\inf$, that this ``new'' $\argmin$ would be exactly equivalent in every case to the ``old'' $\argmin$, which we use henceforth. The analogous quantity to infimum for maximization --- that is, the appropriate generalization of $\max$ --- is the supremum, denoted $\sup$.
+
+Interested readers are encouraged to consult a real analysis textbook for a more comprehensive coverage. Though we have gone over the technical details here, for the rest of the course we will omit them for simplicity, and stick to using $\min$ and $\max$ (meaning $\inf$ and $\sup$ when the minimum and maximum do not exist).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CHAPTER 2: LINEAR ALGEBRA REVIEW
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Linear Algebra Review}
+
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title={\small\sffamily References}, fonttitle=\bfseries, boxrule=0.5pt]
+\small
+\begin{itemize}[leftmargin=*, nosep]
+    \item Boyd \& Vandenberghe \cite{BV}: Appendix A
+    \item Calafiore \& El Ghaoui \cite{CG}: Chapters 2--5
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+\section{Norms}
+
+\subsection{Definitions}
+
+\begin{definition}[Norm]
+Let $\mathcal{V}$ be a vector space over $\R$. A function $f: \mathcal{V} \to \R$ is a \textbf{norm} if:
+\begin{itemize}
+    \item \textbf{Positive definiteness}: $f(\vec{x}) \geq 0$ for all $\vec{x} \in \mathcal{V}$, and $f(\vec{x}) = 0$ if and only if $\vec{x} = \vec{0}$.
+    \item \textbf{Positive homogeneity}: $f(\alpha \vec{x}) = |\alpha| f(\vec{x})$ for all $\alpha \in \R$ and $\vec{x} \in \mathcal{V}$.
+    \item \textbf{Triangle inequality}: $f(\vec{x} + \vec{y}) \leq f(\vec{x}) + f(\vec{y})$ for all $\vec{x}, \vec{y} \in \mathcal{V}$.
+\end{itemize}
+\end{definition}
+
+We can check that the familiar Euclidean norm $\norm{\cdot}_2: \vec{x} \mapsto \sqrt{\sum_{i=1}^n x_i^2}$ satisfies these properties. A generalization of the Euclidean norm is the following very useful class of norms.
+
+\begin{definition}[$\ell^p$ Norms]
+Let $1 \leq p < \infty$. The $\ell^p$-norm on $\R^n$ is given by
+\begin{equation}
+    \norm{\vec{x}}_p \triangleq \left( \sum_{i=1}^n |x_i|^p \right)^{1/p}.
+\end{equation}
+The $\ell^\infty$-norm on $\R^n$ is given by
+\begin{equation}
+    \norm{\vec{x}}_\infty \triangleq \max_{i \in \{1, \ldots, n\}} |x_i|.
+\end{equation}
+\end{definition}
+
+\begin{example}[Examples of $\ell^p$ Norms]
+\begin{enumerate}[label=(\alph*)]
+    \item The Euclidean norm, given by $\norm{\vec{x}}_2 = \sqrt{\sum_{i=1}^n x_i^2}$, is an $\ell^p$-norm for $p = 2$. (This is why we gave the subscript 2 to the Euclidean norm previously).
+    \item The $\ell^1$-norm is given by $\norm{\vec{x}}_1 = \sum_{i=1}^n |x_i|$.
+    \item The $\ell^\infty$-norm, given by $\norm{\vec{x}}_\infty = \max_{i \in \{1, \ldots, n\}} |x_i|$, is the limit of the $\ell^p$ norms as $p \to \infty$:
+    \begin{equation}
+        \norm{\vec{x}}_\infty = \lim_{p \to \infty} \norm{\vec{x}}_p.
+    \end{equation}
+    We do not prove this here; it is left as an exercise.
+\end{enumerate}
+\end{example}
+
+\subsection{Inequalities}
+
+There are a variety of useful inequalities which are associated with the $\ell^p$ norms. Before we provide them, we will take a second to discuss the importance of inequalities for optimization.
+
+A priori, it may not be clear why we need to care about inequalities; why does it matter whether one arrangement of variables is always greater or less than another arrangement? It turns out that such inequalities are very helpful for characterizing the minimum and maximum of a given set of things; we can obtain upper bounds and lower bounds for things using these inequalities. This is definitely very helpful for optimization.
+
+With that out of the way, let us get to the first major inequality.
+
+\begin{theorem}[Cauchy-Schwarz Inequality]
+For any $\vec{x}, \vec{y} \in \R^n$, we have
+\begin{equation}
+    \abs{\vec{x}^\top \vec{y}} \leq \norm{\vec{x}}_2 \norm{\vec{y}}_2.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $\theta$ be the angle between $\vec{x}$ and $\vec{y}$. We write
+\begin{align}
+    \abs{\vec{x}^\top \vec{y}} &= \abs{\norm{\vec{x}}_2 \norm{\vec{y}}_2 \cos\theta} \\
+    &= \norm{\vec{x}}_2 \norm{\vec{y}}_2 \abs{\cos\theta} \\
+    &\leq \norm{\vec{x}}_2 \norm{\vec{y}}_2.
+\end{align}
+\end{proof}
+
+We can get this result for $\ell^2$ norms. A natural next question is whether we can generalize it to $\ell^p$ norms for $p \neq 2$. It turns out that we can, as we demonstrate shortly.
+
+\begin{theorem}[H\"{o}lder's Inequality]
+Let $1 \leq p, q \leq \infty$ such that $\frac{1}{p} + \frac{1}{q} = 1$.\footnote{Such pairs $(p, q)$ are called \emph{H\"{o}lder conjugates}.} Then for any $\vec{x}, \vec{y} \in \R^n$, we have
+\begin{equation}
+    \abs{\vec{x}^\top \vec{y}} \leq \sum_{i=1}^n |x_i y_i| \leq \norm{\vec{x}}_p \norm{\vec{y}}_q.
+\end{equation}
+\end{theorem}
+
+This inequality collapses to the Cauchy-Schwarz Inequality when $p = q = 2$. The proof is out of scope for now since it uses convexity.
+
+\begin{example}[Dual Norms]
+Fix $\vec{y} \in \R^n$. Let us solve the problem:
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_p \leq 1}} \vec{x}^\top \vec{y}. \label{eq:dualnorm}
+\end{equation}
+
+It is initially difficult to see how to proceed, so let us simplify the problem to get back onto familiar territory. We start with $p = 2$, so that the problem becomes:
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_2 \leq 1}} \vec{x}^\top \vec{y}.
+\end{equation}
+
+\figurePlaceholder{Unit ball for $\ell_2$ norm with vector $\vec{y}$}
+
+For any $\vec{x} \in \R^n$, and $\theta$ the angle between $\vec{x}$ and $\vec{y}$, we have
+\begin{equation}
+    \vec{x}^\top \vec{y} = \norm{\vec{x}}_2 \norm{\vec{y}}_2 \cos\theta.
+\end{equation}
+This term is maximized when $\cos\theta = 1$, or equivalently $\theta = 0$. Thus $\vec{x}$ and $\vec{y}$ must point in the same direction, i.e., $\vec{x}$ is a scalar multiple of $\vec{y}$. And since we want to maximize this dot product, we must choose $\vec{x}$ to maximize $\norm{\vec{x}}_2$ subject to the constraint $\norm{\vec{x}}_2 \leq 1$. Thus, we choose an $\vec{x}$ which has $\norm{\vec{x}}_2 = 1$ and points in the same direction as $\vec{y}$. This gives $\vec{x}^\star = \vec{y}/\norm{\vec{y}}_2$. Thus,
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_2 \leq 1}} \vec{x}^\top \vec{y} = (\vec{x}^\star)^\top \vec{y} = \left(\frac{\vec{y}}{\norm{\vec{y}}_2}\right)^\top \vec{y} = \frac{\vec{y}^\top \vec{y}}{\norm{\vec{y}}_2} = \frac{\norm{\vec{y}}_2^2}{\norm{\vec{y}}_2} = \norm{\vec{y}}_2.
+\end{equation}
+
+Now let us try $p = \infty$. The problem becomes
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_\infty \leq 1}} \vec{x}^\top \vec{y}.
+\end{equation}
+
+\figurePlaceholder{Unit ball for $\ell_\infty$ norm (square) with vector $\vec{y}$}
+
+Motivated by this diagram, we see that the constraint $\norm{\vec{x}}_\infty \leq 1$ is equivalent to the $2n$ constraints $-1 \leq x_i$ and $x_i \leq 1$. Also, writing out the objective function
+\begin{equation}
+    \vec{x}^\top \vec{y} = \sum_{i=1}^n x_i y_i = x_1 y_1 + x_2 y_2 + \cdots + x_n y_n,
+\end{equation}
+we see that the problem is
+\begin{align}
+    \max_{\vec{x} \in \R^n} \quad & (x_1 y_1 + x_2 y_2 + \cdots + x_n y_n) \\
+    \st \quad & -1 \leq x_i \leq 1, \quad \forall i \in \{1, \ldots, n\}. \notag
+\end{align}
+
+This problem has an interesting structure that will be repeated several times in the problems we discuss in this class. Namely, the objective function is the sum of several terms, each of which involves only one $x_i$. And the constraints are able to be partitioned into some groups, where the constraints in each group constrain only one $x_i$. Thus, this problem is \emph{separable} into $n$ different scalar problems, such that the optimal solutions for each scalar problem form an optimal solution for the vector problem. Namely, the problems are
+\begin{equation}
+    \max_{\substack{x_i \in \R \\ -1 \leq x_i \leq 1}} x_i y_i
+\end{equation}
+
+We solve this much simpler problem by hand. If $y_i > 0$ then $x_i^\star = 1$; on the other hand, if $y_i \leq 0$ then $x_i^\star = -1$. To summarize, $x_i^\star = \sign(y_i)$, so that $x_i^\star y_i = |y_i|$.
+
+Putting all the scalar problems together, we see that $\vec{x}^\star = \sign(\vec{y})$, and the vector problem's optimal value is given by
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_\infty \leq 1}} \vec{x}^\top \vec{y} = (\vec{x}^\star)^\top \vec{y} = \sum_{i=1}^n x_i^\star y_i = \sum_{i=1}^n \sign(y_i) y_i = \sum_{i=1}^n |y_i| = \norm{\vec{y}}_1.
+\end{equation}
+
+As a final exercise, we consider $p = 1$, so that the problem becomes
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_1 \leq 1}} \vec{x}^\top \vec{y}.
+\end{equation}
+
+\figurePlaceholder{Unit ball for $\ell_1$ norm (diamond) with vector $\vec{y}$}
+
+We now bound the objective as
+\begin{align}
+    \vec{x}^\top \vec{y} &\leq \abs{\vec{x}^\top \vec{y}} \\
+    &= \left| \sum_{i=1}^n x_i y_i \right| \\
+    &\leq \sum_{i=1}^n |x_i y_i| \quad \text{by triangle inequality} \\
+    &= \sum_{i=1}^n |x_i| |y_i| \\
+    &\leq \sum_{i=1}^n |x_i| \left( \max_{i \in \{1,\ldots,n\}} |y_i| \right) \\
+    &= \left( \max_{i \in \{1,\ldots,n\}} |y_i| \right) \sum_{i=1}^n |x_i| \\
+    &= \norm{\vec{y}}_\infty \norm{\vec{x}}_1 \\
+    &\leq \norm{\vec{y}}_\infty.
+\end{align}
+Thus we have
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_1 \leq 1}} \vec{x}^\top \vec{y} \leq \norm{\vec{y}}_\infty.
+\end{equation}
+
+This inequality is actually an equality. To show this, we need to show the reverse inequality
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_1 \leq 1}} \vec{x}^\top \vec{y} \geq \norm{\vec{y}}_\infty.
+\end{equation}
+And showing this inequality amounts to choosing, for our fixed $\vec{y}$, an $\vec{x}$ such that $\norm{\vec{x}}_1 \leq 1$ and $\vec{x}^\top \vec{y} \geq \norm{\vec{y}}_\infty$. This is also called ``showing the maximum is attained''. To do this, we can find an $\vec{x}$ such that $\norm{\vec{x}}_p \leq 1$ and all the inequalities in the chain are met with equality.
+
+To meet all the constraints, we can construct $\vec{x}^\star$ via the following process:
+\begin{itemize}
+    \item For each $i \notin \argmax_{j \in \{1,\ldots,n\}} |y_j|$, set $\tilde{x}_i = 0$.
+    \item For each $i \in \argmax_{j \in \{1,\ldots,n\}} |y_j|$, set $\tilde{x}_i = \sign(y_i)$.
+    \item To get the true solution vector $\vec{x}^\star$, divide $\tilde{\vec{x}}$ by $\norm{\tilde{\vec{x}}}_1$; that is, $\vec{x}^\star = \tilde{\vec{x}}/\norm{\tilde{\vec{x}}}_1$. This ensures that $\norm{\vec{x}^\star}_1 = 1$.
+\end{itemize}
+
+This $\vec{x}^\star$ ``achieves the maximum'', showing that
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_1 \leq 1}} \vec{x}^\top \vec{y} = \norm{\vec{y}}_\infty.
+\end{equation}
+
+This notion where the $\ell^2$-norm constraint leads to the $\ell^2$-norm objective, the $\ell^\infty$-norm constraint leads to the $\ell^1$-norm objective, and the $\ell^1$-norm constraint leads to the $\ell^\infty$-norm objective, hints at a greater pattern. Indeed, one can show that for $1 \leq p, q \leq \infty$ such that $\frac{1}{p} + \frac{1}{q} = 1$, an $\ell^p$-norm constraint leads to an $\ell^q$-norm objective:
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_p \leq 1}} \vec{x}^\top \vec{y} = \norm{\vec{y}}_q. \label{eq:dualnormgeneral}
+\end{equation}
+
+As before, we can prove this equality by proving the two constituent inequalities:
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_p \leq 1}} \vec{x}^\top \vec{y} \leq \norm{\vec{y}}_q \quad \text{and} \quad \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_p \leq 1}} \vec{x}^\top \vec{y} \geq \norm{\vec{y}}_q.
+\end{equation}
+
+The proof of the first inequality ($\leq$) follows from applying H\"{o}lder's inequality to the objective function:
+\begin{equation}
+    \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_p \leq 1}} \vec{x}^\top \vec{y} \leq \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_p \leq 1}} \norm{\vec{x}}_p \norm{\vec{y}}_q = \norm{\vec{y}}_q \cdot \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_p \leq 1}} \norm{\vec{x}}_p = \norm{\vec{y}}_q.
+\end{equation}
+
+The second inequality ($\geq$) can follow if, for our fixed choice of $\vec{y}$, we produce some $\vec{x}$ such that $\norm{\vec{x}}_p \leq 1$ and $\vec{x}^\top \vec{y} \geq \norm{\vec{y}}_q$, i.e., ``the maximum is attained''. This is more complicated to do, and we won't do it here.
+
+The above equality \eqref{eq:dualnormgeneral} means that the norms $\norm{\cdot}_p$ and $\norm{\cdot}_q$ are so-called \emph{dual norms}. We will explore aspects of duality later in the course, though frankly we are just scratching the surface.
+\end{example}
+
+These problems, which are short and easy to state, contain a couple of core ideas within their solutions, which are broadly generalizable to a lot of optimization problems. For your convenience, we discuss these explicitly below.
+
+\textbf{Problem Solving Strategy} (Separating Vector Problems into Scalar Problems). \emph{When trying to simplify an optimization problem, try to see if you can simplify it into several independent scalar problems. Then solve each scalar problem --- this is usually much easier than solving the whole vector problem at once. The optimal solutions to each scalar problem will then form the optimal solution to the whole vector problem.}
+
+\textbf{Problem Solving Strategy} (Proving Optimality in an Optimization Problem). \emph{To solve an optimization problem, you can use inequalities to bound the objective function, and then try to show that this bound is tight by finding a feasible choice of optimization variable which makes all the inequalities into equalities.}
+
+\section{Gram-Schmidt and QR Decomposition}
+
+The Gram-Schmidt algorithm is a way to turn a linearly independent set $\{\vec{a}_1, \ldots, \vec{a}_k\}$ of vectors into an orthonormal set $\{\vec{q}_1, \ldots, \vec{q}_k\}$ which spans the same space. To reiterate, an orthonormal set is a set of vectors in which each vector has norm 1 and is orthogonal to all others in the basis.
+
+Suppose for simplicity that $n = k = 2$, and that we have the following vectors.
+
+\figurePlaceholder{Gram-Schmidt Step 1: Two vectors $\vec{a}_1$ and $\vec{a}_2$}
+
+We begin with $\vec{a}_1$. We want to construct a vector $\vec{q}_1$ such that
+\begin{itemize}
+    \item it's orthogonal to all the $\vec{q}_i$ which came before it --- which is none of them, so we don't have to worry; and
+    \item it has unit norm, so $\norm{\vec{q}_1}_2 = 1$.
+\end{itemize}
+
+To achieve this, the simplest choice is
+\begin{equation}
+    \vec{q}_1 \triangleq \frac{\vec{a}_1}{\norm{\vec{a}_1}_2}.
+\end{equation}
+
+\figurePlaceholder{Gram-Schmidt Step 2: $\vec{a}_1$, $\vec{a}_2$, and $\vec{q}_1$}
+
+Then we go to $\vec{a}_2$. To find $\vec{q}_2$ which is orthogonal to all the $\vec{q}_i$ before it --- that is, $\vec{q}_1$ --- we subtract off the orthogonal projection of $\vec{a}_2$ onto $\vec{q}_1$ from $\vec{a}_2$. The orthogonal projection of $\vec{a}_2$ onto $\vec{q}_1$ is given by
+\begin{equation}
+    \vec{p}_2 \triangleq \vec{q}_1 (\vec{q}_1^\top \vec{a}_2)
+\end{equation}
+and so the projection residual is given by
+\begin{equation}
+    \vec{s}_2 \triangleq \vec{a}_2 - \vec{p}_2 = \vec{a}_2 - \vec{q}_1 (\vec{q}_1^\top \vec{a}_2).
+\end{equation}
+Note that these formulas only hold because $\vec{q}_1$ is normalized, i.e., has norm 1.
+
+\figurePlaceholder{Gram-Schmidt Step 3: $\vec{a}_1$, $\vec{a}_2$, $\vec{q}_1$, $\vec{p}_2$, $\vec{s}_2$}
+
+While $\vec{s}_2$ is orthogonal to $\vec{q}_1$, because we want a $\vec{q}_2$ that is normalized, we normalize $\vec{s}_2$ to get $\vec{q}_2$:
+\begin{equation}
+    \vec{q}_2 \triangleq \frac{\vec{s}_2}{\norm{\vec{s}_2}_2}.
+\end{equation}
+
+\figurePlaceholder{Complete Gram-Schmidt orthogonalization process}
+
+If we had a vector $\vec{q}_3$ (and weren't limited by drawing in 2D space), we would ensure that $\vec{q}_3$ were orthogonal to $\vec{q}_1$ and $\vec{q}_2$, as well as normalized, in a similar way as before. First we would compute the projection
+\begin{equation}
+    \vec{p}_3 \triangleq \vec{q}_1 (\vec{q}_1^\top \vec{a}_3) + \vec{q}_2 (\vec{q}_2^\top \vec{a}_3).
+\end{equation}
+and the residual
+\begin{equation}
+    \vec{s}_3 \triangleq \vec{a}_3 - \vec{p}_3 = \vec{a}_3 - \vec{q}_1(\vec{q}_1^\top \vec{a}_3) - \vec{q}_2(\vec{q}_2^\top \vec{a}_3).
+\end{equation}
+These projection formulas only hold because $\{\vec{q}_1, \vec{q}_2\}$ is an orthonormal set. And then we could compute
+\begin{equation}
+    \vec{q}_3 \triangleq \frac{\vec{s}_3}{\norm{\vec{s}_3}_2}.
+\end{equation}
+
+And so on. The general algorithm goes similar.
+
+% Algorithm box
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{
+\textbf{Algorithm 1} Gram-Schmidt algorithm.
+\begin{enumerate}
+    \item \textbf{function} \textsc{GramSchmidtAlgorithm}(linearly independent set $\{\vec{a}_1, \ldots, \vec{a}_k\}$)
+    \item \quad $\vec{q}_1 \triangleq \vec{a}_1 / \norm{\vec{a}_1}_2$.
+    \item \quad \textbf{for} $i \in \{2, 3, \ldots, k\}$ \textbf{do}
+    \item \quad\quad $\vec{p}_i \triangleq \sum_{j=1}^{i-1} \vec{q}_j (\vec{q}_j^\top \vec{a}_i)$
+    \item \quad\quad $\vec{s}_i \triangleq \vec{a}_i - \vec{p}_i$
+    \item \quad\quad $\vec{q}_i \triangleq \vec{s}_i / \norm{\vec{s}_i}_2$
+    \item \quad \textbf{end for}
+    \item \quad \textbf{return} orthonormal set $\{\vec{q}_1, \ldots, \vec{q}_k\}$
+    \item \textbf{end function}
+\end{enumerate}
+}}
+\end{center}
+
+This algorithm has the following two properties, which you can formally prove as an exercise.
+
+\begin{theorem}[Gram-Schmidt Algorithm]\label{thm:gramschmidt}
+Algorithm 1 has the following properties:
+\begin{enumerate}
+    \item For each $i \in \{1, \ldots, k\}$, we have
+    \begin{equation}
+        \text{span}(\vec{a}_1, \ldots, \vec{a}_i) = \text{span}(\vec{q}_1, \ldots, \vec{q}_i).
+    \end{equation}
+    In particular, $\{\vec{a}_1, \ldots, \vec{a}_k\}$ spans the same subspace as $\{\vec{q}_1, \ldots, \vec{q}_k\}$, as was stated in our original goal.
+    \item $\{\vec{q}_1, \ldots, \vec{q}_k\}$ is an orthonormal set.
+\end{enumerate}
+\end{theorem}
+
+The Gram-Schmidt algorithm leads to something called the QR decomposition. Because, for each $i$, we have $\text{span}(\vec{a}_1, \ldots, \vec{a}_i) = \text{span}(\vec{q}_1, \ldots, \vec{q}_i)$, it means that we can write $\vec{a}_i$ as a linear combination of the $\vec{q}_j$:
+\begin{equation}
+    \vec{a}_i = r_{1i}\vec{q}_1 + r_{2i}\vec{q}_2 + \cdots + r_{ii}\vec{q}_i = \sum_{j=1}^{i} r_{ji}\vec{q}_j
+\end{equation}
+
+Putting all the $k$ equations in a matrix form, we can write
+\begin{equation}
+    \begin{bmatrix} \vec{a}_1 & \cdots & \vec{a}_k \end{bmatrix} = \begin{bmatrix} \vec{q}_1 & \cdots & \vec{q}_k \end{bmatrix} \begin{bmatrix} r_{11} & r_{12} & \cdots & r_{1k} \\ 0 & r_{22} & \cdots & r_{2k} \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \cdots & r_{kk} \end{bmatrix}.
+\end{equation}
+
+More generally, we can decompose every tall matrix with full column rank into a product of a tall matrix with orthonormal columns $Q$ and an upper-triangular matrix $R$.
+
+\begin{theorem}[QR Decomposition]\label{thm:qr}
+Let $A \in \R^{n \times k}$ where $k \leq n$ (so $A$ is tall). Suppose $A$ has full column rank. Then there is a matrix $Q \in \R^{n \times k}$ with orthonormal columns, and a matrix $R \in \R^{k \times k}$ which is upper triangular, such that $A = QR$.
+\end{theorem}
+
+As a final note, there are various alterations to the QR decomposition that work for matrices which are wide and/or do not have full column rank. Those are out of scope, but the idea is the same.
+
+The QR decomposition is also relevant in numerical linear algebra, where it can be used to solve tall linear systems $A\vec{x} = \vec{y}$ efficiently, especially if the underlying matrix $A$ has special structure. All such connections are out of scope.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Fundamental Theorem of Linear Algebra}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The fundamental theorem of linear algebra is a tool for understanding what happens to vectors and vector spaces under a linear transformation. Matrix multiplication transforms one vector space into another. This is helpful for allowing us to change our coordinate system, which tells us more about the problem.
+
+\begin{definition}[Direct Sum]
+Let $U, V \subseteq \R^n$ be subspaces. We say that $U$ and $V$ \emph{direct sum} to $\R^n$, denoted $U \oplus V = \R^n$, if and only if:
+\begin{itemize}
+    \item Every vector $\vec{x} \in \R^n$ can be written as $\vec{x} = \vec{x}_1 + \vec{x}_2$, where $\vec{x}_1 \in U$ and $\vec{x}_2 \in V$.
+    \item Furthermore, this decomposition is unique, in the sense that if $\vec{x} = \vec{x}_1 + \vec{x}_2 = \vec{y}_1 + \vec{y}_2$ are two instances of the above decomposition, then $\vec{x}_1 = \vec{y}_1$ and $\vec{x}_2 = \vec{y}_2$.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Fundamental Theorem of Linear Algebra]\label{thm:ftla}
+Let $A \in \R^{m \times n}$. Then
+\begin{equation}
+    \mathcal{N}(A) \oplus \mathcal{R}(A^\top) = \R^n.
+\end{equation}
+\end{theorem}
+
+Note that we cannot replace $\mathcal{R}(A^\top)$ by $\mathcal{R}(A)$, since vectors in $\mathcal{R}(A)$ and $\mathcal{N}(A)$ do not even have the same number of entries or lie in the same Euclidean space. If we want to make a statement about $\mathcal{R}(A)$, we can replace $A$ by $A^\top$ in the above theorem to get the following corollary.
+
+\begin{corollary}
+Let $A \in \R^{m \times n}$. Then
+\begin{equation}
+    \mathcal{N}(A^\top) \oplus \mathcal{R}(A) = \R^m.
+\end{equation}
+\end{corollary}
+
+To prove the fundamental theorem of linear algebra, we use a tool called the orthogonal decomposition theorem.
+
+\begin{definition}[Orthogonal Complement]
+Let $S \subseteq \R^n$ be a subspace. The \emph{orthogonal complement} of $S$, denoted $S^\perp$, is
+\begin{equation}
+    S^\perp \triangleq \{\vec{x} \in \R^n \mid \vec{s}^\top \vec{x} = 0 \text{ for all } \vec{s} \in S\}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Orthogonal Decomposition Theorem]
+Let $S \subseteq \R^n$ be a subspace. Then
+\begin{equation}
+    S \oplus S^\perp = \R^n.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+To prove this, we first need to prove the following claim:
+
+Let $U, V \subseteq \R^n$ be subspaces. Then $U \oplus V = \R^n$ if and only if every vector $\vec{x} \in \R^n$ can be written as $\vec{x} = \vec{x}_1 + \vec{x}_2$, where $\vec{x}_1 \in U$ and $\vec{x}_2 \in V$, and $U \cap V = \{\vec{0}\}$.
+
+To prove this claim, suppose first that $U \oplus V = \R^n$. Then every vector $\vec{x} \in \R^n$ can be written as $\vec{x} = \vec{x}_1 + \vec{x}_2$, where $\vec{x}_1 \in U$ and $\vec{x}_2 \in V$. It remains to prove that $U \cap V = \{\vec{0}\}$. Suppose for the sake of contradiction that there exists $\vec{y} \neq \vec{0}$ such that $\vec{y} \in U \cap V$. Then
+\begin{equation}
+    \vec{x} = (\vec{x}_1 + \vec{y}) + (\vec{x}_2 - \vec{y}).
+\end{equation}
+Since $\vec{y} \in U$, we have $\vec{x}_1 + \vec{y} \in U$; since $\vec{y} \in V$, we have $\vec{x}_2 - \vec{y} \in V$. Thus
+\begin{equation}
+    \vec{x} = \vec{x}_1 + \vec{x}_2 = (\vec{x}_1 + \vec{y}) + (\vec{x}_2 - \vec{y})
+\end{equation}
+are two distinct ways to write $\vec{x}$ as the sum of vectors from $U$ and $V$, so it cannot be true that $U \oplus V = \R^n$, a contradiction.
+
+Towards the other direction, suppose that every vector $\vec{x} \in \R^n$ can be written as $\vec{x} = \vec{x}_1 + \vec{x}_2$, where $\vec{x}_1 \in U$ and $\vec{x}_2 \in V$, and $U \cap V = \{\vec{0}\}$. The only thing remaining to prove is that if $\vec{x} = \vec{x}_1 + \vec{x}_2 = \vec{z}_1 + \vec{z}_2$ where $\vec{x}_1, \vec{z}_1 \in U$ and $\vec{x}_2, \vec{z}_2 \in V$, then we must have $\vec{x}_1 = \vec{z}_1$ and $\vec{x}_2 = \vec{z}_2$. Suppose again for the sake of contradiction that there exists $\vec{x} \in \R^n$, $\vec{x}_1, \vec{z}_1 \in U$, and $\vec{x}_2, \vec{z}_2 \in V$ such that $\vec{x} = \vec{x}_1 + \vec{x}_2 = \vec{z}_1 + \vec{z}_2$ but $\vec{x}_1 \neq \vec{z}_1$ or $\vec{x}_2 \neq \vec{z}_2$. Then we have
+\begin{equation}
+    \vec{0} = \vec{x} - \vec{x} = \vec{x}_1 + \vec{x}_2 - \vec{z}_1 - \vec{z}_2 = (\vec{x}_1 - \vec{z}_1) + (\vec{x}_2 - \vec{z}_2).
+\end{equation}
+Thus, we have that $\vec{x}_1 - \vec{z}_1 = \vec{z}_2 - \vec{x}_2 \neq \vec{0}$. Since $\vec{x}_1, \vec{z}_1 \in U$, we have $\vec{x}_1 - \vec{z}_1 \in U$, and since $\vec{x}_2, \vec{z}_2 \in V$, we have $\vec{z}_2 - \vec{x}_2 \in V$. Since they are equal, we have $\vec{x}_1 - \vec{z}_1 \in U \cap V$ and nonzero. Thus $U \cap V \neq \{\vec{0}\}$, a contradiction.
+
+This proves the above claim. Now to prove the actual theorem, we note that every vector $\vec{x} \in \R^n$ can be written as
+\begin{equation}
+    \vec{x} = \text{proj}_S(\vec{x}) + (\vec{x} - \text{proj}_S(\vec{x})).
+\end{equation}
+By definition, $\text{proj}_S(\vec{x}) \in S$, and because the projection residual is orthogonal to the subspace, we have $\vec{x} - \text{proj}_S(\vec{x}) \in S^\perp$. Thus every vector in $\R^n$ can be written as the sum of a vector in $S$ and $S^\perp$. It is an exercise to show that $S \cap S^\perp = \{\vec{0}\}$. Invoking the quoted claim completes the proof.
+\end{proof}
+
+Using this theorem, the only thing we need to show to prove the fundamental theorem of linear algebra is that $\mathcal{N}(A)$ and $\mathcal{R}(A^\top)$ are orthogonal complements. We do this below.
+
+\begin{proof}[Proof of Theorem~\ref{thm:ftla}]
+By the Orthogonal Decomposition Theorem, the only thing we need to show is that $\mathcal{N}(A) = \mathcal{R}(A^\top)^\perp$. This is a set equality; we show it by showing that $\mathcal{N}(A) \subseteq \mathcal{R}(A^\top)^\perp$ and that $\mathcal{N}(A) \supseteq \mathcal{R}(A^\top)^\perp$.
+
+We first want to show that $\mathcal{N}(A) \subseteq \mathcal{R}(A^\top)^\perp$. That is, we want to show that for any $\vec{x} \in \mathcal{N}(A)$ we have $\vec{x} \in \mathcal{R}(A^\top)^\perp$. That is, for any $\vec{y} \in \mathcal{R}(A^\top)$, we want to show that $\vec{y}^\top \vec{x} = 0$.
+
+Since $\vec{y} \in \mathcal{R}(A^\top)$ we can write $\vec{y} = A^\top \vec{w}$ for some $\vec{w} \in \R^m$. Then, since $\vec{x} \in \mathcal{N}(A)$ we have $A\vec{x} = \vec{0}$, so
+\begin{align}
+    \vec{y}^\top \vec{x} &= (A^\top \vec{w})^\top \vec{x} \\
+    &= \vec{w}^\top A \vec{x} \\
+    &= \vec{w}^\top \vec{0} \\
+    &= 0.
+\end{align}
+Thus $\vec{x}$ and $\vec{y}$ are orthogonal, so $\vec{x} \in \mathcal{R}(A^\top)^\perp$, which shows that $\mathcal{N}(A) \subseteq \mathcal{R}(A^\top)^\perp$.
+
+We now want to show that $\mathcal{R}(A^\top)^\perp \subseteq \mathcal{N}(A)$. That is, we want to show that for any $\vec{x} \in \mathcal{R}(A^\top)^\perp$, we want to show that $\vec{x} \in \mathcal{N}(A)$. That is, we want to show that $A\vec{x} = \vec{0}$.
+
+By definition, for every $\vec{y} \in \mathcal{R}(A^\top)$, we have $\vec{y}^\top \vec{x} = 0$. By writing $\vec{y} = A^\top \vec{w}$ for arbitrary $\vec{w} \in \R^m$, we get that for every $\vec{w} \in \R^m$ we have $(A^\top \vec{w})^\top \vec{x} = 0$. But the left-hand side is $\vec{w}^\top A\vec{x}$, so we have that $\vec{w}^\top A\vec{x} = 0$ for every $\vec{w} \in \R^m$. This is true for all $\vec{w} \in \R^m$, so it is true for the specific choice of $\vec{w} = A\vec{x}$, which yields
+\begin{align}
+    0 &= \vec{w}^\top A\vec{x} \\
+    &= (A\vec{x})^\top A\vec{x} \\
+    &= \norm{A\vec{x}}_2^2 \\
+    \implies A\vec{x} &= \vec{0}.
+\end{align}
+This implies that $\vec{x} \in \mathcal{N}(A)$ as desired, so $\mathcal{R}(A^\top)^\perp \subseteq \mathcal{N}(A)$.
+
+Thus, we have shown that $\mathcal{N}(A) = \mathcal{R}(A^\top)^\perp$, and so by the Orthogonal Decomposition Theorem we have $\mathcal{N}(A) \oplus \mathcal{R}(A^\top) = \R^n$.
+\end{proof}
+
+This will help us solve a very important optimization problem, which is considered ``dual'' to least squares in some sense. Recall that least squares helps us find an approximate solution to the linear system $A\vec{x} = \vec{y}$, when $A$ is a tall matrix with full column rank. In other words, the linear system is over-determined, there are many more equations than unknowns, and there are generally no exact solutions, so we pick the solution with minimum squared error.
+
+What about when $A$ is a wide matrix with full row rank? There are now more unknowns than equations, and infinitely many exact solutions. So how do we pick one solution in particular? It really depends on which engineering problem we are solving. One common solution is to pick the minimum-energy or minimum-norm problem, which is the solution to the optimization problem:
+\begin{equation}\label{eq:minnorm}
+    \min_{\vec{x} \in \R^n} \norm{\vec{x}}_2^2 \quad \st \quad A\vec{x} = \vec{y}.
+\end{equation}
+
+Note that this principle of choosing the smallest or simplest solution --- the ``Occam's Razor'' principle --- is much more broadly generalized beyond the case of finding solutions to linear systems, and is used within control theory and machine learning. But we deal with just this linear system case for now.
+
+\begin{theorem}[Minimum-Norm Solution]\label{thm:minnorm}
+Let $A \in \R^{m \times n}$ have full row rank, and let $\vec{y} \in \R^m$. Then the solution to Equation~\eqref{eq:minnorm} is given by
+\begin{equation}
+    \vec{x}^\star = A^\top (AA^\top)^{-1} \vec{y}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Observe that the constraint $A\vec{x} = \vec{y}$ under-specifies the $\vec{x}$ --- in particular, any component of $\vec{x}$ in $\mathcal{N}(A)$ will not affect the constraint and only the objective. In this sense, it is ``wasteful'', and we should intuitively remove it. This motivates using Theorem~\ref{thm:ftla} to decompose $\vec{x}$ into a component inside $\mathcal{N}(A)$ --- which we want to remove --- and a component inside $\mathcal{R}(A^\top)$ --- which we will optimize over.
+
+Indeed, write $\vec{x} = \vec{u} + \vec{v}$, where $\vec{u} \in \mathcal{N}(A)$ and $\vec{v} \in \mathcal{R}(A^\top)$. Thus, there exists $\vec{w} \in \R^m$ such that $\vec{v} = A^\top \vec{w}$. The constraint becomes
+\begin{align}
+    \vec{y} &= A\vec{x} \\
+    &= A(\vec{u} + \vec{v}) \\
+    &= A\vec{u} + A\vec{v} \\
+    &= \vec{0} + AA^\top \vec{w} \\
+    &= AA^\top \vec{w}.
+\end{align}
+And the objective function becomes
+\begin{align}
+    \norm{\vec{x}}_2^2 &= \norm{\vec{u} + \vec{v}}_2^2 \\
+    &= \vec{u}^\top \vec{u} + 2\vec{u}^\top \vec{v} + \vec{v}^\top \vec{v} \\
+    &= \norm{\vec{u}}_2^2 + 2\vec{v}^\top \vec{u} + \norm{\vec{v}}_2^2 \\
+    &= \norm{\vec{u}}_2^2 + 2(A^\top \vec{w})^\top \vec{u} + \norm{\vec{v}}_2^2 \\
+    &= \norm{\vec{u}}_2^2 + 2\vec{w}^\top A\vec{u} + \norm{\vec{v}}_2^2 \\
+    &= \norm{\vec{u}}_2^2 + 2\vec{w}^\top \vec{0} + \norm{\vec{v}}_2^2 \\
+    &= \norm{\vec{u}}_2^2 + \norm{\vec{v}}_2^2 \\
+    &= \norm{\vec{u}}_2^2 + \norm{A^\top \vec{w}}_2^2
+\end{align}
+
+Thus, the minimum-norm problem can be reformulated in terms of $\vec{u}$ and $\vec{w}$:
+\begin{align}
+    \min_{\substack{\vec{u} \in \R^n \\ \vec{w} \in \R^m}} \quad & \norm{\vec{u}}_2^2 + \norm{A^\top \vec{w}}_2^2 \\
+    \st \quad & \vec{y} = AA^\top \vec{w} \\
+    & A\vec{u} = \vec{0}.
+\end{align}
+
+Now, because $A$ has full row rank, $AA^\top$ is invertible, so the first constraint implies that $\vec{w}^\star = (AA^\top)^{-1}\vec{y}$, so $\vec{v}^\star = A^\top \vec{w}^\star = A^\top(AA^\top)^{-1}\vec{y}$. And because we are trying to minimize the objective, which only involves $\vec{u}$ through $\norm{\vec{u}}_2^2$, the ideal solution is to set $\vec{u}^\star = \vec{0}$, which also satisfies the second constraint and so is feasible. Thus $\vec{x}^\star = \vec{v}^\star = A^\top(AA^\top)^{-1}\vec{y}$ as desired.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Symmetric Matrices}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Symmetric matrices are a sub-class of matrices which have many special properties, and in engineering applications one usually tries to work with symmetric matrices as much as possible.
+
+\begin{definition}[Symmetric Matrix]
+Let $A \in \R^{n \times n}$ be a square matrix. We say that $A$ is \emph{symmetric} if $A = A^\top$. The set of all symmetric matrices is denoted $\mathbb{S}^n$.
+\end{definition}
+
+Equivalently, $A_{ij} = A_{ji}$ for all $i$ and $j$.
+
+\begin{example}
+The $2 \times 2$ matrix $\begin{bmatrix} a & b \\ b & c \end{bmatrix}$ is symmetric.
+\end{example}
+
+\begin{example}[Covariance Matrices]
+Any matrix of the form $A = BB^\top$, such as the covariance matrices we will discuss in the next section, is a symmetric matrix, since
+\begin{equation}
+    A^\top = (BB^\top)^\top = (B^\top)^\top (B)^\top = BB^\top = A.
+\end{equation}
+\end{example}
+
+\begin{example}[Adjacency Matrix]
+Consider an undirected connected graph $G = (V, E)$. Its adjacency matrix $A$ has coordinate $A_{ij} = 1$ if $(i,j) \in E$, and $A_{ij} = 0$ otherwise. Since the graph is undirected, $(i,j) \in E$ if and only if $(j,i) \in E$, so $A_{ij} = A_{ji}$, and so $A$ is a symmetric matrix.
+\end{example}
+
+Why do we care about symmetric matrices? Symmetric matrices have two nice properties: real eigenvalues, and guaranteed diagonalizability.
+
+In general, a (non-symmetric) matrix need not be diagonalizable. For example, the matrix $A = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$ is not diagonalizable. How can we characterize the diagonalizability of a matrix, then?
+
+First, we will need the following definitions.
+
+\begin{definition}[Multiplicities]
+Let $A \in \R^{n \times n}$, and let $\lambda$ be an eigenvalue of $A$.
+\begin{enumerate}[label=(\alph*)]
+    \item The \emph{algebraic multiplicity} $\mu$ of eigenvalue $\lambda$ in $A$ is the number of times $\lambda$ is a root of the characteristic polynomial $p_A(x) \triangleq \det(xI - A)$ of $A$, i.e., it is the power of $(x - \lambda)$ in the factorization of $p_A(x)$.
+    \item The \emph{geometric multiplicity} $\phi$ of eigenvalue $\lambda$ in $A$ is the dimension of the null space $\Phi \triangleq \mathcal{N}(\lambda I - A)$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Diagonalizability]
+A square matrix $A \in \R^{n \times n}$ is diagonalizable if and only if every eigenvalue of $A$ has equal algebraic and geometric multiplicities.
+\end{theorem}
+
+\begin{example}[Multiplicities of Degenerate Matrix]
+We were earlier told that the matrix $A = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$ is not diagonalizable. To check this, let us compute its eigenvalues, algebraic multiplicities, and geometric multiplicities.
+
+First, its characteristic polynomial is
+\begin{align}
+    p_A(x) &= \det(xI - A) \\
+    &= \det\left(\begin{bmatrix} x-1 & -1 \\ 0 & x-1 \end{bmatrix}\right) \\
+    &= (x-1)^2.
+\end{align}
+Thus, $A$ has only one eigenvalue $\lambda = 1$. Since $(x-1)$ has power 2 in the factorization of $p_A$, the eigenvalue $\lambda = 1$ has algebraic multiplicity $\mu = 2$.
+
+The corresponding null space is
+\begin{align}
+    \Phi &= \mathcal{N}(\lambda I - A) \\
+    &= \mathcal{N}\left(\begin{bmatrix} 0 & -1 \\ 0 & 0 \end{bmatrix}\right) \\
+    &= \text{span}\left(\begin{bmatrix} 1 \\ 0 \end{bmatrix}\right)
+\end{align}
+which has dimension $\phi = 1$. Thus, for $\lambda = 1$, we have $\mu \neq \phi$ and the matrix is indeed not diagonalizable.
+\end{example}
+
+This allows us to formally state the spectral theorem.
+
+\begin{theorem}[Spectral Theorem]\label{thm:spectral}
+Let $A \in \mathbb{S}^n$ have eigenvalues $\lambda_i$ with algebraic multiplicities $\mu_i$, eigenspaces $\Phi_i \triangleq \mathcal{N}(\lambda_i I - A)$, and geometric multiplicities $\phi_i \triangleq \dim(\Phi_i)$.
+\begin{enumerate}[label=(\alph*)]
+    \item All eigenvalues are real: $\lambda_i \in \R$ for each $i$.
+    \item Eigenspaces corresponding to different eigenvalues are orthogonal: $\Phi_i$ and $\Phi_j$ are orthogonal subspaces, i.e., for every $\vec{p}_i \in \Phi_i$ and $\vec{p}_j \in \Phi_j$ we have $\vec{p}_i^\top \vec{p}_j = 0$.
+    \item $A$ is diagonalizable: $\mu_i = \phi_i$ for each $i$.
+    \item $A$ is \emph{orthonormally diagonalizable}; there exists an \emph{orthonormal} matrix $U \in \R^{n \times n}$ and \emph{diagonal} matrix $\Lambda \in \R^{n \times n}$ such that $A = U\Lambda U^\top$.
+\end{enumerate}
+\end{theorem}
+
+Recall that orthonormal matrices are matrices whose columns are orthonormal, i.e., are pairwise orthogonal and unit-norm. Orthonormal matrices $U$ have the nice property that $U^\top U = I$, and if $U$ is square, then $U^\top = U^{-1}$.
+
+One nice thing about diagonalization is that we can read off the eigenvalues and eigenvectors from the components of the diagonalization.
+
+\begin{theorem}
+Let $A \in \mathbb{S}^n$ have orthonormal diagonalization $A = U\Lambda U^\top$, where $U = \begin{bmatrix} \vec{u}_1 & \cdots & \vec{u}_n \end{bmatrix} \in \R^{n \times n}$ is square orthonormal, and $\Lambda = \text{diag}(\lambda_1, \ldots, \lambda_n) \in \R^{n \times n}$ is diagonal. Then for each $i$, the pair $(\lambda_i, \vec{u}_i)$ is an eigenvalue-eigenvector pair for $A$.
+\end{theorem}
+
+Using this, we can work with another nice property of the orthonormal diagonalization. Namely, we can read off bases for $\mathcal{N}(A)$ and $\mathcal{R}(A)$. That is, a basis for $\mathcal{N}(A)$ is the set of eigenvectors $\vec{u}_i$ corresponding to the eigenvalues $\lambda_i$ of $A$ which are equal to 0. Since $U$ is orthonormal, the remaining eigenvectors $\vec{u}_i$ span the orthogonal complement to $\mathcal{N}(A)$. But by the fundamental theorem of linear algebra, we have $\mathcal{N}(A)^\perp = \mathcal{R}(A^\top) = \mathcal{R}(A)$, so these eigenvectors form a basis for $\mathcal{R}(A)$.
+
+Before we get into those, we will first state and solve a quick optimization problem which yields the eigenvalues of a symmetric matrix. This optimization problem turns out to be quite useful for further study of optimization.
+
+\begin{theorem}[Variational Characterization of Eigenvalues]\label{thm:rayleigh}
+Let $A \in \mathbb{S}^n$. Let $\lambda_{\min}\{A\}$ and $\lambda_{\max}\{A\}$ be the maximum and minimum eigenvalues of $A$ (which is well-defined since by the spectral theorem, all eigenvalues of $A$ are real). Then
+\begin{align}
+    \lambda_{\max}\{A\} &= \max_{\substack{\vec{x} \in \R^n \\ \vec{x} \neq \vec{0}}} \frac{\vec{x}^\top A \vec{x}}{\vec{x}^\top \vec{x}} = \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_2 = 1}} \vec{x}^\top A \vec{x} \\
+    \lambda_{\min}\{A\} &= \min_{\substack{\vec{x} \in \R^n \\ \vec{x} \neq \vec{0}}} \frac{\vec{x}^\top A \vec{x}}{\vec{x}^\top \vec{x}} = \min_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_2 = 1}} \vec{x}^\top A \vec{x}.
+\end{align}
+The term $\frac{\vec{x}^\top A \vec{x}}{\vec{x}^\top \vec{x}}$ is called the \emph{Rayleigh quotient} of $A$; it is a function of $\vec{x} \in \R^n$.
+\end{theorem}
+
+This characterization motivates defining a new sub-class (or really several new sub-classes) of matrices.
+
+\begin{definition}[Positive Semidefinite and Positive Definite Matrices]
+Let $A \in \mathbb{S}^n$. We say that $A$ is \emph{positive semidefinite} (PSD), denoted $A \in \mathbb{S}^n_+$, if $\vec{x}^\top A \vec{x} \geq 0$ for all $\vec{x}$. We say that $A$ is \emph{positive definite} (PD), denoted $A \in \mathbb{S}^n_{++}$, if $\vec{x}^\top A \vec{x} > 0$ for all nonzero $\vec{x}$.
+\end{definition}
+
+There are also negative semidefinite (NSD) and negative definite (ND) symmetric matrices, defined analogously. There are also indefinite symmetric matrices, which are none of the above. It is clear to see that PD matrices are themselves PSD.
+
+\begin{theorem}
+We have $A \in \mathbb{S}^n_+$ if and only if each eigenvalue of $A$ is non-negative. Also, $A \in \mathbb{S}^n_{++}$ if and only if each eigenvalue of $A$ is positive.
+\end{theorem}
+
+The final construction we discuss is that of the positive semidefinite square root.
+
+\begin{theorem}
+Let $A \in \mathbb{S}^n_+$. Then there exists a unique symmetric PSD matrix $B \in \mathbb{S}^n_+$, usually denoted $B = A^{1/2}$, such that $A = B^2$.
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Principal Component Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Principal components analysis is a way to recover the eponymous principal components of the data. These principal components are those that are most representative of the data structure. Formally, if we have data in $\R^d$, we want to find an underlying $p$-dimensional linear structure, where $p \ll d$.
+
+This idea has many, many use cases. For example, in modern machine learning, most data has thousands or millions of dimensions. In order to visualize it properly, we need to reduce its dimension to a reasonable number, in order to get an idea about the underlying structure of the data.
+
+Let us first lay out some notation and definitions. Suppose we have the data points $\vec{x}_1, \ldots, \vec{x}_n \in \R^d$. We organize these into a \emph{data matrix} $X$ where data points form the rows:
+\begin{equation}
+    X \triangleq \begin{bmatrix} \vec{x}_1^\top \\ \vdots \\ \vec{x}_n^\top \end{bmatrix} \in \R^{n \times d} \quad \text{so that} \quad X^\top = \begin{bmatrix} \vec{x}_1 & \cdots & \vec{x}_n \end{bmatrix} \in \R^{d \times n}.
+\end{equation}
+
+We define the \emph{covariance matrix} $C \in \R^{d \times d}$ by
+\begin{equation}
+    C \triangleq \frac{1}{n} X^\top X = \frac{1}{n} \begin{bmatrix} \vec{x}_1 & \cdots & \vec{x}_n \end{bmatrix} \begin{bmatrix} \vec{x}_1^\top \\ \vdots \\ \vec{x}_n^\top \end{bmatrix} = \frac{1}{n} \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top.
+\end{equation}
+We see that $C$ is symmetric since $X^\top X$ is symmetric, so really $C \in \mathbb{S}^d$.
+
+We now discuss how to choose the first principal component $\vec{w}_1 \in \R^d$. To preserve the structure of the underlying data as much as possible, we want the vectors $\vec{x}_i$ projected onto the span of $\vec{w}_1$ to be as close as possible to the original vectors $\vec{x}_i$. We also want $\norm{\vec{w}_1}_2 = 1$. Thus, the error of the projection across all data points is
+\begin{equation}
+    \text{err}(\vec{w}_1) = \frac{1}{n} \sum_{i=1}^{n} \norm{\vec{x}_i - \vec{w}_1(\vec{w}_1^\top \vec{x}_i)}_2^2.
+\end{equation}
+
+Expanding, we have
+\begin{align}
+    \text{err}(\vec{w}_1) &= \frac{1}{n} \sum_{i=1}^{n} \norm{\vec{x}_i - \vec{w}_1(\vec{w}_1^\top \vec{x}_i)}_2^2 \\
+    &= \frac{1}{n} \sum_{i=1}^{n} (\norm{\vec{x}_i}_2^2 - (\vec{x}_i^\top \vec{w}_1)^2).
+\end{align}
+
+Now solving the principal components optimization problem gives
+\begin{align}
+    \min_{\substack{\vec{w}_1 \in \R^d \\ \norm{\vec{w}_1}_2 = 1}} \text{err}(\vec{w}_1) &= \frac{1}{n} \sum_{i=1}^{n} \norm{\vec{x}_i}_2^2 - \max_{\substack{\vec{w}_1 \in \R^d \\ \norm{\vec{w}_1}_2 = 1}} \vec{w}_1^\top C \vec{w}_1 \\
+    &= \frac{1}{n} \sum_{i=1}^{n} \norm{\vec{x}_i}_2^2 - \lambda_{\max}\{C\}
+\end{align}
+with the $\vec{w}_1$ achieving this upper bound being the eigenvector $\vec{u}_{\max}$ corresponding to the eigenvalue $\lambda_{\max}\{C\}$. Thus, the first principal component is exactly an eigenvector corresponding to the largest eigenvalue of the covariance matrix $C = X^\top X / n$.
+
+This computation is a special case of the singular value decomposition, which is used in practice to compute the PCA of a dataset; understanding this decomposition will allow us to neatly compute the other principal components (i.e., second, third, fourth,...), as well.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Singular Value Decomposition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[SVD]
+Let $A \in \R^{m \times n}$ have rank $r$. A \emph{singular value decomposition} (SVD) of $A$ is a decomposition of the form
+\begin{align}
+    A &= U\Sigma V^\top \\
+    &= \begin{bmatrix} U_r & U_{m-r} \end{bmatrix} \begin{bmatrix} \Sigma_r & 0_{r \times (n-r)} \\ 0_{(m-r) \times r} & 0_{(m-r) \times (n-r)} \end{bmatrix} \begin{bmatrix} V_r^\top \\ V_{n-r}^\top \end{bmatrix} \\
+    &= U_r \Sigma_r V_r^\top \\
+    &= \sum_{i=1}^{r} \sigma_i \vec{u}_i \vec{v}_i^\top,
+\end{align}
+where:
+\begin{itemize}
+    \item $U \in \R^{m \times m}$, $U_r \in \R^{m \times r}$, $U_{m-r} \in \R^{m \times (m-r)}$, $V \in \R^{n \times n}$, $V_r \in \R^{n \times r}$, and $V_{n-r} \in \R^{n \times (n-r)}$ are orthonormal matrices, where $U = \begin{bmatrix} U_r & U_{m-r} \end{bmatrix}$ has columns $\vec{u}_1, \ldots, \vec{u}_m$ (\emph{left singular vectors}) and $V = \begin{bmatrix} V_r & V_{n-r} \end{bmatrix}$ has columns $\vec{v}_1, \ldots, \vec{v}_n$ (\emph{right singular vectors}).
+    \item $\Sigma_r = \text{diag}(\sigma_1, \ldots, \sigma_r) \in \R^{r \times r}$ is a diagonal matrix with ordered positive entries $\sigma_1 \geq \cdots \geq \sigma_r > 0$ (\emph{singular values}), and the zero matrices in $\Sigma$ are shaped to ensure that $\Sigma \in \R^{m \times n}$.
+\end{itemize}
+\end{definition}
+
+Suppose that $A$ is tall (so $m > n$) with full column rank $n$. Then the SVD looks like:
+\begin{equation}
+    A = U \begin{bmatrix} \Sigma_n \\ 0_{(m-n) \times n} \end{bmatrix} V^\top.
+\end{equation}
+
+On the other hand, if $A$ is wide (so $m < n$) with full row rank $m$, then the SVD looks like:
+\begin{equation}
+    A = U \begin{bmatrix} \Sigma_m & 0_{m \times (n-m)} \end{bmatrix} V^\top.
+\end{equation}
+
+The last (summation) form of the SVD is called the \emph{dyadic SVD}; this is because terms of the form $\vec{p}\vec{q}^\top$ are called dyads, and the dyadic SVD expresses the matrix $A$ as the sum of dyads.
+
+All forms of the SVD are useful conceptually and computationally, depending on the problem we are working on.
+
+We now discuss a method to construct the SVD. Suppose $A \in \R^{m \times n}$ has rank $r$. We consider the symmetric matrix $A^\top A$ which has rank $r$ and thus $r$ nonzero eigenvalues, which are positive. We can order its eigenvalues as $\lambda_1 \geq \cdots \geq \lambda_r > \lambda_{r+1} = \cdots = \lambda_n = 0$, say with corresponding orthonormal eigenvectors $\vec{v}_1, \ldots, \vec{v}_n$.
+
+Then, for $i \in \{1, \ldots, r\}$, we define $\sigma_i \triangleq \sqrt{\lambda_i} > 0$, and $\vec{u}_i \triangleq A\vec{v}_i / \sigma_i$. This only gives us $r$ vectors $\vec{u}_i$, but we need $m$ of them to construct $U \in \R^{m \times m}$. To find the remaining $\vec{u}_i$ we use Gram-Schmidt on the matrix $\begin{bmatrix} \vec{u}_1 & \cdots & \vec{u}_r & I \end{bmatrix} \in \R^{m \times (r+m)}$, throwing out the $r$ vectors whose projection residual onto previously processed vectors is 0.
+
+\begin{theorem}
+In the context of the SVD construction algorithm, $\{\vec{u}_1, \ldots, \vec{u}_m\}$ is an orthonormal set.
+\end{theorem}
+
+\begin{theorem}
+In the context of the SVD construction algorithm, we have $A = U\Sigma V^\top$.
+\end{theorem}
+
+The SVD is not unique: the Gram-Schmidt process could have used any basis for $\R^m$ that wasn't the columns of $I$ and still have been valid; if you had multiple eigenvectors of $A^\top A$ with the same eigenvalue then the choice of eigenvectors in the diagonalization would not be unique; and even if you didn't have multiple eigenvectors with the same eigenvalue, the eigenvectors would only be determined up to a sign change $\vec{v} \mapsto -\vec{v}$ anyways.
+
+We now discuss the geometry of the SVD, especially how each component of the SVD acts on vectors. The key insight is to interpret $U$ as a rotation or reflection, $\Sigma$ as a scaling, and $V^\top$ as another rotation or reflection.
+
+Since $V^\top$ is an orthonormal matrix, it represents a rotation and/or reflection, and so it maps the unit circle to the unit circle. The diagonal matrix $\Sigma$ will scale each coordinate, obtaining an ellipse. Finally, the orthonormal matrix $U$ will map this axis-aligned ellipse to an ellipse which isn't necessarily axis-aligned.
+
+To understand the impact of $A$ on any general vector $\vec{x}$, we write it in the $V$ basis: $\vec{x} = \alpha_1\vec{v}_1 + \alpha_2\vec{v}_2$, and use linearity to obtain $A\vec{x} = \alpha_1\sigma_1\vec{u}_1 + \alpha_2\sigma_2\vec{u}_2$.
+
+This perspective also says that $\sigma_1$ is the maximum scaling of any vector obtained by multiplication by $A$, and $\sigma_r$ is the minimum nonzero scaling. (If $r < n$, i.e., $A$ is not full column rank, then there are some nonzero vectors in $\R^n$ which are sent to $\vec{0}$ by $A$, so the minimum scaling is 0.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Low-Rank Approximation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Sometimes, in real datasets, matrices have billions or trillions of entries. Storing all of them would be prohibitively expensive, and we would need a way to compress them down into their most important parts. This turns out to be doable via the SVD, as we will see.
+
+To formally talk about a compression algorithm that stores a compressed version of the data with minimal error, we need to talk about what kind of errors are appropriate to discuss in the context of matrices. This motivates thinking about matrix norms.
+
+There are two ways to think about a matrix. The first way is as a block of numbers. This norm is called the \emph{Frobenius norm}, and it corresponds to unrolling an $m \times n$ matrix into a length $m \cdot n$ vector and taking its $\ell_2$-norm.
+
+\begin{definition}[Frobenius Norm]
+For a matrix $A \in \R^{m \times n}$, its Frobenius norm is defined as
+\begin{equation}
+    \norm{A}_F \triangleq \sqrt{\sum_{i=1}^{m} \sum_{j=1}^{n} A_{ij}^2}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}
+For a matrix $A \in \R^{m \times n}$, we have $\norm{A}_F^2 = \text{tr}(A^\top A)$.
+\end{theorem}
+
+\begin{theorem}
+For a matrix $A \in \R^{m \times n}$ and orthonormal matrices $U \in \R^{m \times m}$, $V \in \R^{n \times n}$, we have
+\begin{equation}
+    \norm{UAV}_F = \norm{UA}_F = \norm{AV}_F = \norm{A}_F.
+\end{equation}
+\end{theorem}
+
+\begin{theorem}
+For a matrix $A \in \R^{m \times n}$ with rank $r$ and singular values $\sigma_1 \geq \cdots \geq \sigma_r > 0$, we have
+\begin{equation}
+    \norm{A}_F^2 = \sum_{i=1}^{r} \sigma_i^2.
+\end{equation}
+\end{theorem}
+
+The second way to think about a matrix is as a linear transformation. A suitable notion of size in this case is the largest scaling factor of the matrix on any unit vector; this is called the \emph{spectral norm} or the matrix $\ell_2$-norm.
+
+\begin{definition}[Spectral Norm]
+For a matrix $A \in \R^{m \times n}$, its spectral norm is defined by
+\begin{equation}
+    \norm{A}_2 \triangleq \max_{\substack{\vec{x} \in \R^n \\ \norm{\vec{x}}_2 = 1}} \norm{A\vec{x}}_2.
+\end{equation}
+\end{definition}
+
+\begin{theorem}
+For a matrix $A \in \R^{m \times n}$ with rank $r$ and singular values $\sigma_1 \geq \cdots \geq \sigma_r > 0$, we have
+\begin{equation}
+    \norm{A}_2 = \sigma_1.
+\end{equation}
+\end{theorem}
+
+To present our main theorems about how to approximate the matrix well under these norms, we define notation. Fix a matrix $A \in \R^{m \times n}$. For convenience, let $p \triangleq \min\{m, n\}$. Suppose that $A$ has rank $r \leq p$, and that $A$ has SVD $A = \sum_{i=1}^{p} \sigma_i \vec{u}_i \vec{v}_i^\top$ where $\sigma_1 \geq \cdots \geq \sigma_r$ and define $\sigma_{r+1} = \sigma_{r+2} = \cdots = 0$. Then, for $k \leq p$, we can define
+\begin{equation}
+    A_k \triangleq \sum_{i=1}^{k} \sigma_i \vec{u}_i \vec{v}_i^\top.
+\end{equation}
+
+Note that if $k \ll p$, then $A_k$ can be stored much more efficiently than $A$. It turns out that $A_k$ indeed well-approximates $A$ in the sense of the two norms. The two results are collectively known as the \emph{Eckart-Young} (sometimes Eckart-Young-Mirsky) theorem(s).
+
+\begin{theorem}[Eckart-Young Theorem for Spectral Norm]
+We have
+\begin{equation}
+    A_k \in \argmin_{\substack{B \in \R^{m \times n} \\ \text{rank}(B) \leq k}} \norm{A - B}_2,
+\end{equation}
+or, equivalently,
+\begin{equation}
+    \norm{A - A_k}_2 \leq \norm{A - B}_2, \quad \forall B \in \R^{m \times n}: \text{rank}(B) \leq k.
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Eckart-Young Theorem for Frobenius Norm]
+We have
+\begin{equation}
+    A_k \in \argmin_{\substack{B \in \R^{m \times n} \\ \text{rank}(B) \leq k}} \norm{A - B}_F,
+\end{equation}
+or, equivalently,
+\begin{equation}
+    \norm{A - A_k}_F^2 \leq \norm{A - B}_F^2, \quad \forall B \in \R^{m \times n}: \text{rank}(B) \leq k.
+\end{equation}
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{(OPTIONAL) Block Matrix Identities}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this section, we list many ways to manipulate block matrices. Since each fact in here is something you can derive yourself using definitions, you may use any of them without proof.
+
+\subsection{Transposes of Block Matrices}
+\begin{align}
+    \begin{bmatrix} \vec{x}_1 & \cdots & \vec{x}_n \end{bmatrix}^\top &= \begin{bmatrix} \vec{x}_1^\top \\ \vdots \\ \vec{x}_n^\top \end{bmatrix} \\
+    \begin{bmatrix} A & B \end{bmatrix}^\top &= \begin{bmatrix} A^\top \\ B^\top \end{bmatrix} \\
+    \begin{bmatrix} A & B \\ C & D \end{bmatrix}^\top &= \begin{bmatrix} A^\top & C^\top \\ B^\top & D^\top \end{bmatrix}
+\end{align}
+
+\subsection{Block Matrix Products}
+\begin{align}
+    \begin{bmatrix} \vec{x}_1 & \cdots & \vec{x}_n \end{bmatrix} \begin{bmatrix} \vec{y}_1^\top \\ \vdots \\ \vec{y}_n^\top \end{bmatrix} &= \sum_{i=1}^{n} \vec{x}_i \vec{y}_i^\top \\
+    A \begin{bmatrix} \vec{x}_1 & \cdots & \vec{x}_n \end{bmatrix} &= \begin{bmatrix} A\vec{x}_1 & \cdots & A\vec{x}_n \end{bmatrix} \\
+    A \begin{bmatrix} B & C \end{bmatrix} &= \begin{bmatrix} AB & AC \end{bmatrix} \\
+    \begin{bmatrix} A \\ B \end{bmatrix} C &= \begin{bmatrix} AC \\ BC \end{bmatrix}
+\end{align}
+
+\subsection{Quadratic Forms}
+\begin{align}
+    \vec{x}^\top A \vec{y} &= \sum_i \sum_j A_{ij} x_i y_j \\
+    \begin{bmatrix} \vec{x} \\ \vec{y} \end{bmatrix}^\top \begin{bmatrix} A & B \\ C & D \end{bmatrix} \begin{bmatrix} \vec{x} \\ \vec{y} \end{bmatrix} &= \vec{x}^\top A \vec{x} + \vec{x}^\top B \vec{y} + \vec{y}^\top C \vec{x} + \vec{y}^\top D \vec{y}
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Vector Calculus}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Gradient, Jacobian, and Hessian}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To motivate this section, we start with a familiar concept: the derivatives of a scalar function $f: \R \to \R$ which takes in scalar input and produces a scalar output. The derivative quantifies the (instantaneous) rate of change of the function due to the change of its input.
+
+\begin{definition}[Derivative for Scalar Functions]
+Let $f: \R \to \R$ be differentiable. The \emph{derivative} of $f$ with respect to $x$ is the function $\frac{\mathrm{d}f}{\mathrm{d}x}: \R \to \R$ defined by
+\begin{equation}
+    \frac{\mathrm{d}f}{\mathrm{d}x}(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h}.
+\end{equation}
+\end{definition}
+
+In this section, we aim to generalize the concept of derivatives beyond scalar functions. We will focus on two types of functions:
+\begin{enumerate}
+    \item \emph{Multivariate functions} $f: \R^n \to \R$ which take a vector $\vec{x} \in \R^n$ as input and produce a scalar $f(\vec{x}) \in \R$ as output.
+    \item \emph{Vector-valued functions} $\vec{f}: \R^n \to \R^m$ which take a vector $\vec{x} \in \R^n$ as input and produce another vector $\vec{f}(\vec{x}) \in \R^m$ as output.
+\end{enumerate}
+
+\begin{theorem}[Chain Rule for Scalar Functions]
+Let $f: \R \to \R$ and $g: \R \to \R$ be two differentiable scalar functions, and let $h: \R \to \R$ be defined as $h(x) = f(g(x))$ for all $x \in \R$. Then $h$ is differentiable, and
+\begin{equation}
+    \frac{\mathrm{d}h}{\mathrm{d}x}(x) = \frac{\mathrm{d}f}{\mathrm{d}g}(g(x)) \cdot \frac{\mathrm{d}g}{\mathrm{d}x}(x).
+\end{equation}
+\end{theorem}
+
+\subsection{Partial Derivatives}
+
+For multivariate functions $f: \R^n \to \R$, when we talk about the rate of change of the function with respect to its input, we need to specify which input we are talking about. Partial derivatives quantify this and give us the rate of change of the function due to the change of one of its inputs, say $x_i$, while keeping all other inputs fixed.
+
+\begin{definition}[Partial Derivative]
+Let $f: \R^n \to \R$ be differentiable. The \emph{partial derivative} of $f$ with respect to $x_i$ is the function $\frac{\partial f}{\partial x_i}: \R^n \to \R$ defined by
+\begin{equation}
+    \frac{\partial f}{\partial x_i}(\vec{x}) = \lim_{h \to 0} \frac{f(x_1, \ldots, x_i + h, \ldots, x_n) - f(\vec{x})}{h},
+\end{equation}
+or equivalently,
+\begin{equation}
+    \frac{\partial f}{\partial x_i}(\vec{x}) = \lim_{h \to 0} \frac{f(\vec{x} + h \cdot \vec{e}_i) - f(\vec{x})}{h}
+\end{equation}
+where $\vec{e}_i$ is the $i$th standard basis vector.
+\end{definition}
+
+\textbf{Problem Solving Strategy.} \emph{To compute the partial derivative $\frac{\partial f}{\partial x_i}$, pretend that all $x_j$ for $j \neq i$ are constants, then take the ordinary derivative in $x_i$.}
+
+\begin{theorem}[Chain Rule For Multivariate Functions]
+Let $f: \R^n \to \R$ and $\vec{g}: \R \to \R^n$ be differentiable functions. Define the function $h: \R \to \R$ by $h(x) = f(\vec{g}(x))$ for all $x \in \R$. Then $h$ is differentiable and has derivative
+\begin{equation}
+    \frac{\mathrm{d}h}{\mathrm{d}x}(x) = \sum_{i=1}^{n} \frac{\partial f}{\partial g_i}(\vec{g}(x)) \cdot \frac{\mathrm{d}g_i}{\mathrm{d}x}(x).
+\end{equation}
+\end{theorem}
+
+\subsection{Gradient}
+
+We will now use the definition of partial derivatives to introduce the gradient of multivariate functions.
+
+\begin{definition}[Gradient]
+Let $f: \R^n \to \R$ be a differentiable function. The \emph{gradient} of $f$ is the function $\nabla f: \R^n \to \R^n$ defined by
+\begin{equation}
+    \nabla f(\vec{x}) = \begin{bmatrix} \frac{\partial f}{\partial x_1}(\vec{x}) \\ \vdots \\ \frac{\partial f}{\partial x_n}(\vec{x}) \end{bmatrix}.
+\end{equation}
+\end{definition}
+
+Note that the gradient is a column vector. We will now list two important geometric properties of the gradient.
+
+\begin{theorem}
+Let $\vec{x} \in \R^n$. The gradient $\nabla f(\vec{x})$ points in the direction of \emph{steepest ascent} at $\vec{x}$, i.e., the direction around $\vec{x}$ in which $f$ has the maximum rate of change. Furthermore, this rate of change is quantified by the norm $\norm{\nabla f(\vec{x})}_2$.
+\end{theorem}
+
+\begin{definition}[Level Set]
+Let $f: \R^n \to \R$ be a function, and $\alpha \in \R$ be a scalar.
+\begin{itemize}
+    \item The $\alpha$-\emph{level set} of $f$ is the set of points $\vec{x}$ such that $f(\vec{x}) = \alpha$:
+    \begin{equation}
+        L_\alpha(f) = \{\vec{x} \in \R^n \mid f(\vec{x}) = \alpha\}.
+    \end{equation}
+    \item The $\alpha$-\emph{sublevel set} of $f$ is the set of points $\vec{x}$ such that $f(\vec{x}) \leq \alpha$:
+    \begin{equation}
+        L_{\leq \alpha}(f) = \{\vec{x} \in \R^n \mid f(\vec{x}) \leq \alpha\}.
+    \end{equation}
+    \item The $\alpha$-\emph{superlevel set} of $f$ is the set of points $\vec{x}$ such that $f(\vec{x}) \geq \alpha$:
+    \begin{equation}
+        L_{\geq \alpha}(f) = \{\vec{x} \in \R^n \mid f(\vec{x}) \geq \alpha\}.
+    \end{equation}
+\end{itemize}
+\end{definition}
+
+\begin{theorem}
+Let $\vec{x} \in \R^n$ and suppose $f(\vec{x}) = \alpha$. Then $\nabla f(\vec{x})$ is orthogonal to the hyperplane which is tangent at $\vec{x}$ to the $\alpha$-level set of $f$.
+\end{theorem}
+
+\begin{example}[Gradient of the Squared $\ell_2$ Norm]
+Consider the function $f(\vec{x}) = \norm{\vec{x}}_2^2$ where $\vec{x} \in \R^2$. We have
+\begin{equation}
+    \nabla f(\vec{x}) = \begin{bmatrix} 2x_1 \\ 2x_2 \end{bmatrix} = 2\vec{x}.
+\end{equation}
+\end{example}
+
+\begin{example}[Gradient of Linear Function]
+For the linear function $f(\vec{x}) = \vec{a}^\top \vec{x}$ where $\vec{a} \in \R^n$ is fixed, we have
+\begin{equation}
+    \nabla f(\vec{x}) = \vec{a}.
+\end{equation}
+\end{example}
+
+\begin{example}[Gradient of the Quadratic Form]
+Let $A \in \R^{n \times n}$. For the quadratic function $f(\vec{x}) = \vec{x}^\top A \vec{x}$, we have
+\begin{equation}
+    \nabla f(\vec{x}) = (A + A^\top)\vec{x}.
+\end{equation}
+If $A$ is symmetric, then $\nabla f(\vec{x}) = 2A\vec{x}$.
+\end{example}
+
+\subsection{Jacobian}
+
+We now have the tools to generalize the notion of derivatives to vector-valued functions $\vec{f}: \R^n \to \R^m$.
+
+\begin{definition}[Jacobian]
+Let $\vec{f}: \R^n \to \R^m$ be a differentiable function. The \emph{Jacobian} of $\vec{f}$ is the function $D\vec{f}: \R^n \to \R^{m \times n}$ defined as
+\begin{equation}
+    D\vec{f}(\vec{x}) = \begin{bmatrix} \nabla f_1(\vec{x})^\top \\ \vdots \\ \nabla f_m(\vec{x})^\top \end{bmatrix} = \begin{bmatrix} \frac{\partial f_1}{\partial x_1}(\vec{x}) & \cdots & \frac{\partial f_1}{\partial x_n}(\vec{x}) \\ \vdots & \ddots & \vdots \\ \frac{\partial f_m}{\partial x_1}(\vec{x}) & \cdots & \frac{\partial f_m}{\partial x_n}(\vec{x}) \end{bmatrix}.
+\end{equation}
+\end{definition}
+
+One big thing to note is that the Jacobian is different from the gradient! If $f: \R^n \to \R^1 = \R$, then its Jacobian $Df: \R^n \to \R^{1 \times n}$ is a function which outputs a row vector. This row vector is the transpose of the gradient.
+
+\begin{theorem}[Chain Rule for Vector-Valued Functions]
+Let $\vec{f}: \R^p \to \R^m$ and $\vec{g}: \R^n \to \R^p$ be differentiable functions. Let $\vec{h}: \R^n \to \R^m$ be defined as $\vec{h}(\vec{x}) = \vec{f}(\vec{g}(\vec{x}))$ for all $\vec{x} \in \R^n$. Then $\vec{h}$ is differentiable, and
+\begin{equation}
+    D\vec{h}(\vec{x}) = [D\vec{f}(\vec{g}(\vec{x}))][D\vec{g}(\vec{x})].
+\end{equation}
+\end{theorem}
+
+\begin{corollary}
+Let $f: \R^p \to \R$ and $\vec{g}: \R^n \to \R^p$ be differentiable functions. Let $h: \R^n \to \R$ be defined as $h(\vec{x}) = f(\vec{g}(\vec{x}))$ for all $\vec{x} \in \R^n$. Then $h$ is differentiable, and
+\begin{equation}
+    \nabla h(\vec{x}) = [D\vec{g}(\vec{x})]^\top \nabla f(\vec{g}(\vec{x})).
+\end{equation}
+\end{corollary}
+
+\begin{example}
+Using the chain rule to compute the gradient of $h(\vec{x}) = \norm{A\vec{x} - \vec{y}}_2^2$:
+
+It can be written as $h(\vec{x}) = f(\vec{g}(\vec{x}))$ where $f(\vec{x}) = \norm{\vec{x}}_2^2$ and $\vec{g}(\vec{x}) = A\vec{x} - \vec{y}$. We have $D\vec{g}(\vec{x}) = A$ and $\nabla f(\vec{x}) = 2\vec{x}$. Thus
+\begin{equation}
+    \nabla h(\vec{x}) = [D\vec{g}(\vec{x})]^\top \nabla f(\vec{g}(\vec{x})) = 2A^\top(A\vec{x} - \vec{y}).
+\end{equation}
+\end{example}
+
+\subsection{Hessian}
+
+For multivariate functions $f: \R^n \to \R$, defining a second derivative as a particular matrix becomes possible; this matrix, called the Hessian, has great conceptual and computational importance.
+
+The Hessian is exactly the Jacobian of the gradient.
+
+\begin{definition}[Hessian]
+Let $f: \R^n \to \R$ be twice differentiable. The \emph{Hessian} of $f$ is the function $\nabla^2 f: \R^n \to \R^{n \times n}$ defined by
+\begin{equation}
+    \nabla^2 f(\vec{x}) = D(\nabla f)(\vec{x}) = \begin{bmatrix} \frac{\partial^2 f}{\partial x_1^2}(\vec{x}) & \cdots & \frac{\partial^2 f}{\partial x_n \partial x_1}(\vec{x}) \\ \vdots & \ddots & \vdots \\ \frac{\partial^2 f}{\partial x_1 \partial x_n}(\vec{x}) & \cdots & \frac{\partial^2 f}{\partial x_n^2}(\vec{x}) \end{bmatrix}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Clairaut's Theorem]
+Let $f: \R^n \to \R$ be twice continuously differentiable, and fix $\vec{x} \in \R^n$. Then $\nabla^2 f(\vec{x})$ is a symmetric matrix, i.e., for every $1 \leq i, j \leq n$ we have
+\begin{equation}
+    \frac{\partial^2 f}{\partial x_i \partial x_j}(\vec{x}) = \frac{\partial^2 f}{\partial x_j \partial x_i}(\vec{x}).
+\end{equation}
+\end{theorem}
+
+\begin{example}[Hessian of Squared $\ell_2$ Norm]
+For the function $f(\vec{x}) = \norm{\vec{x}}_2^2$ where $\vec{x} \in \R^2$, the gradient is $\nabla f(\vec{x}) = 2\vec{x}$. The Hessian is
+\begin{equation}
+    \nabla^2 f(\vec{x}) = \begin{bmatrix} 2 & 0 \\ 0 & 2 \end{bmatrix} = 2I.
+\end{equation}
+\end{example}
+
+\begin{example}[Hessian of $\log(1 + \norm{\vec{x}}_2^2)$]
+Consider the function $h(\vec{x}) = \log(1 + \norm{\vec{x}}_2^2)$. The gradient is
+\begin{equation}
+    \nabla h(\vec{x}) = \frac{2\vec{x}}{1 + \norm{\vec{x}}_2^2}.
+\end{equation}
+For the Hessian, computing componentwise:
+\begin{equation}
+    [\nabla^2 h(\vec{x})]_{j,k} = \frac{\partial}{\partial x_k}\left(\frac{2x_j}{1 + \norm{\vec{x}}_2^2}\right) = -\frac{4x_j x_k}{(1 + \norm{\vec{x}}_2^2)^2} + \frac{2}{1 + \norm{\vec{x}}_2^2} \cdot \mathbf{1}_{j=k}.
+\end{equation}
+In matrix form:
+\begin{equation}
+    \nabla^2 h(\vec{x}) = \frac{2}{1 + \norm{\vec{x}}_2^2} I - \frac{4\vec{x}\vec{x}^\top}{(1 + \norm{\vec{x}}_2^2)^2}.
+\end{equation}
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Taylor's Theorems}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Taylor approximation is a tool to find polynomial approximations of functions using information about the function value at a point along with the value of its first, second, and higher order derivatives.
+
+\begin{definition}[Taylor Approximation]
+Let $f: \R \to \R$ be a $k$-times continuously differentiable function, and fix $x_0 \in \R$. The $k$th degree Taylor approximation around $x_0$ is the function $\hat{f}_k(\cdot; x_0): \R \to \R$ given by
+\begin{equation}
+    \hat{f}_k(x; x_0) = f(x_0) + \frac{1}{1!}\frac{\mathrm{d}f}{\mathrm{d}x}(x_0)(x - x_0) + \cdots + \frac{1}{k!}\frac{\mathrm{d}^k f}{\mathrm{d}x^k}(x_0)(x - x_0)^k = \sum_{i=0}^{k} \frac{1}{i!}\frac{\mathrm{d}^i f}{\mathrm{d}x^i}(x_0)(x - x_0)^i.
+\end{equation}
+In particular, the first-order and second-order Taylor approximations are
+\begin{align}
+    \hat{f}_1(x; x_0) &= f(x_0) + \frac{\mathrm{d}f}{\mathrm{d}x}(x_0)(x - x_0) \\
+    \hat{f}_2(x; x_0) &= f(x_0) + \frac{\mathrm{d}f}{\mathrm{d}x}(x_0)(x - x_0) + \frac{1}{2}\frac{\mathrm{d}^2 f}{\mathrm{d}x^2}(x_0)(x - x_0)^2.
+\end{align}
+\end{definition}
+
+\begin{example}[Taylor Approximation of Cubic Function]
+Let us approximate $f(x) = x^3$ around $x_0 = 1$:
+\begin{align}
+    \hat{f}_1(x; 1) &= 1 + 3(x-1) = 3x - 2 \\
+    \hat{f}_2(x; 1) &= 3x - 2 + 3(x-1)^2 = 3x^2 - 3x + 1 \\
+    \hat{f}_3(x; 1) &= 3x^2 - 3x + 1 + (x-1)^3 = x^3.
+\end{align}
+The first-order approximation is the tangent line, the second-order captures local curvature, and the third-degree exactly equals $f$ since $f$ is cubic.
+\end{example}
+
+\begin{theorem}[Taylor's Theorem]
+Let $f: \R \to \R$ be $k$-times continuously differentiable, and fix $x_0 \in \R$. Then for all $x \in \R$:
+\begin{equation}
+    f(x) = \hat{f}_k(x; x_0) + o(|x - x_0|^k)
+\end{equation}
+where $o(|x - x_0|^k)$ denotes a remainder $R_k(x; x_0)$ such that $\lim_{x \to x_0} \frac{R_k(x; x_0)}{|x - x_0|^k} = 0$.
+\end{theorem}
+
+A more useful form:
+\begin{align}
+    f(x + \delta) &= f(x) + \frac{\mathrm{d}f}{\mathrm{d}x}(x) \cdot \delta + o(|\delta|) \\
+    &= f(x) + \frac{\mathrm{d}f}{\mathrm{d}x}(x) \cdot \delta + \frac{1}{2}\frac{\mathrm{d}^2 f}{\mathrm{d}x^2}(x) \cdot \delta^2 + o(\delta^2).
+\end{align}
+
+\subsection{Taylor Approximation of Multivariate Functions}
+
+\begin{definition}[Multivariate Taylor Approximations]
+Let $f: \R^n \to \R$ and fix $\vec{x}_0 \in \R^n$.
+\begin{itemize}
+    \item If $f$ is continuously differentiable, its first-order Taylor approximation around $\vec{x}_0$ is
+    \begin{equation}
+        \hat{f}_1(\vec{x}; \vec{x}_0) = f(\vec{x}_0) + [\nabla f(\vec{x}_0)]^\top(\vec{x} - \vec{x}_0).
+    \end{equation}
+    \item If $f$ is twice continuously differentiable, its second-order Taylor approximation is
+    \begin{equation}
+        \hat{f}_2(\vec{x}; \vec{x}_0) = f(\vec{x}_0) + [\nabla f(\vec{x}_0)]^\top(\vec{x} - \vec{x}_0) + \frac{1}{2}(\vec{x} - \vec{x}_0)^\top[\nabla^2 f(\vec{x}_0)](\vec{x} - \vec{x}_0).
+    \end{equation}
+\end{itemize}
+\end{definition}
+
+The graph of the first-order Taylor approximation is the hyperplane tangent to the graph of $f$ at $(\vec{x}_0, f(\vec{x}_0))$.
+
+\begin{theorem}[Taylor's Theorem (Multivariate)]
+Let $f: \R^n \to \R$ be $k$-times continuously differentiable, and fix $\vec{x}_0 \in \R^n$. Then for all $\vec{x} \in \R^n$:
+\begin{equation}
+    f(\vec{x}) = \hat{f}_k(\vec{x}; \vec{x}_0) + o(\norm{\vec{x} - \vec{x}_0}_2^k).
+\end{equation}
+\end{theorem}
+
+In more workable form for $k = 1, 2$:
+\begin{align}
+    f(\vec{x} + \vec{\delta}) &= f(\vec{x}) + [\nabla f(\vec{x})]^\top \vec{\delta} + o(\norm{\vec{\delta}}_2) \\
+    &= f(\vec{x}) + [\nabla f(\vec{x})]^\top \vec{\delta} + \frac{1}{2}\vec{\delta}^\top[\nabla^2 f(\vec{x})]\vec{\delta} + o(\norm{\vec{\delta}}_2^2).
+\end{align}
+
+\begin{example}[Taylor Approximation of Squared $\ell_2$ Norm]
+For $f(\vec{x}) = \norm{\vec{x}}_2^2$ with $\nabla f(\vec{x}) = 2\vec{x}$ and $\nabla^2 f(\vec{x}) = 2I$:
+\begin{align}
+    \hat{f}_1(\vec{x}; \vec{x}_0) &= \norm{\vec{x}_0}_2^2 + 2\vec{x}_0^\top(\vec{x} - \vec{x}_0) = 2\vec{x}_0^\top \vec{x} - \norm{\vec{x}_0}_2^2 \\
+    \hat{f}_2(\vec{x}; \vec{x}_0) &= \hat{f}_1(\vec{x}; \vec{x}_0) + \frac{1}{2}(\vec{x} - \vec{x}_0)^\top[2I](\vec{x} - \vec{x}_0) = \norm{\vec{x}}_2^2.
+\end{align}
+Thus $\hat{f}_2 = f$ independently of $\vec{x}_0$, since $f$ is quadratic.
+\end{example}
+
+\begin{example}[Computing Gradients via Pattern Matching]
+For $f(\vec{x}) = \vec{x}^\top A \vec{x}$, we perturb and expand:
+\begin{align}
+    f(\vec{x} + \vec{\delta}) &= (\vec{x} + \vec{\delta})^\top A(\vec{x} + \vec{\delta}) \\
+    &= \vec{x}^\top A \vec{x} + \vec{\delta}^\top A \vec{x} + \vec{x}^\top A \vec{\delta} + \vec{\delta}^\top A \vec{\delta} \\
+    &= f(\vec{x}) + ((A + A^\top)\vec{x})^\top \vec{\delta} + \frac{1}{2}\vec{\delta}^\top(A + A^\top)\vec{\delta}.
+\end{align}
+By pattern matching with Taylor's theorem: $\nabla f(\vec{x}) = (A + A^\top)\vec{x}$ and $\nabla^2 f(\vec{x}) = A + A^\top$.
+\end{example}
+
+\begin{definition}[Vector-Valued Taylor Approximation]
+Let $\vec{f}: \R^n \to \R^m$ and fix $\vec{x}_0 \in \R^n$. If $\vec{f}$ is continuously differentiable, its first-order Taylor approximation around $\vec{x}_0$ is
+\begin{equation}
+    \hat{\vec{f}}_1(\vec{x}; \vec{x}_0) = \vec{f}(\vec{x}_0) + [D\vec{f}(\vec{x}_0)](\vec{x} - \vec{x}_0).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Vector-Valued Taylor's Theorem]
+Let $\vec{f}: \R^n \to \R^m$ be continuously differentiable, and fix $\vec{x}_0 \in \R^n$. Then for all $\vec{x} \in \R^n$:
+\begin{equation}
+    \vec{f}(\vec{x}) = \hat{\vec{f}}_1(\vec{x}; \vec{x}_0) + \vec{o}(\norm{\vec{x} - \vec{x}_0}_2).
+\end{equation}
+In workable form: $\vec{f}(\vec{x} + \vec{\delta}) = \vec{f}(\vec{x}) + [D\vec{f}(\vec{x})]\vec{\delta} + o(\norm{\vec{\delta}}_2)$.
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Main Theorem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{theorem}[The Main Theorem]\label{thm:main}
+Let $f: \R^n \to \R$ be a differentiable function, and let $\Omega \subseteq \R^n$ be an open set. Consider the optimization problem
+\begin{equation}
+    \min_{\vec{x} \in \Omega} f(\vec{x}).
+\end{equation}
+Let $\vec{x}^\star$ be a solution to this problem. Then $\nabla f(\vec{x}^\star) = \vec{0}$.
+\end{theorem}
+
+This gives a \emph{necessary} condition for optimality: any optimal point must have gradient equal to zero.
+
+\begin{proof}
+We prove for scalar functions $f: \R \to \R$. Using Taylor approximation around $x^\star$:
+\begin{equation}
+    f(x) = f(x^\star) + \frac{\mathrm{d}f}{\mathrm{d}x}(x^\star)(x - x^\star) + o(|x - x^\star|).
+\end{equation}
+Since $f(x^\star) \leq f(x)$ for all $x \in \Omega$:
+\begin{equation}
+    0 \leq \frac{\mathrm{d}f}{\mathrm{d}x}(x^\star)(x - x^\star) + o(|x - x^\star|).
+\end{equation}
+Since $\Omega$ is open, there exists $r > 0$ such that $B_r(x^\star) \subseteq \Omega$. Partitioning into $B_+$ (where $x - x^\star \geq 0$) and $B_-$ (where $x - x^\star < 0$):
+
+For $x \in B_+$, taking $x \to x^\star$ gives $0 \leq \frac{\mathrm{d}f}{\mathrm{d}x}(x^\star)$.
+
+For $x \in B_-$, taking $x \to x^\star$ gives $0 \geq \frac{\mathrm{d}f}{\mathrm{d}x}(x^\star)$.
+
+Thus $\frac{\mathrm{d}f}{\mathrm{d}x}(x^\star) = 0$.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Directional Derivatives}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Directional Derivative]
+Let $f: \R^n \to \R$ be differentiable, and fix $\vec{u} \in \R^n$ with $\norm{\vec{u}}_2 = 1$. The \emph{directional derivative} of $f$ along $\vec{u}$ is
+\begin{equation}
+    Df(\vec{x})[\vec{u}] = \lim_{h \to 0} \frac{f(\vec{x} + h \cdot \vec{u}) - f(\vec{x})}{h}.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+Let $f: \R^n \to \R$ be differentiable, and fix $\vec{u} \in \R^n$ with $\norm{\vec{u}}_2 = 1$. Then
+\begin{equation}
+    Df(\vec{x})[\vec{u}] = \vec{u}^\top[\nabla f(\vec{x})].
+\end{equation}
+In particular, $Df(\vec{x})[\vec{e}_i] = \frac{\partial f}{\partial x_i}(\vec{x})$.
+\end{proposition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{(OPTIONAL) Matrix Calculus}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We generalize derivatives to functions $f: \R^{m \times n} \to \R$ that take a matrix $X$ as input and produce a scalar.
+
+\begin{definition}[Gradient for Matrix Functions]
+Let $f: \R^{m \times n} \to \R$ be differentiable. The \emph{gradient} of $f$ is $\nabla f: \R^{m \times n} \to \R^{m \times n}$ defined as
+\begin{equation}
+    \nabla f(X) = \begin{bmatrix} \frac{\partial f}{\partial X_{11}}(X) & \cdots & \frac{\partial f}{\partial X_{1n}}(X) \\ \vdots & \ddots & \vdots \\ \frac{\partial f}{\partial X_{m1}}(X) & \cdots & \frac{\partial f}{\partial X_{mn}}(X) \end{bmatrix}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Chain Rule for Matrix Functions]
+Let $F: \R^{p \times q} \to \R^{r \times s}$ and $G: \R^{m \times n} \to \R^{p \times q}$ be differentiable. Let $H(X) = F(G(X))$. Then
+\begin{equation}
+    \frac{\partial H_{ij}}{\partial X_{k\ell}}(X) = \sum_a \sum_b \frac{\partial F_{ij}}{\partial G_{ab}}(G(X)) \frac{\partial G_{ab}}{\partial X_{k\ell}}(X).
+\end{equation}
+\end{theorem}
+
+\begin{definition}[Matrix Taylor Approximation]
+Let $f: \R^{m \times n} \to \R$ and fix $X_0 \in \R^{m \times n}$. If $f$ is continuously differentiable, its first-order Taylor approximation is
+\begin{equation}
+    \hat{f}_1(X; X_0) = f(X_0) + \text{tr}\left([\nabla f(X_0)]^\top(X - X_0)\right).
+\end{equation}
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Linear and Ridge Regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Impact of Perturbations on Linear Regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Let $A \in \R^{n \times n}$ be invertible and $\vec{y} \in \R^n$. Consider the linear system $A\vec{x} = \vec{y}$ with unique solution $\vec{x} = A^{-1}\vec{y}$. We want to understand how sensitive this system is to perturbations in the output.
+
+If $\vec{y}$ is perturbed by $\vec{\delta}_{\vec{y}}$, then $\vec{x}$ is also perturbed by $\vec{\delta}_{\vec{x}}$:
+\begin{equation}
+    A(\vec{x} + \vec{\delta}_{\vec{x}}) = \vec{y} + \vec{\delta}_{\vec{y}}.
+\end{equation}
+
+From $A\vec{\delta}_{\vec{x}} = \vec{\delta}_{\vec{y}}$, we get $\vec{\delta}_{\vec{x}} = A^{-1}\vec{\delta}_{\vec{y}}$, and thus:
+\begin{equation}
+    \norm{\vec{\delta}_{\vec{x}}}_2 = \norm{A^{-1}\vec{\delta}_{\vec{y}}}_2 \leq \norm{A^{-1}}_2 \norm{\vec{\delta}_{\vec{y}}}_2.
+\end{equation}
+
+Also, from $A\vec{x} = \vec{y}$: $\norm{\vec{x}}_2 \geq \frac{\norm{\vec{y}}_2}{\norm{A}_2}$.
+
+Combining:
+\begin{equation}
+    \frac{\norm{\vec{\delta}_{\vec{x}}}_2}{\norm{\vec{x}}_2} \leq \norm{A}_2 \norm{A^{-1}}_2 \cdot \frac{\norm{\vec{\delta}_{\vec{y}}}_2}{\norm{\vec{y}}_2}.
+\end{equation}
+
+\begin{definition}[Condition Number]
+Let $A \in \R^{n \times n}$. The \emph{condition number} of $A$ is
+\begin{equation}
+    \kappa(A) \triangleq \frac{\sigma_1\{A\}}{\sigma_n\{A\}}.
+\end{equation}
+\end{definition}
+
+If $\kappa(A)$ is large, small changes in $\vec{y}$ cause huge changes in $\vec{x}$. If $\kappa(A)$ is small, the system is robust.
+
+For least-squares systems, we use the normal equations $A^\top A \vec{x} = A^\top \vec{y}$, with condition number:
+\begin{equation}
+    \kappa(A^\top A) = \frac{\lambda_{\max}\{A^\top A\}}{\lambda_{\min}\{A^\top A\}}.
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ridge Regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+When $\kappa(A^\top A)$ is infinite or very large, we can improve conditioning by adding $\lambda I$ to $A^\top A$.
+
+\begin{theorem}[Ridge Regression]
+Let $A \in \R^{m \times n}$, $\vec{y} \in \R^m$, and $\lambda > 0$. The unique solution to the ridge regression problem
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \left\{ \norm{A\vec{x} - \vec{y}}_2^2 + \lambda \norm{\vec{x}}_2^2 \right\}
+\end{equation}
+is given by
+\begin{equation}
+    \vec{x}^\star = (A^\top A + \lambda I)^{-1} A^\top \vec{y}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $f(\vec{x}) = \norm{A\vec{x} - \vec{y}}_2^2 + \lambda \norm{\vec{x}}_2^2$. Taking the gradient:
+\begin{equation}
+    \nabla_{\vec{x}} f(\vec{x}) = 2A^\top A \vec{x} - 2A^\top \vec{y} + 2\lambda \vec{x} = 2(A^\top A + \lambda I)\vec{x} - 2A^\top \vec{y}.
+\end{equation}
+Setting to zero: $(A^\top A + \lambda I)\vec{x} = A^\top \vec{y}$. Since $A^\top A + \lambda I$ is PD (thus invertible), $\vec{x}^\star = (A^\top A + \lambda I)^{-1} A^\top \vec{y}$.
+\end{proof}
+
+An alternative derivation uses the augmented system:
+\begin{equation}
+    \begin{bmatrix} A \\ \sqrt{\lambda}I \end{bmatrix} \vec{x} = \begin{bmatrix} \vec{y} \\ \vec{0} \end{bmatrix}.
+\end{equation}
+
+The term $\lambda \norm{\vec{x}}_2^2$ is called a \emph{regularizer}---it regularizes the problem by making it better-conditioned.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Principal Components Regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Using the SVD $A = U\Sigma V^\top$, the ridge regression solution becomes:
+\begin{align}
+    \vec{x}^\star &= (A^\top A + \lambda I)^{-1} A^\top \vec{y} \\
+    &= V \begin{bmatrix} (\Sigma_r^2 + \lambda I)^{-1}\Sigma_r & 0 \\ 0 & 0 \end{bmatrix} U^\top \vec{y} \\
+    &= \sum_{i=1}^{r} \frac{\sigma_i\{A\}}{\sigma_i\{A\}^2 + \lambda} (\vec{u}_i^\top \vec{y}) \cdot \vec{v}_i.
+\end{align}
+
+For large $\lambda$, this performs ``soft thresholding'' of singular values: terms with smaller singular values are nearly zeroed out while terms with larger singular values are preserved. Thus ridge regression behaves qualitatively similar to a soft form of PCA.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Tikhonov Regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Tikhonov regression generalizes ridge regression by allowing different weights and a prior $\vec{x}_0$:
+
+\begin{theorem}[Tikhonov Regression]
+Let $A \in \R^{m \times n}$, $\vec{x}_0 \in \R^n$, $\vec{y} \in \R^m$, and let $W_1 \in \R^{m \times m}$, $W_2 \in \R^{n \times n}$ be diagonal. The unique solution to
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \left\{ \norm{W_1(A\vec{x} - \vec{y})}_2^2 + \norm{W_2(\vec{x} - \vec{x}_0)}_2^2 \right\}
+\end{equation}
+is given by
+\begin{equation}
+    \vec{x}^\star = (A^\top W_1^2 A + W_2^2)^{-1}(A^\top W_1^2 \vec{y} + W_2^2 \vec{x}_0).
+\end{equation}
+\end{theorem}
+
+Setting $W_1 = I$, $W_2 = \sqrt{\lambda}I$, and $\vec{x}_0 = \vec{0}$ recovers ridge regression.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Maximum Likelihood Estimation (MLE)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Suppose we have the probabilistic model $y_i = \vec{a}_i^\top \vec{x} + w_i$ where $w_i \sim \mathcal{N}(0, \sigma_i^2)$ are independent. In short: $\vec{y} = A\vec{x} + \vec{w}$ where $\vec{w} \sim \mathcal{N}(\vec{0}, \Sigma_{\vec{w}})$ with $\Sigma_{\vec{w}} = \text{diag}(\sigma_1^2, \ldots, \sigma_m^2)$.
+
+\begin{proposition}[MLE as Tikhonov Regression]
+In the above model:
+\begin{equation}
+    \argmax_{\vec{x} \in \R^n} p_{\vec{x}}(\vec{y}) = \argmin_{\vec{x} \in \R^n} \norm{\Sigma_{\vec{w}}^{-1/2}(A\vec{x} - \vec{y})}_2^2.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Since $\log$ is monotonically increasing:
+\begin{align}
+    \argmax_{\vec{x}} p_{\vec{x}}(\vec{y}) &= \argmax_{\vec{x}} \sum_{i=1}^{m} \log\left(\frac{1}{\sqrt{2\pi\sigma_i^2}} \exp\left(-\frac{(y_i - \vec{a}_i^\top \vec{x})^2}{2\sigma_i^2}\right)\right) \\
+    &= \argmin_{\vec{x}} \sum_{i=1}^{m} \frac{(y_i - \vec{a}_i^\top \vec{x})^2}{\sigma_i^2} = \argmin_{\vec{x}} \norm{\Sigma_{\vec{w}}^{-1/2}(A\vec{x} - \vec{y})}_2^2.
+\end{align}
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Maximum A Posteriori Estimation (MAP)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Now suppose $\vec{x}$ is also random: $x_j = \mu_j + v_j$ where $v_j \sim \mathcal{N}(0, \tau_j^2)$. In short: $\vec{x} = \vec{x}_0 + \vec{v}$ where $\vec{v} \sim \mathcal{N}(\vec{0}, \Sigma_{\vec{v}})$ with $\Sigma_{\vec{v}} = \text{diag}(\tau_1^2, \ldots, \tau_n^2)$.
+
+\begin{theorem}[MAP as Tikhonov Regression]
+In the above model:
+\begin{equation}
+    \argmax_{\vec{x} \in \R^n} p(\vec{x} | \vec{y}) = \argmin_{\vec{x} \in \R^n} \left\{ \norm{\Sigma_{\vec{w}}^{-1/2}(A\vec{x} - \vec{y})}_2^2 + \norm{\Sigma_{\vec{v}}^{-1/2}(\vec{x} - \vec{x}_0)}_2^2 \right\}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Using Bayes' rule $p(\vec{x} | \vec{y}) = \frac{p(\vec{y} | \vec{x}) p(\vec{x})}{p(\vec{y})}$ and taking $\log$:
+\begin{align}
+    \argmax_{\vec{x}} p(\vec{x} | \vec{y}) &= \argmax_{\vec{x}} \{\log p(\vec{y} | \vec{x}) + \log p(\vec{x})\} \\
+    &= \argmax_{\vec{x}} \left\{ \sum_{i=1}^{m} \left(-\frac{(y_i - \vec{a}_i^\top \vec{x})^2}{2\sigma_i^2}\right) + \sum_{j=1}^{n} \left(-\frac{(x_j - (\vec{x}_0)_j)^2}{2\tau_j^2}\right) \right\} \\
+    &= \argmin_{\vec{x}} \left\{ \norm{\Sigma_{\vec{w}}^{-1/2}(A\vec{x} - \vec{y})}_2^2 + \norm{\Sigma_{\vec{v}}^{-1/2}(\vec{x} - \vec{x}_0)}_2^2 \right\}.
+\end{align}
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Convexity}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Convex Sets}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Basics}
+
+\begin{definition}[Convex Combination]
+Let $\vec{x}_1, \ldots, \vec{x}_k \in \R^n$. The sum
+\begin{equation}
+    \vec{x} = \sum_{i=1}^{k} \theta_i \vec{x}_i
+\end{equation}
+is a \emph{convex combination} of $\vec{x}_1, \ldots, \vec{x}_k$ if each $\theta_i \geq 0$ and $\sum_{i=1}^{k} \theta_i = 1$.
+\end{definition}
+
+We can interpret each $\theta_i$ as a weight or probability.
+
+\begin{definition}[Convex Set]
+Let $C \subseteq \R^n$. We say $C$ is a \emph{convex set} if it is closed under convex combinations: for all $\vec{x}_1, \vec{x}_2 \in C$ and all $\theta \in [0, 1]$, we have $\theta \vec{x}_1 + (1 - \theta)\vec{x}_2 \in C$.
+\end{definition}
+
+Geometrically, $C$ is convex if for every two points $\vec{x}_1, \vec{x}_2 \in C$, the line segment $\{\theta \vec{x}_1 + (1-\theta)\vec{x}_2 \mid \theta \in [0,1]\}$ is contained in $C$.
+
+Algebraically, a set $C$ is convex if for any $\vec{x}_1, \ldots, \vec{x}_k \in C$, any convex combination of $\vec{x}_1, \ldots, \vec{x}_k$ is contained in $C$.
+
+\begin{definition}[Convex Hull]
+Let $S \subseteq \R^n$ be a set. The \emph{convex hull} of $S$, denoted $\text{conv}(S)$, is the set of all convex combinations of points in $S$:
+\begin{equation}
+    \text{conv}(S) = \left\{ \sum_{i=1}^{k} \theta_i \vec{x}_i \;\middle|\; k \in \mathbb{N}, \theta_1, \ldots, \theta_k \geq 0, \sum_{i=1}^{k} \theta_i = 1, \vec{x}_1, \ldots, \vec{x}_k \in S \right\}.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+Let $S \subseteq \R^n$ be a set.
+\begin{enumerate}[label=(\alph*)]
+    \item $\text{conv}(S)$ is a convex set.
+    \item $\text{conv}(S)$ is the minimal convex set containing $S$: $\text{conv}(S) = \bigcap_{\substack{C \supseteq S \\ C \text{ convex}}} C$.
+    \item $\text{conv}(S)$ is the union of convex hulls of all finite subsets of $S$.
+\end{enumerate}
+Thus if $S$ is convex then $\text{conv}(S) = S$.
+\end{proposition}
+
+\begin{theorem}[Carathéodory's Theorem]
+Let $S \subseteq \R^n$ be a set. Then $\text{conv}(S)$ is the union of convex hulls of all finite subsets of $S$ of size at most $n + 1$:
+\begin{equation}
+    \text{conv}(S) = \bigcup_{\substack{A \subseteq S \\ |A| \leq n+1}} \text{conv}(A).
+\end{equation}
+\end{theorem}
+
+\subsection{Hyperplanes and Half-Spaces}
+
+\begin{definition}[Hyperplane]
+Let $\vec{a}, \vec{x}_0 \in \R^n$ and $b \in \R$. A \emph{hyperplane} is a set of the form
+\begin{equation}
+    \{\vec{x} \in \R^n \mid \vec{a}^\top \vec{x} = b\} \quad \text{or equivalently} \quad \{\vec{x} \in \R^n \mid \vec{a}^\top(\vec{x} - \vec{x}_0) = 0\}.
+\end{equation}
+\end{definition}
+
+\begin{example}[Hyperplanes are Convex]
+Consider a hyperplane $H = \{\vec{x} \in \R^n \mid \vec{a}^\top \vec{x} = b\}$. Let $\vec{x}_1, \vec{x}_2 \in H$ and $\theta \in [0, 1]$. Then
+\begin{equation}
+    \vec{a}^\top(\theta \vec{x}_1 + (1 - \theta)\vec{x}_2) = \theta \vec{a}^\top \vec{x}_1 + (1 - \theta)\vec{a}^\top \vec{x}_2 = \theta b + (1 - \theta)b = b,
+\end{equation}
+so $\theta \vec{x}_1 + (1 - \theta)\vec{x}_2 \in H$. Thus $H$ is convex.
+\end{example}
+
+\begin{definition}[Half-Space]
+Let $\vec{a}, \vec{x}_0 \in \R^n$ and $b \in \R$. A \emph{positive half-space} is a set of the form
+\begin{equation}
+    \{\vec{x} \in \R^n \mid \vec{a}^\top \vec{x} \geq b\} \quad \text{or} \quad \{\vec{x} \in \R^n \mid \vec{a}^\top(\vec{x} - \vec{x}_0) \geq 0\}.
+\end{equation}
+A \emph{negative half-space} is a set of the form
+\begin{equation}
+    \{\vec{x} \in \R^n \mid \vec{a}^\top \vec{x} \leq b\} \quad \text{or} \quad \{\vec{x} \in \R^n \mid \vec{a}^\top(\vec{x} - \vec{x}_0) \leq 0\}.
+\end{equation}
+\end{definition}
+
+The positive and negative half-spaces partition $\R^n$. A vector $\vec{x}$ is in the positive half-space if $\vec{x} - \vec{x}_0$ forms an acute angle with $\vec{a}$ (positive dot product), and in the negative half-space if it forms an obtuse angle (negative dot product).
+
+\begin{example}[Set of PSD Matrices is Convex]
+Consider $\mathbb{S}^n_+$, the set of all symmetric positive semidefinite matrices. Take $A_1, A_2 \in \mathbb{S}^n_+$ and $\theta \in [0, 1]$. For any $\vec{x} \in \R^n$:
+\begin{equation}
+    \vec{x}^\top(\theta A_1 + (1 - \theta)A_2)\vec{x} = \theta \underbrace{\vec{x}^\top A_1 \vec{x}}_{\geq 0} + (1 - \theta) \underbrace{\vec{x}^\top A_2 \vec{x}}_{\geq 0} \geq 0.
+\end{equation}
+Thus $\mathbb{S}^n_+$ is convex.
+\end{example}
+
+\begin{theorem}[Separating Hyperplane Theorem]\label{thm:separating}
+Let $C, D \subseteq \R^n$ be two nonempty disjoint convex sets, i.e., $C \cap D = \emptyset$. Then there exists a hyperplane that separates $C$ and $D$, i.e., there exists $\vec{a}, \vec{x}_0 \in \R^n$ such that
+\begin{align}
+    \vec{a}^\top(\vec{x} - \vec{x}_0) &\geq 0, \quad \forall \vec{x} \in C \\
+    \vec{a}^\top(\vec{x} - \vec{x}_0) &\leq 0, \quad \forall \vec{x} \in D.
+\end{align}
+Moreover, if $C$ is closed and $D$ is closed and bounded, then there exists a hyperplane that separates $C$ and $D$ with strict inequalities.
+\end{theorem}
+
+\begin{proof}[Proof (sketch)]
+Since $C$ and $D$ are disjoint and compact, define $\text{dist}(C, D) = \min_{\vec{c} \in C, \vec{d} \in D} \norm{\vec{c} - \vec{d}}_2 > 0$. Let $\vec{c} \in C$ and $\vec{d} \in D$ achieve this minimum. Set
+\begin{equation}
+    \vec{a} = \vec{c} - \vec{d}, \quad \vec{x}_0 = \frac{\vec{c} + \vec{d}}{2}.
+\end{equation}
+The hyperplane passing through $\vec{x}_0$ with normal $\vec{a}$ separates $C$ and $D$. To verify, suppose for contradiction there exists $\vec{u} \in D$ with $\vec{a}^\top(\vec{u} - \vec{x}_0) \geq 0$. One can show that the line segment from $\vec{d}$ to $\vec{u}$ contains a point closer to $\vec{c}$ than $\vec{d}$, contradicting the minimality of $\norm{\vec{c} - \vec{d}}_2$.
+\end{proof}
+
+\subsection{(OPTIONAL) Cones}
+
+\begin{definition}[Cones and Proper Cones]
+Let $K \subseteq \R^n$.
+\begin{enumerate}[label=(\alph*)]
+    \item $K$ is a \emph{cone} if for any $\vec{v} \in K$ and $\alpha \geq 0$, we have $\alpha \vec{v} \in K$.
+    \item $K$ is a \emph{convex cone} if it is both a cone and a convex set.
+    \item $K$ is a \emph{pointed cone} if it contains no line through the origin.
+    \item $K$ is a \emph{solid cone} if it has non-empty interior.
+    \item $K$ is a \emph{closed cone} if it contains its boundary points.
+    \item $K$ is a \emph{proper cone} if it is convex, pointed, solid, and closed.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Dual Cone]
+Let $K \subseteq \R^n$ be a cone. The \emph{dual cone} of $K$ is
+\begin{equation}
+    K^\star = \{\vec{y} \in \R^n \mid \vec{y}^\top \vec{x} \geq 0 \text{ for each } \vec{x} \in K\}.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+Let $K \subseteq \R^n$ be a cone. Then $K^\star$ is a closed convex cone.
+\end{proposition}
+
+\begin{example}
+\begin{enumerate}[label=(\alph*)]
+    \item The non-negative orthant $\R^n_+ = \{\vec{x} \in \R^n \mid x_i \geq 0, \forall i\}$ is a proper cone, and its dual cone is itself.
+    \item Let $S \subseteq \R^n$ be a subspace. Then $S$ is a convex cone, and $S^\perp$ is its dual cone.
+\end{enumerate}
+\end{example}
+
+\begin{definition}[Second Order Cone]
+The \emph{second-order cone} (or Lorentz cone) in $\R^{n+1}$ is
+\begin{equation}
+    K = \{(\vec{x}, t) \in \R^n \times \R \mid \norm{\vec{x}}_2 \leq t\}.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+The second-order cone $K$ is a proper cone, and its dual cone in $\R^{n+1}$ is itself.
+\end{proposition}
+
+\begin{proposition}
+Let $\mathbb{S}^n$ be the vector space of $n \times n$ symmetric matrices with the Frobenius inner product $\langle A, B \rangle_F = \text{tr}(AB)$.
+\begin{enumerate}[label=(\alph*)]
+    \item $\mathbb{S}^n_+$ is a proper cone in $\mathbb{S}^n$.
+    \item The dual cone of $\mathbb{S}^n_+$ in $\mathbb{S}^n$ is itself.
+\end{enumerate}
+\end{proposition}
+
+\begin{theorem}
+Let $K \subseteq \R^n$ be a closed convex cone. Then $(K^\star)^\star = K$.
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Convex Functions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Convex and Concave Functions]
+Let $f: \R^n \to \R$. We say $f$ is \emph{convex} if $\text{dom}(f)$ is convex and for all $\vec{x}_1, \vec{x}_2 \in \text{dom}(f)$ and all $\theta \in [0, 1]$:
+\begin{equation}
+    f(\theta \vec{x}_1 + (1 - \theta)\vec{x}_2) \leq \theta f(\vec{x}_1) + (1 - \theta)f(\vec{x}_2).
+\end{equation}
+We say $f$ is \emph{concave} if $-f$ is convex.
+\end{definition}
+
+Geometrically, $f$ is convex if the line segment connecting any two points on the graph of $f$ lies above the graph.
+
+\begin{theorem}[Jensen's Inequality]
+Let $f: \R^n \to \R$ be convex. Then for any $\vec{x}_1, \ldots, \vec{x}_k \in \text{dom}(f)$ and any $\theta_1, \ldots, \theta_k \geq 0$ with $\sum_{i=1}^{k} \theta_i = 1$:
+\begin{equation}
+    f\left(\sum_{i=1}^{k} \theta_i \vec{x}_i\right) \leq \sum_{i=1}^{k} \theta_i f(\vec{x}_i).
+\end{equation}
+\end{theorem}
+
+\begin{definition}[Epigraph]
+Let $f: \R^n \to \R$. The \emph{epigraph} of $f$ is
+\begin{equation}
+    \text{epi}(f) = \{(\vec{x}, t) \in \R^{n+1} \mid \vec{x} \in \text{dom}(f), t \geq f(\vec{x})\}.
+\end{equation}
+\end{definition}
+
+The epigraph is the set of points lying on or above the graph of $f$.
+
+\begin{proposition}
+A function $f: \R^n \to \R$ is convex if and only if $\text{epi}(f)$ is a convex set.
+\end{proposition}
+
+\begin{theorem}[First-Order Condition for Convexity]
+Let $f: \R^n \to \R$ be differentiable. Then $f$ is convex if and only if $\text{dom}(f)$ is convex and for all $\vec{x}, \vec{y} \in \text{dom}(f)$:
+\begin{equation}
+    f(\vec{y}) \geq f(\vec{x}) + [\nabla f(\vec{x})]^\top(\vec{y} - \vec{x}).
+\end{equation}
+\end{theorem}
+
+This says that for a convex function, the first-order Taylor approximation is a global underestimator.
+
+\begin{theorem}[Second-Order Condition for Convexity]
+Let $f: \R^n \to \R$ be twice differentiable. Then $f$ is convex if and only if $\text{dom}(f)$ is convex and $\nabla^2 f(\vec{x}) \succeq 0$ for all $\vec{x} \in \text{dom}(f)$.
+\end{theorem}
+
+\begin{example}
+\begin{enumerate}[label=(\alph*)]
+    \item $f(\vec{x}) = \norm{\vec{x}}_2^2$ is convex since $\nabla^2 f(\vec{x}) = 2I \succ 0$.
+    \item $f(\vec{x}) = \norm{A\vec{x} - \vec{b}}_2^2$ is convex since $\nabla^2 f(\vec{x}) = 2A^\top A \succeq 0$.
+    \item $f(x) = e^x$ is convex since $f''(x) = e^x > 0$.
+    \item $f(x) = \log(x)$ is concave since $f''(x) = -1/x^2 < 0$ for $x > 0$.
+\end{enumerate}
+\end{example}
+
+\begin{definition}[Strictly Convex Function]
+Let $f: \R^n \to \R$. We say $f$ is \emph{strictly convex} if $\text{dom}(f)$ is convex and for all $\vec{x}_1 \neq \vec{x}_2 \in \text{dom}(f)$ and all $\theta \in (0, 1)$:
+\begin{equation}
+    f(\theta \vec{x}_1 + (1 - \theta)\vec{x}_2) < \theta f(\vec{x}_1) + (1 - \theta)f(\vec{x}_2).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Conditions for Strict Convexity]
+Let $f: \R^n \to \R$ be twice differentiable. If $\nabla^2 f(\vec{x}) \succ 0$ for all $\vec{x} \in \text{dom}(f)$, then $f$ is strictly convex.
+
+The converse is not true: $f(x) = x^4$ is strictly convex but $f''(0) = 0$.
+\end{theorem}
+
+\begin{theorem}
+Let $f: \R^n \to \R$ be differentiable. Then $f$ is strictly convex if and only if $\text{dom}(f)$ is convex and for all $\vec{x} \neq \vec{y} \in \text{dom}(f)$:
+\begin{equation}
+    f(\vec{y}) > f(\vec{x}) + [\nabla f(\vec{x})]^\top(\vec{y} - \vec{x}).
+\end{equation}
+\end{theorem}
+
+\subsection{Affine Functions}
+
+\begin{definition}[Affine Function]
+A function $f: \R^n \to \R$ is \emph{affine} if it can be written as $f(\vec{x}) = \vec{a}^\top \vec{x} + b$ for some $\vec{a} \in \R^n$ and $b \in \R$.
+\end{definition}
+
+\begin{proposition}
+A function $f: \R^n \to \R$ is affine if and only if it is both convex and concave.
+\end{proposition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Convex Optimization Problems}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Convex Optimization Problem]
+An optimization problem is a \emph{convex optimization problem} if:
+\begin{enumerate}[label=(\alph*)]
+    \item The objective function $f$ is convex.
+    \item The equality constraints are affine: $h_i(\vec{x}) = \vec{a}_i^\top \vec{x} - b_i$.
+    \item The inequality constraints $g_j$ are convex.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}
+Let $\mathcal{F}$ be the feasible set of a convex optimization problem. Then $\mathcal{F}$ is a convex set.
+\end{theorem}
+
+\begin{proof}
+The feasible set is
+\begin{equation}
+    \mathcal{F} = \text{dom}(f) \cap \bigcap_{i=1}^{p} \{\vec{x} \mid h_i(\vec{x}) = 0\} \cap \bigcap_{j=1}^{q} \{\vec{x} \mid g_j(\vec{x}) \leq 0\}.
+\end{equation}
+Each equality constraint defines a hyperplane (convex), each inequality constraint defines a sublevel set of a convex function (convex), and intersections of convex sets are convex.
+\end{proof}
+
+\begin{theorem}[Local Minima are Global Minima]
+Let $f: \R^n \to \R$ be a convex function, and let $\mathcal{F} \subseteq \R^n$ be a convex set. Consider the optimization problem $\min_{\vec{x} \in \mathcal{F}} f(\vec{x})$. If $\vec{x}^\star$ is a local minimum, then $\vec{x}^\star$ is a global minimum.
+\end{theorem}
+
+\begin{proof}
+Suppose $\vec{x}^\star$ is a local but not global minimum. Then there exists $\vec{y} \in \mathcal{F}$ with $f(\vec{y}) < f(\vec{x}^\star)$. Consider the line segment from $\vec{x}^\star$ to $\vec{y}$. For $\theta \in (0, 1)$:
+\begin{equation}
+    f(\theta \vec{y} + (1 - \theta)\vec{x}^\star) \leq \theta f(\vec{y}) + (1 - \theta)f(\vec{x}^\star) < f(\vec{x}^\star).
+\end{equation}
+Taking $\theta$ small, $\theta \vec{y} + (1 - \theta)\vec{x}^\star$ is arbitrarily close to $\vec{x}^\star$ but has smaller objective value, contradicting local minimality.
+\end{proof}
+
+\begin{theorem}[Uniqueness for Strictly Convex Problems]
+Let $f: \R^n \to \R$ be a strictly convex function, and let $\mathcal{F} \subseteq \R^n$ be a convex set. Consider the optimization problem $\min_{\vec{x} \in \mathcal{F}} f(\vec{x})$. If a solution exists, it is unique.
+\end{theorem}
+
+\begin{theorem}[First-Order Optimality Condition]
+Let $f: \R^n \to \R$ be a convex and differentiable function. Consider $\min_{\vec{x} \in \R^n} f(\vec{x})$. Then $\vec{x}^\star$ is a global minimum if and only if $\nabla f(\vec{x}^\star) = \vec{0}$.
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Solving Convex Optimization Problems}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Active and Inactive Constraints]
+Consider the problem
+\begin{equation}
+    \min_{\vec{x} \in \R^n} f(\vec{x}) \quad \st \quad g_j(\vec{x}) \leq 0, \quad j = 1, \ldots, q.
+\end{equation}
+At a feasible point $\vec{x}$, constraint $g_j$ is \emph{active} if $g_j(\vec{x}) = 0$ and \emph{inactive} if $g_j(\vec{x}) < 0$.
+\end{definition}
+
+\begin{strategy}[Solving Convex Problems by Cases]
+Consider a convex optimization problem with inequality constraints. For each subset $S$ of constraints:
+\begin{enumerate}
+    \item Assume constraints in $S$ are active (equality) and constraints not in $S$ are inactive.
+    \item Solve the equality-constrained problem.
+    \item Check if the solution satisfies the original inequality constraints.
+    \item Among valid solutions, select the one with smallest objective value.
+\end{enumerate}
+\end{strategy}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem Transformations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{proposition}[Monotone Transformations]
+Let $f: \R^n \to \R$ and let $\phi: \R \to \R$ be a strictly monotonically increasing function. Then
+\begin{equation}
+    \argmin_{\vec{x} \in \mathcal{F}} f(\vec{x}) = \argmin_{\vec{x} \in \mathcal{F}} \phi(f(\vec{x})).
+\end{equation}
+If $\phi$ is strictly monotonically decreasing, then
+\begin{equation}
+    \argmin_{\vec{x} \in \mathcal{F}} f(\vec{x}) = \argmax_{\vec{x} \in \mathcal{F}} \phi(f(\vec{x})).
+\end{equation}
+\end{proposition}
+
+\begin{example}[Logistic Regression]
+In logistic regression, we maximize the log-likelihood:
+\begin{equation}
+    \max_{\vec{\theta}} \sum_{i=1}^{n} \left[ y_i \log(\sigma(\vec{\theta}^\top \vec{x}_i)) + (1 - y_i)\log(1 - \sigma(\vec{\theta}^\top \vec{x}_i)) \right]
+\end{equation}
+where $\sigma(z) = \frac{1}{1 + e^{-z}}$ is the sigmoid function. This is equivalent to minimizing the negative log-likelihood, which is a convex function.
+\end{example}
+
+\begin{definition}[Slack Variables]
+Consider the problem
+\begin{equation}
+    \min_{\vec{x} \in \R^n} f(\vec{x}) \quad \st \quad g_j(\vec{x}) \leq 0, \quad j = 1, \ldots, q.
+\end{equation}
+Introducing \emph{slack variables} $s_j \geq 0$, this is equivalent to
+\begin{equation}
+    \min_{\vec{x} \in \R^n, \vec{s} \in \R^q} f(\vec{x}) \quad \st \quad g_j(\vec{x}) + s_j = 0, \quad s_j \geq 0, \quad j = 1, \ldots, q.
+\end{equation}
+\end{definition}
+
+\begin{definition}[Epigraph Reformulation]
+Consider $\min_{\vec{x} \in \mathcal{F}} f(\vec{x})$. The \emph{epigraph reformulation} is
+\begin{equation}
+    \min_{(\vec{x}, t) \in \R^{n+1}} t \quad \st \quad \vec{x} \in \mathcal{F}, \quad f(\vec{x}) \leq t.
+\end{equation}
+These problems have the same optimal value, and if $(\vec{x}^\star, t^\star)$ solves the epigraph form, then $\vec{x}^\star$ solves the original problem.
+\end{definition}
+
+\begin{example}[Elastic-Net Regression]
+Consider the elastic-net problem:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \left\{ \norm{A\vec{x} - \vec{y}}_2^2 + \lambda_1 \norm{\vec{x}}_1 + \lambda_2 \norm{\vec{x}}_2^2 \right\}.
+\end{equation}
+Using slack variables $\vec{t} \in \R^n$ with $|x_i| \leq t_i$, this becomes:
+\begin{equation}
+    \min_{\vec{x}, \vec{t}} \left\{ \norm{A\vec{x} - \vec{y}}_2^2 + \lambda_1 \vec{1}^\top \vec{t} + \lambda_2 \norm{\vec{x}}_2^2 \right\} \quad \st \quad -\vec{t} \leq \vec{x} \leq \vec{t}.
+\end{equation}
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Gradient Descent}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Strong Convexity and Smoothness}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[$\mu$-Strongly Convex]
+Let $f: \R^n \to \R$ be differentiable. We say $f$ is \emph{$\mu$-strongly convex} (with parameter $\mu > 0$) if for all $\vec{x}, \vec{y} \in \text{dom}(f)$:
+\begin{equation}
+    f(\vec{y}) \geq f(\vec{x}) + [\nabla f(\vec{x})]^\top(\vec{y} - \vec{x}) + \frac{\mu}{2}\norm{\vec{y} - \vec{x}}_2^2.
+\end{equation}
+\end{definition}
+
+Strong convexity strengthens the first-order condition by adding a quadratic lower bound. It implies strict convexity.
+
+\begin{theorem}
+Let $f: \R^n \to \R$ be twice differentiable. Then $f$ is $\mu$-strongly convex if and only if $\nabla^2 f(\vec{x}) \succeq \mu I$ for all $\vec{x} \in \text{dom}(f)$.
+\end{theorem}
+
+\begin{theorem}
+Let $f: \R^n \to \R$ be $\mu$-strongly convex with minimizer $\vec{x}^\star$. Then for all $\vec{x} \in \text{dom}(f)$:
+\begin{equation}
+    f(\vec{x}) - f(\vec{x}^\star) \geq \frac{\mu}{2}\norm{\vec{x} - \vec{x}^\star}_2^2.
+\end{equation}
+\end{theorem}
+
+\begin{definition}[$L$-Smooth]
+Let $f: \R^n \to \R$ be differentiable. We say $f$ is \emph{$L$-smooth} (with parameter $L > 0$) if for all $\vec{x}, \vec{y} \in \text{dom}(f)$:
+\begin{equation}
+    f(\vec{y}) \leq f(\vec{x}) + [\nabla f(\vec{x})]^\top(\vec{y} - \vec{x}) + \frac{L}{2}\norm{\vec{y} - \vec{x}}_2^2.
+\end{equation}
+\end{definition}
+
+$L$-smoothness provides a quadratic upper bound. For twice-differentiable functions, $f$ is $L$-smooth if and only if $\nabla^2 f(\vec{x}) \preceq L \cdot I$ for all $\vec{x}$.
+
+\begin{example}
+For $f(\vec{x}) = \frac{1}{2}\vec{x}^\top A \vec{x}$ with $A \succ 0$:
+\begin{itemize}
+    \item $f$ is $\lambda_{\min}(A)$-strongly convex.
+    \item $f$ is $\lambda_{\max}(A)$-smooth.
+\end{itemize}
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Gradient Descent}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider the unconstrained optimization problem $\min_{\vec{x} \in \R^n} f(\vec{x})$ where $f$ is convex and differentiable.
+
+\textbf{Gradient Descent Algorithm:}
+\begin{enumerate}
+    \item Initialize $\vec{x}^{(0)} \in \R^n$.
+    \item For $k = 0, 1, 2, \ldots$:
+    \begin{equation}
+        \vec{x}^{(k+1)} = \vec{x}^{(k)} - \eta_k \nabla f(\vec{x}^{(k)})
+    \end{equation}
+    where $\eta_k > 0$ is the \emph{step size} (or \emph{learning rate}).
+\end{enumerate}
+
+The direction $-\nabla f(\vec{x}^{(k)})$ is the direction of steepest descent at $\vec{x}^{(k)}$.
+
+\subsection{Search Direction}
+
+\begin{theorem}[Negative Gradient is Direction of Steepest Descent]
+Let $f: \R^n \to \R$ be a differentiable function, and let $\vec{x} \in \R^n$. Then
+\begin{equation}
+    -\frac{\nabla f(\vec{x})}{\norm{\nabla f(\vec{x})}_2} \in \argmin_{\substack{\vec{v} \in \R^n \\ \norm{\vec{v}}_2 = 1}} Df(\vec{x})[\vec{v}].
+\end{equation}
+\end{theorem}
+
+\subsection{Convergence Analysis of Gradient Descent}
+
+\begin{example}[Gradient Descent for Least Squares]
+For the least squares problem $\min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2$ with $A$ full column rank, the gradient descent update becomes:
+\begin{equation}
+    \vec{x}_{t+1} = (I - 2\eta A^\top A)\vec{x}_t + 2\eta A^\top \vec{y}.
+\end{equation}
+Subtracting $\vec{x}^\star = (A^\top A)^{-1}A^\top \vec{y}$:
+\begin{equation}
+    \vec{x}_{t+1} - \vec{x}^\star = (I - 2\eta A^\top A)(\vec{x}_t - \vec{x}^\star).
+\end{equation}
+If $\sigma_{\max}\{I - 2\eta A^\top A\} < 1$, then convergence is guaranteed with rate:
+\begin{equation}
+    \norm{\vec{x}_t - \vec{x}^\star}_2 \leq \sigma_{\max}\{I - 2\eta A^\top A\}^t \norm{\vec{x}_0 - \vec{x}^\star}_2.
+\end{equation}
+\end{example}
+
+\begin{lemma}[Gradient Bound for $L$-Smooth Functions]
+Let $f: \R^n \to \R$ be an $L$-smooth function. For all $\vec{x} \in \R^n$:
+\begin{equation}
+    \norm{\nabla f(\vec{x})}_2^2 \leq 2L\left(f(\vec{x}) - \min_{\vec{x}' \in \R^n} f(\vec{x}')\right).
+\end{equation}
+\end{lemma}
+
+\begin{theorem}[Convergence of Gradient Descent for Smooth Strongly Convex Functions]
+Let $\mu, L > 0$. Let $f: \R^n \to \R$ be an $L$-smooth, $\mu$-strongly convex function with optimal solution $\vec{x}^\star$. Then with constant step size $\eta = \frac{1}{L}$, the gradient descent iterates satisfy:
+\begin{equation}
+    \norm{\vec{x}_{t+1} - \vec{x}^\star}_2^2 \leq \left(1 - \frac{\mu}{L}\right)\norm{\vec{x}_t - \vec{x}^\star}_2^2.
+\end{equation}
+\end{theorem}
+
+\begin{corollary}
+With $0 \leq 1 - \frac{\mu}{L} < 1$:
+\begin{enumerate}[label=(\alph*)]
+    \item (Descent at every step) $\norm{\vec{x}_{t+1} - \vec{x}^\star}_2 \leq \norm{\vec{x}_t - \vec{x}^\star}_2$.
+    \item (Convergence) $\lim_{t \to \infty} \vec{x}_t = \vec{x}^\star$.
+\end{enumerate}
+The convergence rate is $c = \sqrt{1 - \frac{\mu}{L}}$, and to achieve accuracy $\epsilon$, we need $T \geq \frac{\log(1/\epsilon) + \log(D)}{\log(1/c)}$ iterations where $D = \norm{\vec{x}_0 - \vec{x}^\star}_2$.
+\end{corollary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Variations: Stochastic Gradient Descent}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+For problems of the form $\min_{\vec{x} \in \R^n} f(\vec{x}) = \min_{\vec{x} \in \R^n} \frac{1}{m}\sum_{i=1}^{m} f_i(\vec{x})$, computing the full gradient $\nabla f(\vec{x}) = \frac{1}{m}\sum_{i=1}^{m} \nabla f_i(\vec{x})$ can be expensive.
+
+\textbf{Stochastic Gradient Descent (SGD)} samples a random index $i$ uniformly and updates:
+\begin{equation}
+    \vec{x}_{t+1} = \vec{x}_t - \eta \nabla f_i(\vec{x}_t).
+\end{equation}
+
+The expected value of the stochastic gradient equals the full gradient:
+\begin{equation}
+    \mathbb{E}[\nabla f_i(\vec{x})] = \sum_{i=1}^{m} \frac{1}{m} \nabla f_i(\vec{x}) = \nabla f(\vec{x}).
+\end{equation}
+
+SGD requires a variable step size $\eta_t$ with $\lim_{t \to \infty} \eta_t = 0$ for convergence, and achieves averaged convergence:
+\begin{equation}
+    \lim_{T \to \infty} f\left(\frac{1}{T}\sum_{t=1}^{T} \vec{x}_t\right) = \min_{\vec{x} \in \R^n} f(\vec{x}).
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Variations: Gradient Descent for Constrained Optimization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Projected Gradient Descent}
+
+\begin{definition}[Projection onto a Convex Set]
+Let $\Omega$ be a closed convex set. The \emph{projection} of $\vec{y} \in \R^n$ onto $\Omega$ is
+\begin{equation}
+    \text{proj}_\Omega(\vec{y}) = \argmin_{\vec{x} \in \Omega} \norm{\vec{x} - \vec{y}}_2^2.
+\end{equation}
+\end{definition}
+
+The \textbf{Projected Gradient Descent} update is:
+\begin{equation}
+    \vec{x}_{t+1} = \text{proj}_\Omega(\vec{x}_t - \eta \nabla f(\vec{x}_t)).
+\end{equation}
+
+\subsection{Conditional Gradient Descent (Frank-Wolfe)}
+
+Given $\vec{x}_t \in \Omega$, find the search direction:
+\begin{equation}
+    \vec{v}_t = \argmin_{\vec{v} \in \Omega} [\nabla f(\vec{x}_t)]^\top \vec{v}.
+\end{equation}
+Update via convex combination with $\delta_t \in [0, 1]$:
+\begin{equation}
+    \vec{x}_{t+1} = (1 - \delta_t)\vec{x}_t + \delta_t \vec{v}_t.
+\end{equation}
+This ensures $\vec{x}_{t+1} \in \Omega$ by convexity. A conventional choice is $\delta_t = \frac{1}{t}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Duality}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Lagrangian}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider the primal problem $\mathcal{P}$:
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \R^n} f_0(\vec{x}) \quad \st \quad f_i(\vec{x}) \leq 0, \; \forall i \in \{1, \ldots, m\}, \quad h_j(\vec{x}) = 0, \; \forall j \in \{1, \ldots, p\}.
+\end{equation}
+
+Using indicator functions $\mathbf{1}[f_i(\vec{x}) \leq 0] = \max_{\lambda_i \in \R_+} \lambda_i f_i(\vec{x})$ and $\mathbf{1}[h_j(\vec{x}) = 0] = \max_{\nu_j \in \R} \nu_j h_j(\vec{x})$, we can write:
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \R^n} \max_{\substack{\vec{\lambda} \in \R^m_+ \\ \vec{\nu} \in \R^p}} L(\vec{x}, \vec{\lambda}, \vec{\nu}).
+\end{equation}
+
+\begin{definition}[Lagrangian]
+The \emph{Lagrangian} of problem $\mathcal{P}$ is $L: \R^n \times \R^m \times \R^p \to \R$ given by
+\begin{equation}
+    L(\vec{x}, \vec{\lambda}, \vec{\nu}) = f_0(\vec{x}) + \sum_{i=1}^{m} \lambda_i f_i(\vec{x}) + \sum_{j=1}^{p} \nu_j h_j(\vec{x}).
+\end{equation}
+The $\lambda_i, \nu_j \in \R$ are called \emph{Lagrange multipliers}.
+\end{definition}
+
+\begin{proposition}
+For every $\vec{x} \in \R^n$, the function $(\vec{\lambda}, \vec{\nu}) \mapsto L(\vec{x}, \vec{\lambda}, \vec{\nu})$ is affine (hence concave) in $\vec{\lambda}$ and $\vec{\nu}$.
+\end{proposition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Weak Duality}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Dual Problem]
+The \emph{dual problem} $\mathcal{D}$ is obtained by swapping min and max:
+\begin{equation}
+    d^\star = \max_{\substack{\vec{\lambda} \in \R^m_+ \\ \vec{\nu} \in \R^p}} g(\vec{\lambda}, \vec{\nu}) \quad \text{where} \quad g(\vec{\lambda}, \vec{\nu}) = \min_{\vec{x} \in \R^n} L(\vec{x}, \vec{\lambda}, \vec{\nu})
+\end{equation}
+is the \emph{dual function}.
+\end{definition}
+
+\begin{proposition}
+The dual function $g$ is a concave function of $(\vec{\lambda}, \vec{\nu})$, regardless of any properties of $\mathcal{P}$.
+\end{proposition}
+
+\begin{corollary}
+The dual problem $\mathcal{D}$ is always a convex problem, no matter what the primal problem $\mathcal{P}$ is.
+\end{corollary}
+
+\begin{definition}[Types of Duality]
+Let $\mathcal{P}$ have optimum $p^\star$ and $\mathcal{D}$ have optimum $d^\star$.
+\begin{enumerate}[label=(\alph*)]
+    \item If $p^\star \geq d^\star$, we say \emph{weak duality} holds.
+    \item If $p^\star = d^\star$, we say \emph{strong duality} holds.
+    \item The quantity $p^\star - d^\star$ is called the \emph{duality gap}.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Minimax Inequality]
+Let $X$ and $Y$ be any sets, and $F: X \times Y \to \R$ be any function. Then
+\begin{equation}
+    \min_{x \in X} \max_{y \in Y} F(x, y) \geq \max_{y \in Y} \min_{x \in X} F(x, y).
+\end{equation}
+\end{proposition}
+
+\begin{theorem}[Weak Duality Always Holds]
+For any problem, weak duality holds, i.e., the duality gap is non-negative: $p^\star \geq d^\star$.
+\end{theorem}
+
+Weak duality provides a \emph{certificate of optimality}: if $f_0(\vec{x}) - g(\vec{\lambda}, \vec{\nu}) \leq \epsilon$, then $f_0(\vec{x}) - p^\star \leq \epsilon$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Strong Duality}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{theorem}[Slater's Condition]
+Suppose $f_0, f_1, \ldots, f_m: \R^n \to \R$ are convex functions, and $h_1, \ldots, h_p: \R^n \to \R$ are affine functions. If there exists $\vec{x} \in \text{relint}(\Omega)$ which is \emph{strictly feasible}, i.e.:
+\begin{itemize}
+    \item For all $i$ such that $f_i$ is affine: $f_i(\vec{x}) \leq 0$.
+    \item For all $i$ such that $f_i$ is not affine: $f_i(\vec{x}) < 0$.
+    \item For all $j$: $h_j(\vec{x}) = 0$.
+\end{itemize}
+Then strong duality holds: $p^\star = d^\star$.
+\end{theorem}
+
+\begin{example}[Equality-Constrained Minimum-Norm Problem]
+For $\min_{\vec{x} \in \R^n} \norm{\vec{x}}_2^2$ subject to $A\vec{x} = \vec{y}$:
+
+The Lagrangian is $L(\vec{x}, \vec{\nu}) = \norm{\vec{x}}_2^2 + \vec{\nu}^\top(A\vec{x} - \vec{y})$.
+
+Setting $\nabla_{\vec{x}} L = \vec{0}$: $\vec{x}^\star(\vec{\nu}) = -\frac{1}{2}A^\top \vec{\nu}$.
+
+The dual function: $g(\vec{\nu}) = -\frac{1}{4}\vec{\nu}^\top A A^\top \vec{\nu} - \vec{\nu}^\top \vec{y}$.
+
+Solving the unconstrained dual: $\vec{\nu}^\star = -2(AA^\top)^{-1}\vec{y}$.
+
+By strong duality, the optimal primal solution is:
+\begin{equation}
+    \vec{x}^\star = A^\top(AA^\top)^{-1}\vec{y}.
+\end{equation}
+\end{example}
+
+\begin{example}[Linear Program]
+For $\min_{\vec{x} \in \R^n} \vec{c}^\top \vec{x}$ subject to $A\vec{x} = \vec{y}$, $\vec{x} \geq \vec{0}$:
+
+The Lagrangian is $L(\vec{x}, \vec{\lambda}, \vec{\nu}) = (\vec{c} + A^\top \vec{\nu} - \vec{\lambda})^\top \vec{x} - \vec{\nu}^\top \vec{y}$.
+
+The dual function:
+\begin{equation}
+    g(\vec{\lambda}, \vec{\nu}) = \begin{cases} -\vec{\nu}^\top \vec{y} & \text{if } \vec{c} + A^\top \vec{\nu} = \vec{\lambda} \\ -\infty & \text{otherwise} \end{cases}
+\end{equation}
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Karush-Kuhn-Tucker (KKT) Conditions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[KKT Conditions]
+Let $(\tilde{\vec{x}}, \tilde{\vec{\lambda}}, \tilde{\vec{\nu}}) \in \R^n \times \R^m \times \R^p$. We say $(\tilde{\vec{x}}, \tilde{\vec{\lambda}}, \tilde{\vec{\nu}})$ fulfills the \emph{KKT conditions} if:
+\begin{enumerate}
+    \item \textbf{Primal feasibility:} $f_i(\tilde{\vec{x}}) \leq 0$ for all $i$ and $h_j(\tilde{\vec{x}}) = 0$ for all $j$.
+    \item \textbf{Dual feasibility:} $\tilde{\lambda}_i \geq 0$ for all $i$.
+    \item \textbf{Complementary slackness:} $\tilde{\lambda}_i f_i(\tilde{\vec{x}}) = 0$ for all $i$.
+    \item \textbf{Stationarity:} $\vec{0} = \nabla f_0(\tilde{\vec{x}}) + \sum_{i=1}^{m} \tilde{\lambda}_i \nabla f_i(\tilde{\vec{x}}) + \sum_{j=1}^{p} \tilde{\nu}_j \nabla h_j(\tilde{\vec{x}})$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[KKT Conditions are Necessary under Strong Duality]
+Suppose strong duality holds and $(\vec{x}^\star, \vec{\lambda}^\star, \vec{\nu}^\star)$ are optimal primal and dual variables. Then $(\vec{x}^\star, \vec{\lambda}^\star, \vec{\nu}^\star)$ fulfill the KKT conditions.
+\end{theorem}
+
+\begin{theorem}[KKT Conditions are Sufficient under Convexity]
+Suppose $f_0, f_1, \ldots, f_m$ are convex, $h_1, \ldots, h_p$ are affine, and $(\tilde{\vec{x}}, \tilde{\vec{\lambda}}, \tilde{\vec{\nu}})$ fulfill the KKT conditions. Then strong duality holds and $(\tilde{\vec{x}}, \tilde{\vec{\lambda}}, \tilde{\vec{\nu}})$ are optimal.
+\end{theorem}
+
+\begin{corollary}
+If $\mathcal{P}$ is convex and strong duality holds, then KKT conditions are necessary and sufficient for optimality.
+\end{corollary}
+
+\begin{strategy}[Solving Convex Problems Using KKT]
+\begin{enumerate}
+    \item Show the problem is convex and differentiable.
+    \item Show Slater's condition/strong duality holds.
+    \item Compute the KKT conditions.
+    \item Solve for optimal primal and dual variables.
+\end{enumerate}
+\end{strategy}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Types of Optimization Problems}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Linear Programs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Linear Program]
+A \emph{linear program} (LP) has an affine objective and affine constraints. Standard form:
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \R^n} \vec{c}^\top \vec{x} \quad \st \quad A\vec{x} = \vec{y}, \quad \vec{x} \geq \vec{0}.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+Any linear program is equivalent to a standard form linear program.
+\end{proposition}
+
+\begin{proposition}
+Any linear program is a convex optimization problem.
+\end{proposition}
+
+\begin{definition}[Polyhedron, Polygon]
+A \emph{polyhedron} is an intersection of a finite number of half-spaces. A \emph{polygon} is a bounded polyhedron.
+\end{definition}
+
+\begin{definition}[Extreme Point, Vertex]
+Let $K \subseteq \R^n$. We say $\vec{x} \in K$ is an \emph{extreme point} if there do not exist $\vec{y}, \vec{z} \in K \setminus \{\vec{x}\}$ and $\theta \in [0,1]$ such that $\vec{x} = \theta \vec{y} + (1-\theta)\vec{z}$.
+
+An extreme point of a polyhedron is called a \emph{vertex}.
+\end{definition}
+
+\begin{proposition}
+A polygon has finitely many vertices and is the convex hull of its vertices.
+\end{proposition}
+
+\begin{theorem}[Main Theorem of Linear Programming]
+For a standard form LP with bounded feasible set $\Omega$, the optimal value is achieved at a vertex.
+\end{theorem}
+
+The \textbf{Simplex Method}: Start at a vertex, move to neighboring vertices with better objective values until no improvement is possible.
+
+\begin{proposition}[Dual of Standard Form LP]
+The dual of $\min_{\vec{x}} \vec{c}^\top \vec{x}$ s.t.\ $A\vec{x} = \vec{y}$, $\vec{x} \geq \vec{0}$ is:
+\begin{equation}
+    d^\star = \max_{\vec{\lambda}, \vec{\nu}} -\vec{y}^\top \vec{\nu} \quad \st \quad \vec{c} - \vec{\lambda} + A^\top \vec{\nu} = \vec{0}, \quad \vec{\lambda} \geq \vec{0}.
+\end{equation}
+\end{proposition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Quadratic Programs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Quadratic Program]
+A \emph{quadratic program} (QP) has a quadratic objective and affine constraints. Standard form:
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \R^n} \frac{1}{2}\vec{x}^\top H \vec{x} + \vec{c}^\top \vec{x} \quad \st \quad A\vec{x} \leq \vec{y}, \quad C\vec{x} = \vec{z},
+\end{equation}
+where $H \in \mathbb{S}^n$.
+\end{definition}
+
+\begin{proposition}
+A standard form QP is convex if and only if $H \in \mathbb{S}^n_+$.
+\end{proposition}
+
+\begin{example}[Linear-Quadratic Regulator]
+For a discrete-time system $\vec{x}_{t+1} = A\vec{x}_t + B\vec{u}_t$ with initial state $\vec{x}_0 = \vec{\xi}$, reaching goal $\vec{g}$:
+\begin{equation}
+    \min_{\vec{x}_0, \ldots, \vec{x}_T, \vec{u}_0, \ldots, \vec{u}_{T-1}} \norm{\vec{x}_T - \vec{g}}_2^2 + \sum_{k=0}^{T-1} \norm{\vec{u}_k}_2^2 \quad \st \quad \vec{x}_{t+1} = A\vec{x}_t + B\vec{u}_t.
+\end{equation}
+This is a QP since the objective is quadratic and constraints are affine.
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Quadratically-Constrained Quadratic Programs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[QCQP]
+A \emph{quadratically-constrained quadratic program} (QCQP) has a quadratic objective and quadratic constraints:
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \R^n} \frac{1}{2}\vec{x}^\top H \vec{x} + \vec{c}^\top \vec{x} \quad \st \quad \frac{1}{2}\vec{x}^\top P_i \vec{x} + \vec{b}_i^\top \vec{x} + c_i \leq 0, \quad \frac{1}{2}\vec{x}^\top Q_j \vec{x} + \vec{d}_j^\top \vec{x} + f_j = 0.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+A QCQP is convex if $H, P_1, \ldots, P_m \in \mathbb{S}^n_+$ and $Q_1 = \cdots = Q_p = 0$ (i.e., equality constraints are affine).
+\end{proposition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Second-Order Cone Programs}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Second-Order Cone Program]
+A \emph{second-order cone program} (SOCP) has a linear objective and second-order cone constraints:
+\begin{equation}
+    p^\star = \min_{\vec{x} \in \R^n} \vec{c}^\top \vec{x} \quad \st \quad \norm{A_i \vec{x} - \vec{y}_i}_2 \leq \vec{b}_i^\top \vec{x} + z_i, \quad \forall i \in \{1, \ldots, m\}.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+Second-order cone programs are convex optimization problems.
+\end{proposition}
+
+\begin{example}
+The problem $\min_{\vec{x}} \sum_{i=1}^{m} \norm{A_i \vec{x} - \vec{y}_i}_2$ can be written as an SOCP using slack variables:
+\begin{equation}
+    \min_{\vec{x}, \vec{s}} \sum_{i=1}^{m} s_i \quad \st \quad \norm{A_i \vec{x} - \vec{y}_i}_2 \leq s_i.
+\end{equation}
+\end{example}
+
+\begin{example}[Minimax Problem]
+$\min_{\vec{x}} \max_{i} \norm{A_i \vec{x} - \vec{y}_i}_2$ becomes:
+\begin{equation}
+    \min_{\vec{x}, s} s \quad \st \quad \norm{A_i \vec{x} - \vec{y}_i}_2 \leq s, \quad \forall i.
+\end{equation}
+\end{example}
+
+\textbf{Hierarchy:} LP $\subset$ QP $\subset$ QCQP $\subset$ SOCP. Any QCQP with $H, P_i \in \mathbb{S}^n_+$ can be reformulated as an SOCP using the identity $(u+v)^2 - (u-v)^2 = 4uv$.
+
+\begin{theorem}
+The dual of an SOCP can be formulated as an SOCP in standard form.
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{(OPTIONAL) Semidefinite Programming}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Semidefinite Program --- Inequality Form]
+A \emph{semidefinite program} (SDP) in inequality form is
+\begin{equation}
+    p^\star = \min_{X \in \mathbb{S}^n} \langle C, X \rangle \quad \st \quad \langle A_i, X \rangle \leq b_i, \; \forall i \in \{1, \ldots, m\}, \quad X \succeq 0,
+\end{equation}
+where $C, A_1, \ldots, A_m \in \mathbb{S}^n$, $\vec{b} \in \R^m$, and $\langle A, B \rangle = \text{tr}(AB)$ is the Frobenius inner product.
+\end{definition}
+
+\begin{definition}[Semidefinite Program --- Standard Form]
+A semidefinite program in standard form is
+\begin{equation}
+    p^\star = \min_{X \in \mathbb{S}^n} \langle C, X \rangle \quad \st \quad \langle A_i, X \rangle = b_i, \; \forall i \in \{1, \ldots, m\}, \quad X \succeq 0.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+Semidefinite programs are convex optimization problems.
+\end{proposition}
+
+\begin{proof}
+The objective $\langle C, X \rangle = \text{tr}(CX)$ is linear in $X$. Each constraint $\langle A_i, X \rangle = b_i$ is linear in $X$. The constraint $X \succeq 0$ is convex since $\mathbb{S}^n_+$ is a convex cone.
+\end{proof}
+
+\begin{theorem}[Dual of Standard Form SDP]
+The dual of the standard form SDP is
+\begin{equation}
+    d^\star = \max_{\vec{y} \in \R^m} \vec{b}^\top \vec{y} \quad \st \quad C - \sum_{i=1}^{m} y_i A_i \succeq 0.
+\end{equation}
+\end{theorem}
+
+\begin{theorem}
+If an SDP has a strictly feasible primal solution (i.e., $X \succ 0$), then strong duality holds.
+\end{theorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{General Taxonomy}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The hierarchy of convex optimization problem classes is:
+\begin{equation}
+    \text{LP} \subset \text{Convex QP} \subset \text{Convex QCQP} \subset \text{SOCP} \subset \text{SDP} \subset \text{Convex Problems}.
+\end{equation}
+
+Each inclusion is proper:
+\begin{itemize}
+    \item LP: Linear objectives and linear constraints.
+    \item QP: Quadratic objectives and linear constraints.
+    \item QCQP: Quadratic objectives and quadratic constraints.
+    \item SOCP: Linear objectives with second-order cone constraints.
+    \item SDP: Linear objectives with semidefinite constraints.
+\end{itemize}
+
+In terms of computational complexity, problems higher in the hierarchy are generally harder to solve.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Regularization and Sparsity}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ridge Regression and LASSO}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Recall that in least squares, we solve $\min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2$. When the solution is not unique or is sensitive to noise, we use \emph{regularization}.
+
+\begin{definition}[Regularization]
+A \emph{regularized} least squares problem has the form
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2 + \lambda R(\vec{x})
+\end{equation}
+where $\lambda > 0$ is the \emph{regularization parameter} and $R: \R^n \to \R$ is the \emph{regularizer}.
+\end{definition}
+
+\textbf{Ridge Regression} uses the $\ell_2$-norm squared regularizer $R(\vec{x}) = \norm{\vec{x}}_2^2$:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2 + \lambda \norm{\vec{x}}_2^2.
+\end{equation}
+This is a convex QP with closed-form solution $\vec{x}^\star = (A^\top A + \lambda I)^{-1}A^\top \vec{y}$.
+
+\begin{definition}[LASSO]
+The \emph{LASSO} (Least Absolute Shrinkage and Selection Operator) uses the $\ell_1$-norm regularizer:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2 + \lambda \norm{\vec{x}}_1.
+\end{equation}
+\end{definition}
+
+\begin{proposition}
+LASSO is a convex optimization problem.
+\end{proposition}
+
+\begin{proof}
+The objective $\norm{A\vec{x} - \vec{y}}_2^2 + \lambda \norm{\vec{x}}_1$ is the sum of a convex quadratic function and a convex norm function, hence convex.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Understanding $\ell_2$-Norm vs $\ell_1$-Norm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The key difference between ridge regression and LASSO lies in the geometry of their unit balls:
+
+\begin{itemize}
+    \item The $\ell_2$-ball $\{\vec{x} : \norm{\vec{x}}_2 \leq 1\}$ is smooth (a sphere).
+    \item The $\ell_1$-ball $\{\vec{x} : \norm{\vec{x}}_1 \leq 1\}$ has ``corners'' at the coordinate axes.
+\end{itemize}
+
+LASSO promotes \emph{sparsity}: solutions tend to have many zero components. This is because the $\ell_1$-ball's corners lie on the coordinate axes, and the optimal solution often occurs at these corners.
+
+\begin{example}[Least $\ell_1$-Norm as LP]
+The problem $\min_{\vec{x} \in \R^n} \norm{\vec{x}}_1$ subject to $A\vec{x} = \vec{y}$ can be reformulated as a linear program. Introduce variables $\vec{t} \in \R^n$ such that $-t_i \leq x_i \leq t_i$:
+\begin{equation}
+    \min_{\vec{x}, \vec{t}} \vec{1}^\top \vec{t} \quad \st \quad A\vec{x} = \vec{y}, \quad -\vec{t} \leq \vec{x} \leq \vec{t}.
+\end{equation}
+\end{example}
+
+\begin{example}[Mean vs Median]
+Consider fitting a constant $c$ to data $y_1, \ldots, y_n$:
+\begin{itemize}
+    \item $\ell_2$ loss: $\min_c \sum_{i=1}^{n} (c - y_i)^2$ gives $c^\star = \frac{1}{n}\sum_{i=1}^{n} y_i$ (mean).
+    \item $\ell_1$ loss: $\min_c \sum_{i=1}^{n} |c - y_i|$ gives $c^\star = \text{median}(y_1, \ldots, y_n)$.
+\end{itemize}
+The median is more robust to outliers than the mean.
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analysis of LASSO}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider the scalar LASSO problem:
+\begin{equation}
+    \min_{x \in \R} (y - x)^2 + \lambda |x|.
+\end{equation}
+
+Let $f(x) = (y - x)^2 + \lambda |x|$. Since $|x|$ is not differentiable at $x = 0$, we analyze three cases:
+
+\textbf{Case 1:} $x > 0$. Then $f(x) = (y-x)^2 + \lambda x$, so $f'(x) = -2(y-x) + \lambda = 0$ gives $x = y - \frac{\lambda}{2}$.
+
+\textbf{Case 2:} $x < 0$. Then $f(x) = (y-x)^2 - \lambda x$, so $f'(x) = -2(y-x) - \lambda = 0$ gives $x = y + \frac{\lambda}{2}$.
+
+\textbf{Case 3:} $x = 0$. Check if $0 \in \partial f(0)$ using subgradients.
+
+The solution is the \textbf{soft thresholding operator}:
+\begin{equation}
+    x^\star = S_{\lambda/2}(y) = \begin{cases}
+        y - \frac{\lambda}{2} & \text{if } y > \frac{\lambda}{2} \\
+        0 & \text{if } |y| \leq \frac{\lambda}{2} \\
+        y + \frac{\lambda}{2} & \text{if } y < -\frac{\lambda}{2}
+    \end{cases}
+    = \text{sign}(y) \cdot \max\left(|y| - \frac{\lambda}{2}, 0\right).
+\end{equation}
+
+This shows that small values of $y$ (within $\pm\frac{\lambda}{2}$) are ``shrunk'' to zero, promoting sparsity.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Geometry of LASSO}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{theorem}[Equivalence of Regularized and Constrained Problems]
+Let $\lambda > 0$. Then LASSO is equivalent to the constrained problem:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} \norm{A\vec{x} - \vec{y}}_2^2 \quad \st \quad \norm{\vec{x}}_1 \leq t
+\end{equation}
+for some $t = t(\lambda) > 0$. Specifically, if $\vec{x}^\star$ solves LASSO with parameter $\lambda$, then $\vec{x}^\star$ solves the constrained problem with $t = \norm{\vec{x}^\star}_1$.
+\end{theorem}
+
+\begin{proof}
+By strong duality (Slater's condition holds), there exists $\mu \geq 0$ such that $\vec{x}^\star$ minimizes the Lagrangian
+\begin{equation}
+    L(\vec{x}, \mu) = \norm{A\vec{x} - \vec{y}}_2^2 + \mu(\norm{\vec{x}}_1 - t).
+\end{equation}
+Setting $\mu = \lambda$ gives the equivalence.
+\end{proof}
+
+Geometrically, the constrained LASSO seeks the point where the sublevel sets of $\norm{A\vec{x} - \vec{y}}_2^2$ (ellipsoids centered at $(A^\top A)^{-1}A^\top \vec{y}$) first touch the $\ell_1$-ball $\{\vec{x} : \norm{\vec{x}}_1 \leq t\}$. Due to the corners of the $\ell_1$-ball, this contact point often occurs at a corner, yielding a sparse solution.
+
+\figurePlaceholder{LASSO geometry: Ellipsoidal sublevel sets touching the $\ell_1$-ball at a corner}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Advanced Descent Methods}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Coordinate Descent}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Recall the general idea of descent-based methods: start with an initial guess $\vec{x}^{(0)} \in \R^n$, then generate a sequence of refined guesses using the update rule
+\begin{equation}
+    \vec{x}^{(t+1)} = \vec{x}^{(t)} + \eta \vec{v}^{(t)}
+\end{equation}
+for some search direction $\vec{v}^{(t)}$ and step size $\eta$.
+
+\textbf{Coordinate descent} finds a minimizer of multivariate functions by iteratively minimizing along one coordinate at a time. Consider $\min_{\vec{x} \in \R^n} f(\vec{x})$.
+
+For notation, let $\vec{x}_{i:j} = (x_i, x_{i+1}, \ldots, x_j) \in \R^{j-i+1}$ denote entries between indices $i$ and $j$.
+
+\textbf{Coordinate Descent Algorithm:} Given $\vec{x}^{(0)}$, for $t \geq 0$ update by sequentially minimizing with respect to each coordinate:
+\begin{equation}
+    x_i^{(t+1)} \in \argmin_{x_i \in \R} f(\vec{x}_{1:i-1}^{(t+1)}, x_i, \vec{x}_{i+1:n}^{(t)}).
+\end{equation}
+
+This breaks down the difficult multivariate optimization problem into a sequence of simpler univariate problems.
+
+\begin{theorem}[Convergence of Coordinate Descent for Differentiable Convex Functions]
+Let $f: \R^n \to \R$ be a differentiable convex function which is \emph{separately strictly convex} in each argument. That is, for each $i$ and each fixed $\vec{x}_{1:i-1}$ and $\vec{x}_{i+1:n}$, the function $x_i \mapsto f(\vec{x}_{1:i-1}, x_i, \vec{x}_{i+1:n})$ is strictly convex. If the coordinate descent algorithm is well-posed and $\min_{\vec{x} \in \R^n} f(\vec{x})$ has a solution, then the sequence of iterates converges to an optimal solution.
+\end{theorem}
+
+Coordinate descent may not converge for general non-differentiable convex functions. However, it converges for functions of the form
+\begin{equation}
+    f(\vec{x}) = g(\vec{x}) + \sum_{i=1}^{n} h_i(x_i)
+\end{equation}
+where $g: \R^n \to \R$ is convex and differentiable, and each $h_i: \R \to \R$ is convex (but not necessarily differentiable). This includes $\ell_1$ regularization problems like LASSO.
+
+\begin{example}[Coordinate Descent for LASSO]
+For $A \in \R^{m \times n}$ with columns $\vec{a}_1, \ldots, \vec{a}_n$ and $\vec{y} \in \R^m$, consider
+\begin{equation}
+    f(\vec{x}) = \frac{1}{2}\norm{A\vec{x} - \vec{y}}_2^2 + \lambda \norm{\vec{x}}_1.
+\end{equation}
+
+The coordinate descent update has closed form. Let $A_{i:j}$ denote the submatrix with columns $i$ through $j$. Define $\vec{r}_i = \vec{y} - A_{1:i-1}\vec{x}_{1:i-1}^{(t+1)} - A_{i+1:n}\vec{x}_{i+1:n}^{(t)}$. Then:
+\begin{equation}
+    x_i^{(t+1)} = \begin{cases}
+        \frac{1}{\norm{\vec{a}_i}_2^2}\left(\vec{a}_i^\top \vec{r}_i - \lambda\right) & \text{if } \vec{a}_i^\top \vec{r}_i > \lambda \\
+        0 & \text{if } |\vec{a}_i^\top \vec{r}_i| \leq \lambda \\
+        \frac{1}{\norm{\vec{a}_i}_2^2}\left(\vec{a}_i^\top \vec{r}_i + \lambda\right) & \text{if } \vec{a}_i^\top \vec{r}_i < -\lambda
+    \end{cases}
+\end{equation}
+\end{example}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Newton's Method}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider $\min_{\vec{x} \in \R^n} f(\vec{x})$ where $f$ is twice differentiable. Algorithms that utilize second derivatives (e.g., the Hessian) are called \emph{second-order methods}.
+
+\textbf{Newton's method} is based on the following idea: start with $\vec{x}^{(0)}$, then in each iteration $t$, approximate $f(\vec{x})$ with its second-order Taylor approximation around $\vec{x}^{(t)}$. The minimizer of this quadratic approximation becomes $\vec{x}^{(t+1)}$.
+
+The second-order Taylor approximation around $\vec{x}^{(t)}$ is:
+\begin{equation}
+    \hat{f}_2(\vec{x}; \vec{x}^{(t)}) = f(\vec{x}^{(t)}) + [\nabla f(\vec{x}^{(t)})]^\top(\vec{x} - \vec{x}^{(t)}) + \frac{1}{2}(\vec{x} - \vec{x}^{(t)})^\top[\nabla^2 f(\vec{x}^{(t)})](\vec{x} - \vec{x}^{(t)}).
+\end{equation}
+
+If $\nabla^2 f(\vec{x}^{(t)}) \succ 0$, setting the gradient to zero yields:
+\begin{equation}
+    \vec{x}^{(t+1)} = \vec{x}^{(t)} - [\nabla^2 f(\vec{x}^{(t)})]^{-1}[\nabla f(\vec{x}^{(t)})].
+\end{equation}
+
+The vector $[\nabla^2 f(\vec{x}^{(t)})]^{-1}[\nabla f(\vec{x}^{(t)})]$ is called the \emph{Newton direction}.
+
+The basic Newton's method is not guaranteed to converge in general. \textbf{Damped Newton's method} introduces a step size $\eta > 0$:
+\begin{equation}
+    \vec{x}^{(t+1)} = \vec{x}^{(t)} - \eta[\nabla^2 f(\vec{x}^{(t)})]^{-1}[\nabla f(\vec{x}^{(t)})].
+\end{equation}
+
+Newton's method requires computing and inverting the Hessian in every iteration, which is more expensive than computing the gradient. However, Newton's method often converges in fewer iterations than gradient descent.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Newton's Method with Linear Equality Constraints}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider the equality-constrained problem:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} f(\vec{x}) \quad \st \quad A\vec{x} = \vec{y}
+\end{equation}
+where $f$ is twice-differentiable strictly convex with positive definite Hessian.
+
+We minimize the second-order Taylor approximation over the constraint set. This gives a constrained QP that we solve via KKT conditions. Defining $\vec{v}^{(t)} = \vec{x}^\star - \vec{x}^{(t)}$, the system becomes:
+\begin{equation}
+    \begin{bmatrix} \nabla^2 f(\vec{x}^{(t)}) & A^\top \\ A & 0 \end{bmatrix} \begin{bmatrix} \vec{v}^{(t)} \\ \vec{\nu} \end{bmatrix} = \begin{bmatrix} -\nabla f(\vec{x}^{(t)}) \\ \vec{0} \end{bmatrix}.
+\end{equation}
+
+After solving for $\vec{v}^{(t)}$, the update is $\vec{x}^{(t+1)} = \vec{x}^{(t)} + \vec{v}^{(t)}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{(OPTIONAL) Interior Point Method}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Interior point methods solve convex problems with inequality constraints:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} f_0(\vec{x}) \quad \st \quad f_i(\vec{x}) \leq 0, \; \forall i = 1, \ldots, m, \quad A\vec{x} = \vec{y}
+\end{equation}
+where $f_0, f_1, \ldots, f_m$ are convex and twice-differentiable.
+
+\subsection{Barrier Functions}
+
+To eliminate inequality constraints, we augment them to the objective using a \emph{barrier function} $\phi$ that approximates the indicator function $I(z) = 0$ if $z \leq 0$, $+\infty$ otherwise.
+
+The \textbf{logarithmic barrier function} is:
+\begin{equation}
+    \phi_\alpha(z) = -\frac{1}{\alpha}\log(-z)
+\end{equation}
+where $\alpha > 0$ controls the approximation accuracy (larger $\alpha$ gives better approximation).
+
+The approximate problem becomes:
+\begin{equation}
+    \min_{\vec{x} \in \R^n} f_0(\vec{x}) + \sum_{i=1}^{m} \phi_\alpha(f_i(\vec{x})) \quad \st \quad A\vec{x} = \vec{y}.
+\end{equation}
+
+\subsection{Barrier Method}
+
+The \textbf{barrier method} overcomes numerical difficulties by solving a sequence of approximate problems with increasing $\alpha$:
+
+\begin{enumerate}
+    \item Start with small $\alpha^{(0)}$ and strictly feasible $\vec{x}^{(0)}$.
+    \item For $t = 1, 2, \ldots$:
+    \begin{itemize}
+        \item Solve the approximate problem with $\alpha^{(t-1)}$ using Newton's method, starting at $\vec{x}^{(t-1)}$.
+        \item Update $\alpha^{(t)} = \mu \alpha^{(t-1)}$ for some $\mu > 1$.
+    \end{itemize}
+\end{enumerate}
+
+This ``easy-to-hard'' approach uses solutions from easier problems as initial guesses for harder ones.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Applications}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{(OPTIONAL) Deterministic Control and Linear-Quadratic Regulator}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Control applies to any dynamical system where the state depends on time via $\vec{x}_{t+1} = \vec{f}(\vec{x}_t, \vec{u}_t)$, taking state $\vec{x}_t$ and control input $\vec{u}_t$ to produce next state $\vec{x}_{t+1}$.
+
+A \emph{discrete linear time-invariant} system has the form:
+\begin{equation}
+    \vec{x}_{k+1} = A\vec{x}_k + B\vec{u}_k, \quad \forall k \in \{0, 1, \ldots, K-1\}.
+\end{equation}
+
+\begin{definition}[Linear Quadratic Regulator (LQR)]
+Let $K \geq 0$, $A \in \R^{n \times n}$, $B \in \R^{n \times m}$, $Q, Q_f \in \mathbb{S}^n_+$, $R \in \mathbb{S}^m_{++}$, and $\vec{\xi} \in \R^n$. The LQR problem is:
+\begin{equation}
+    \min_{(\vec{x}_k)_{k=0}^{K}, (\vec{u}_k)_{k=0}^{K-1}} \frac{1}{2}\sum_{k=0}^{K-1}(\vec{x}_k^\top Q \vec{x}_k + \vec{u}_k^\top R \vec{u}_k) + \frac{1}{2}\vec{x}_K^\top Q_f \vec{x}_K
+\end{equation}
+subject to $\vec{x}_{k+1} = A\vec{x}_k + B\vec{u}_k$ for all $k$ and $\vec{x}_0 = \vec{\xi}$.
+\end{definition}
+
+This is a QP with $(K+1)n + Km$ variables. It can be solved efficiently using the Riccati equation.
+
+\begin{theorem}[Optimal Control in LQR is Linear]
+An optimal control for the LQR problem is linear in the state:
+\begin{equation}
+    \vec{u}_k^\star = -R^{-1}B^\top(I + P_{k+1}BR^{-1}B^\top)^{-1}P_{k+1}A\vec{x}_k^\star
+\end{equation}
+where $P_k$ are given by the \emph{Riccati recurrence}:
+\begin{align}
+    P_K &= Q_f \\
+    P_k &= A^\top(I + P_{k+1}BR^{-1}B^\top)^{-1}P_{k+1}A + Q, \quad \forall k \in \{0, \ldots, K-1\}.
+\end{align}
+\end{theorem}
+
+The $P_k$ can be computed backwards from $k = K$ to $k = 0$ offline. Then the optimal trajectory is computed forward using matrix multiplication.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Support Vector Machines}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In binary classification, we have data $\vec{x}_1, \ldots, \vec{x}_n \in \R^d$ with labels $y_1, \ldots, y_n \in \{-1, +1\}$. We want to find a classifier $f: \R^d \to \{-1, +1\}$ such that $f(\vec{x}_i) = y_i$.
+
+\textbf{Support vector machines} find an affine function $g_{\vec{w},b}(\vec{x}) = \vec{w}^\top \vec{x} - b$ that separates the data, with $f = \text{sgn} \circ g_{\vec{w},b}$. Geometrically, this corresponds to the hyperplane $\mathcal{H}_{\vec{w},b} = \{\vec{x} \in \R^d : \vec{w}^\top \vec{x} = b\}$.
+
+\subsection{Hard-Margin SVM}
+
+Assuming data are strictly linearly separable, we want the $(\vec{w}, b)$ pair with the largest \emph{margin} (distance from hyperplane to closest point). After simplification, this becomes:
+\begin{equation}
+    \min_{\vec{w} \in \R^d, b \in \R} \frac{1}{2}\norm{\vec{w}}_2^2 \quad \st \quad y_i(\vec{w}^\top \vec{x}_i - b) \geq 1, \; \forall i \in \{1, \ldots, n\}.
+\end{equation}
+
+This is a quadratic program in $(\vec{w}, b)$.
+
+\subsection{Soft-Margin SVM}
+
+For non-separable data, we relax the hard margin constraint using the \emph{hinge loss} $\ell_{\text{hinge}}(z) = \max\{z, 0\}$. Introducing slack variables $\vec{\xi}$:
+\begin{equation}
+    \min_{\vec{w}, b, \vec{\xi}} \frac{1}{2}\norm{\vec{w}}_2^2 + C\sum_{i=1}^{n} \xi_i \quad \st \quad \xi_i \geq 0, \; \xi_i \geq 1 - y_i(\vec{w}^\top \vec{x}_i - b), \; \forall i.
+\end{equation}
+
+The parameter $C$ controls the trade-off: large $C$ allows only small margin violations, small $C$ allows larger violations.
+
+\subsection{KKT Conditions and Support Vectors}
+
+For the hard-margin SVM, the Lagrangian is:
+\begin{equation}
+    L(\vec{w}, b, \vec{\lambda}) = \frac{1}{2}\norm{\vec{w}}_2^2 + \sum_{i=1}^{n} \lambda_i(1 - y_i(\vec{w}^\top \vec{x}_i - b)).
+\end{equation}
+
+From the KKT stationarity condition: $\vec{w}^\star = \sum_{i=1}^{n} \lambda_i^\star y_i \vec{x}_i$.
+
+We say $(\vec{x}_i, y_i)$ is a \emph{support vector} if $\lambda_i^\star > 0$. By complementary slackness:
+\begin{itemize}
+    \item If $\lambda_i^\star = 0$: $(\vec{x}_i, y_i)$ does not contribute to the optimal solution.
+    \item If $\lambda_i^\star > 0$: $y_i((\vec{w}^\star)^\top \vec{x}_i - b^\star) = 1$, so $\vec{x}_i$ is on the margin and contributes to the solution.
+\end{itemize}
+
+For soft-margin SVM with optimal $(\vec{w}^\star, b^\star, \vec{\xi}^\star, \vec{\lambda}^\star, \vec{\mu}^\star)$:
+\begin{itemize}
+    \item If $\lambda_i^\star = 0$: $\xi_i^\star = 0$, point does not violate margin and does not contribute.
+    \item If $\lambda_i^\star = C$: point is on or violates the margin and contributes.
+    \item If $\lambda_i^\star \in (0, C)$: $\xi_i^\star = 0$ and point is exactly on the margin.
+\end{itemize}
+
+In general, support vectors contribute to the optimal solution and are on or violate the margin.
+
+\backmatter
+
+\begin{thebibliography}{9}
+\bibitem{BV}
+S.~Boyd and L.~Vandenberghe.
+\textit{Convex Optimization}.
+Cambridge University Press, 2004.
+
+\bibitem{CG}
+G.~Calafiore and L.~El Ghaoui.
+\textit{Optimization Models}.
+Cambridge University Press, 2014.
+
+\bibitem{Pugh}
+C.~C.~Pugh.
+\textit{Real Mathematical Analysis}.
+Springer, 2002.
+
+\bibitem{Varaiya}
+P.~Varaiya et al.
+Lecture notes on optimization.
+Unpublished manuscript, University of California, Department of Electrical Engineering and Computer Science, 1998.
+
+\bibitem{Bertsekas}
+D.~P.~Bertsekas.
+Nonlinear programming.
+\textit{Journal of the Operational Research Society}, 48(3):334--334, 1997.
+
+\bibitem{Garrigos}
+G.~Garrigos and R.~M.~Gower.
+Handbook of convergence theorems for (stochastic) gradient methods.
+\textit{arXiv preprint arXiv:2301.11235}, 2023.
+
+\bibitem{Nesterov}
+Y.~Nesterov et al.
+\textit{Lectures on Convex Optimization}.
+Springer, 2018.
+\end{thebibliography}
+
+\end{document}

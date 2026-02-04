@@ -1,0 +1,455 @@
+%==============================================================================
+% EECS 127 - Discussion 1: Invertibility of A^T A and Eigenvalues
+%==============================================================================
+
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+
+%------------------------------------------------------------------------------
+% REQUIRED PACKAGES
+%------------------------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+%------------------------------------------------------------------------------
+% SPACING
+%------------------------------------------------------------------------------
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+%------------------------------------------------------------------------------
+% BOX STYLES
+%------------------------------------------------------------------------------
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+%------------------------------------------------------------------------------
+% HEADER/FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 1}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+%==============================================================================
+
+\begin{document}
+
+\noindent
+\begin{minipage}{\linewidth}
+    \centering
+    \textbf{\Large Discussion 1: Invertibility of $A^\top A$ and Eigenvalues} \\[0.5em]
+    \hrule
+\end{minipage}
+\vspace{1em}
+
+%==============================================================================
+\section{Review: Key Concepts}
+%==============================================================================
+
+Before diving into the problems, we review the essential definitions and properties.
+
+\subsection{Null Space}
+
+\begin{definition}[Null Space]
+The \textbf{null space} (or kernel) of a matrix $A \in \RR^{m \times n}$ is the set of all vectors that $A$ maps to zero:
+\[
+    \NN(A) = \{x \in \RR^n : Ax = 0\}
+\]
+\end{definition}
+
+The null space is always a subspace of $\RR^n$. It captures information about what $A$ ``loses'': if $x \in \NN(A)$, then $A$ cannot distinguish $x$ from the zero vector.
+
+\subsection{Full Column Rank}
+
+\begin{definition}[Full Column Rank]
+A matrix $A \in \RR^{m \times n}$ has \textbf{full column rank} if $\rank(A) = n$, meaning all $n$ columns are linearly independent.
+\end{definition}
+
+\begin{result}
+\textbf{Equivalent Conditions for Full Column Rank:}
+\begin{enumerate}
+    \item $\rank(A) = n$
+    \item $\NN(A) = \{0\}$ (only the zero vector maps to zero)
+    \item The columns of $A$ are linearly independent
+    \item $A^\top A \in \RR^{n \times n}$ is invertible
+\end{enumerate}
+\end{result}
+
+Note: Full column rank requires $m \ge n$ (at least as many rows as columns).
+
+\subsection{Invertibility of Square Matrices}
+
+\begin{result}
+A square matrix $M \in \RR^{n \times n}$ is invertible if and only if $\NN(M) = \{0\}$.
+\end{result}
+
+\textbf{Why?} If $Mx = 0$ has only the trivial solution $x = 0$, then $M$ has full rank, so it is invertible. Conversely, if $M$ is invertible and $Mx = 0$, multiplying both sides by $M^{-1}$ gives $x = 0$.
+
+\subsection{Eigendecomposition}
+
+\begin{definition}[Eigenvalue and Eigenvector]
+For a square matrix $A \in \RR^{n \times n}$, a scalar $\lambda$ is an \textbf{eigenvalue} and a nonzero vector $v$ is a corresponding \textbf{eigenvector} if:
+\[
+    Av = \lambda v
+\]
+\end{definition}
+
+\begin{definition}[Diagonalizable Matrix]
+A matrix $A \in \RR^{n \times n}$ is \textbf{diagonalizable} if there exists an invertible matrix $P$ and a diagonal matrix $\Lambda$ such that:
+\[
+    A = P\Lambda P^{-1}
+\]
+Here, the columns of $P$ are eigenvectors of $A$, and the diagonal entries of $\Lambda$ are the corresponding eigenvalues.
+\end{definition}
+
+\begin{result}
+\textbf{Eigendecomposition:} If $A = P\Lambda P^{-1}$ where $\Lambda = \text{diag}(\lambda_1, \ldots, \lambda_n)$, then:
+\[
+    \Lambda = \begin{pmatrix}
+    \lambda_1 & 0 & \cdots & 0 \\
+    0 & \lambda_2 & \cdots & 0 \\
+    \vdots & \vdots & \ddots & \vdots \\
+    0 & 0 & \cdots & \lambda_n
+    \end{pmatrix}
+\]
+\end{result}
+
+\subsection{Determinant Properties}
+
+\begin{result}
+\textbf{Key Determinant Facts:}
+\begin{enumerate}
+    \item $\det(XY) = \det(X) \det(Y)$ for square matrices $X, Y$
+    \item $\det(X^{-1}) = \frac{1}{\det(X)}$ for invertible $X$
+    \item For a diagonal matrix $\Lambda = \text{diag}(\lambda_1, \ldots, \lambda_n)$:
+    \[
+        \det(\Lambda) = \prod_{i=1}^n \lambda_i
+    \]
+\end{enumerate}
+\end{result}
+
+%==============================================================================
+\section{Problem 1: Invertibility of $A^\top A$}
+%==============================================================================
+
+Let $A \in \RR^{m \times n}$. We will show that $A$ has full column rank if and only if $A^\top A$ is invertible.
+
+\subsection{Part (a): $\NN(A) \subseteq \NN(A^\top A)$}
+
+\textbf{Goal:} Show that if $x \in \NN(A)$, then $x \in \NN(A^\top A)$.
+
+\textbf{Step 1: Start with the hypothesis.}
+
+Suppose $x \in \NN(A)$. By definition of the null space, this means:
+\[
+    Ax = 0
+\]
+
+\textbf{Step 2: Apply $A^\top$ to both sides.}
+
+Multiplying both sides of $Ax = 0$ by $A^\top$:
+\[
+    A^\top(Ax) = A^\top \cdot 0 = 0
+\]
+
+\textbf{Step 3: Recognize the left-hand side.}
+
+By associativity of matrix multiplication:
+\[
+    (A^\top A)x = 0
+\]
+
+\textbf{Step 4: Conclude.}
+
+This shows $x \in \NN(A^\top A)$. Therefore, $\NN(A) \subseteq \NN(A^\top A)$. $\square$
+
+\begin{tcolorbox}[colframe=black!50, title={\small Intuition}]
+If $A$ already kills $x$ (sends it to zero), then applying $A^\top$ afterward still gives zero. Anything in the null space of $A$ is automatically in the null space of $A^\top A$.
+\end{tcolorbox}
+
+\subsection{Part (b): $\NN(A^\top A) \subseteq \NN(A)$}
+
+\textbf{Goal:} Show that if $x \in \NN(A^\top A)$, then $x \in \NN(A)$.
+
+\textbf{Step 1: Start with the hypothesis.}
+
+Suppose $x \in \NN(A^\top A)$. By definition:
+\[
+    A^\top A x = 0
+\]
+
+\textbf{Step 2: Take the inner product with $x$.}
+
+Multiply both sides on the left by $x^\top$:
+\[
+    x^\top A^\top A x = x^\top \cdot 0 = 0
+\]
+
+\textbf{Step 3: Recognize the quadratic form.}
+
+The left-hand side can be rewritten using the property $(Ax)^\top = x^\top A^\top$:
+\[
+    x^\top A^\top A x = (Ax)^\top (Ax) = \|Ax\|^2
+\]
+
+\textbf{Step 4: Apply positive definiteness of norms.}
+
+We now have:
+\[
+    \|Ax\|^2 = 0
+\]
+Since the squared norm of a vector equals zero if and only if the vector itself is zero:
+\[
+    Ax = 0
+\]
+
+\textbf{Step 5: Conclude.}
+
+This shows $x \in \NN(A)$. Therefore, $\NN(A^\top A) \subseteq \NN(A)$. $\square$
+
+\begin{tcolorbox}[colframe=black!50, title={\small The Norm Trick}]
+This is a fundamental technique: to show $Ax = 0$, show that $\|Ax\|^2 = 0$. The ``$x^\top(\cdot)x$'' sandwich turns the equation into a norm, and norms are zero only for the zero vector.
+\end{tcolorbox}
+
+\subsection{Combining Parts (a) and (b)}
+
+From parts (a) and (b), we have:
+\[
+    \NN(A) \subseteq \NN(A^\top A) \quad \text{and} \quad \NN(A^\top A) \subseteq \NN(A)
+\]
+
+By double inclusion, we conclude:
+
+\begin{result}
+\[
+    \NN(A) = \NN(A^\top A)
+\]
+The null spaces of $A$ and $A^\top A$ are identical.
+\end{result}
+
+\subsection{Part (c): Full Column Rank Implies $A^\top A$ Invertible}
+
+\textbf{Goal:} Show that if $A$ has full column rank, then $A^\top A$ is invertible.
+
+\textbf{Step 1: Translate full column rank.}
+
+$A$ has full column rank means $\rank(A) = n$. By the rank-nullity theorem:
+\[
+    \dim(\NN(A)) = n - \rank(A) = n - n = 0
+\]
+Therefore, $\NN(A) = \{0\}$.
+
+\textbf{Step 2: Apply the null space equality.}
+
+From the result above, $\NN(A) = \NN(A^\top A)$. Since $\NN(A) = \{0\}$:
+\[
+    \NN(A^\top A) = \{0\}
+\]
+
+\textbf{Step 3: Conclude invertibility.}
+
+The matrix $A^\top A \in \RR^{n \times n}$ is a square matrix with trivial null space. A square matrix is invertible if and only if its null space is $\{0\}$. Therefore, $A^\top A$ is invertible. $\square$
+
+\begin{result}
+\textbf{Main Result:} For $A \in \RR^{m \times n}$:
+\[
+    A \text{ has full column rank} \iff A^\top A \text{ is invertible}
+\]
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Why This Matters}]
+This result is fundamental to least squares. When solving the normal equations $A^\top A x = A^\top b$, we need $A^\top A$ to be invertible to get a unique solution $x = (A^\top A)^{-1} A^\top b$. Full column rank of $A$ guarantees this.
+\end{tcolorbox}
+
+%==============================================================================
+\section{Problem 2: Eigenvalues and Determinants}
+%==============================================================================
+
+Let $A \in \RR^{n \times n}$ be a diagonalizable matrix with eigendecomposition $A = P\Lambda P^{-1}$, where $\Lambda = \text{diag}(\lambda_1, \ldots, \lambda_n)$.
+
+\subsection{Part (a): Powers of Diagonalizable Matrices}
+
+\textbf{Goal:} Show that $A^m = P\Lambda^m P^{-1}$ for any positive integer $m$.
+
+\textbf{Step 1: Compute $A^2$.}
+
+Starting from $A = P\Lambda P^{-1}$:
+\begin{align*}
+    A^2 &= A \cdot A \\
+    &= (P\Lambda P^{-1})(P\Lambda P^{-1}) \\
+    &= P\Lambda (P^{-1}P) \Lambda P^{-1} \\
+    &= P\Lambda I \Lambda P^{-1} \\
+    &= P\Lambda^2 P^{-1}
+\end{align*}
+
+The key step is that $P^{-1}P = I$ cancels in the middle.
+
+\textbf{Step 2: Compute $A^3$.}
+\begin{align*}
+    A^3 &= A^2 \cdot A \\
+    &= (P\Lambda^2 P^{-1})(P\Lambda P^{-1}) \\
+    &= P\Lambda^2 (P^{-1}P) \Lambda P^{-1} \\
+    &= P\Lambda^3 P^{-1}
+\end{align*}
+
+\textbf{Step 3: General pattern by induction.}
+
+\textit{Base case:} For $m = 1$, $A^1 = P\Lambda^1 P^{-1}$ holds by definition.
+
+\textit{Inductive step:} Assume $A^k = P\Lambda^k P^{-1}$ for some $k \ge 1$. Then:
+\begin{align*}
+    A^{k+1} &= A^k \cdot A \\
+    &= (P\Lambda^k P^{-1})(P\Lambda P^{-1}) \\
+    &= P\Lambda^k (P^{-1}P) \Lambda P^{-1} \\
+    &= P\Lambda^{k+1} P^{-1}
+\end{align*}
+
+By induction, the formula holds for all positive integers $m$.
+
+\begin{result}
+\textbf{Powers of Diagonalizable Matrices:}
+\[
+    A^m = P\Lambda^m P^{-1}
+\]
+where $\Lambda^m = \text{diag}(\lambda_1^m, \ldots, \lambda_n^m)$.
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Why Diagonalization is Powerful}]
+Computing $A^{100}$ directly requires 99 matrix multiplications. With diagonalization, we compute $\Lambda^{100}$ (just raise each diagonal entry to the 100th power) and do two matrix multiplications: $P\Lambda^{100}P^{-1}$. This is vastly more efficient.
+\end{tcolorbox}
+
+\subsection{Part (b): Determinant Equals Product of Eigenvalues}
+
+\textbf{Goal:} Show that $\det(A) = \prod_{i=1}^n \lambda_i$.
+
+\textbf{Step 1: Apply determinant properties to the eigendecomposition.}
+
+Starting from $A = P\Lambda P^{-1}$, take determinants of both sides:
+\[
+    \det(A) = \det(P\Lambda P^{-1})
+\]
+
+\textbf{Step 2: Use the multiplicative property.}
+
+The determinant of a product equals the product of determinants:
+\[
+    \det(P\Lambda P^{-1}) = \det(P) \cdot \det(\Lambda) \cdot \det(P^{-1})
+\]
+
+\textbf{Step 3: Simplify using $\det(P^{-1}) = \frac{1}{\det(P)}$.}
+\[
+    \det(P) \cdot \det(\Lambda) \cdot \det(P^{-1}) = \det(P) \cdot \det(\Lambda) \cdot \frac{1}{\det(P)} = \det(\Lambda)
+\]
+
+The $\det(P)$ terms cancel.
+
+\textbf{Step 4: Compute the determinant of a diagonal matrix.}
+
+For a diagonal matrix, the determinant is the product of diagonal entries:
+\[
+    \det(\Lambda) = \det\begin{pmatrix}
+    \lambda_1 & 0 & \cdots & 0 \\
+    0 & \lambda_2 & \cdots & 0 \\
+    \vdots & \vdots & \ddots & \vdots \\
+    0 & 0 & \cdots & \lambda_n
+    \end{pmatrix} = \lambda_1 \cdot \lambda_2 \cdots \lambda_n = \prod_{i=1}^n \lambda_i
+\]
+
+\textbf{Step 5: Conclude.}
+\[
+    \det(A) = \prod_{i=1}^n \lambda_i \quad \square
+\]
+
+\begin{result}
+\textbf{Determinant and Eigenvalues:}
+\[
+    \det(A) = \lambda_1 \lambda_2 \cdots \lambda_n
+\]
+The determinant of a matrix equals the product of its eigenvalues (counted with multiplicity).
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Corollary: Invertibility Test}]
+Since $\det(A) = \prod \lambda_i$, a matrix is invertible (i.e., $\det(A) \neq 0$) if and only if none of its eigenvalues are zero. Equivalently: $A$ is singular $\iff$ $0$ is an eigenvalue of $A$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Note on Generality}]
+The result $\det(A) = \prod \lambda_i$ holds for \emph{all} square matrices, not just diagonalizable ones. The proof for non-diagonalizable matrices uses the characteristic polynomial: $\det(A - \lambda I) = (-1)^n(\lambda - \lambda_1)(\lambda - \lambda_2)\cdots(\lambda - \lambda_n)$. Setting $\lambda = 0$ gives $\det(A) = \prod \lambda_i$.
+\end{tcolorbox}
+
+%==============================================================================
+
+\vfill
+
+\begin{center}
+\rule{0.5\linewidth}{0.4pt}
+
+\textit{Key Takeaways}
+\end{center}
+
+\begin{enumerate}
+    \item \textbf{Null space equality:} $\NN(A) = \NN(A^\top A)$. The ``norm trick'' ($x^\top A^\top A x = \|Ax\|^2$) is essential for proving one direction.
+
+    \item \textbf{Full column rank criterion:} $A$ has full column rank $\iff$ $A^\top A$ is invertible. This underlies uniqueness in least squares.
+
+    \item \textbf{Diagonalization simplifies powers:} $A^m = P\Lambda^m P^{-1}$. The $P^{-1}P = I$ cancellation is the key mechanism.
+
+    \item \textbf{Determinant via eigenvalues:} $\det(A) = \prod \lambda_i$. Zero eigenvalue $\iff$ singular matrix.
+\end{enumerate}
+
+\end{document}
