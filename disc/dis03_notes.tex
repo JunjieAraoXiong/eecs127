@@ -1,0 +1,487 @@
+%==============================================================================
+% EECS 127 - Discussion 3: SVD, PCA, and Singular Values
+%==============================================================================
+
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+
+%------------------------------------------------------------------------------
+% REQUIRED PACKAGES
+%------------------------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+%------------------------------------------------------------------------------
+% SPACING
+%------------------------------------------------------------------------------
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+%------------------------------------------------------------------------------
+% BOX STYLES
+%------------------------------------------------------------------------------
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+%------------------------------------------------------------------------------
+% HEADER/FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 3}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+%==============================================================================
+
+\begin{document}
+
+\noindent
+\begin{minipage}{\linewidth}
+    \centering
+    \textbf{\Large Discussion 3: SVD, PCA, and Singular Values} \\[0.5em]
+    \hrule
+\end{minipage}
+\vspace{1em}
+
+%==============================================================================
+\section{Review: Key Concepts}
+%==============================================================================
+
+Before diving into the problems, we review the essential definitions of the Singular Value Decomposition.
+
+\subsection{Compact SVD}
+
+\begin{definition}[Compact SVD]
+For $A \in \RR^{m \times n}$ with $\rank(A) = r$, the \textbf{compact SVD} is:
+\[
+    \underset{m \times n}{A} = \underset{m \times r}{U_r} \; \underset{r \times r}{\Sigma_r} \; \underset{r \times n}{V_r^\top}
+\]
+where $\Sigma_r = \text{diag}(\sigma_1, \ldots, \sigma_r)$ with $\sigma_1 \ge \sigma_2 \ge \cdots \ge \sigma_r > 0$, the columns of $U_r$ are orthonormal left singular vectors spanning $\Range(A)$, and the columns of $V_r$ are orthonormal right singular vectors spanning $\Range(A^\top)$.
+\end{definition}
+
+\subsection{Full SVD}
+
+\begin{definition}[Full SVD]
+The \textbf{full SVD} of $A \in \RR^{m \times n}$ with $\rank(A) = r$ is:
+\[
+    \underset{m \times n}{A} = \underset{m \times m}{U} \; \underset{m \times n}{\Sigma} \; \underset{n \times n}{V^\top}
+\]
+where $U$ and $V$ are square orthonormal matrices ($U^\top U = UU^\top = I_m$, $V^\top V = VV^\top = I_n$), and $\Sigma$ has $\Sigma_r$ in its top-left block with zeros elsewhere:
+\[
+    \Sigma = \begin{bmatrix} \Sigma_r & 0_{r \times (n-r)} \\ 0_{(m-r) \times r} & 0_{(m-r) \times (n-r)} \end{bmatrix}
+\]
+\end{definition}
+
+The extra columns of $U$ (beyond $U_r$) span $\NN(A^\top)$, and the extra columns of $V$ (beyond $V_r$) span $\NN(A)$.
+
+\subsection{Dyadic SVD}
+
+The matrix $A$ can also be written as a sum of rank-1 matrices (dyads):
+\[
+    A = \sigma_1 u_1 v_1^\top + \sigma_2 u_2 v_2^\top + \cdots + \sigma_r u_r v_r^\top = \sum_{i=1}^r \sigma_i u_i v_i^\top
+\]
+
+\subsection{Principal Component Analysis (PCA)}
+
+\begin{definition}[PCA via SVD]
+Given centered data matrix $X \in \RR^{n \times d}$ (rows are data points), the \textbf{principal components} are the right singular vectors of $X$. The first principal component $v_1$ maximizes the variance $\|Xw\|_2^2$ over unit vectors $w$, equivalently solving $\arg\max_{\|w\|_2 = 1} w^\top X^\top X w$.
+\end{definition}
+
+\begin{result}
+\textbf{Key relationships:} $X^\top X = V_d \Sigma_d^2 V_d^\top$ is an eigendecomposition. The eigenvalues of $X^\top X$ are $\sigma_i^2$, and the eigenvectors are the right singular vectors $v_i$ of $X$, which are the principal components.
+\end{result}
+
+\newpage
+%==============================================================================
+\section{Problem 1: SVD}
+%==============================================================================
+
+Let $A \in \RR^{m \times n}$ with $\rank(A) = r$. Assume $m > n > r$.
+
+\subsection{Part (a): True/False on SVD Products}
+
+For each product, determine whether it equals the identity.
+
+\textbf{Mental model.} In the full SVD, $U$ and $V$ are \emph{square} orthonormal matrices, so both $MM^\top = I$ and $M^\top M = I$ hold for $M \in \{U, V\}$. In the compact SVD, $U_r$ and $V_r$ are \emph{tall} matrices with orthonormal columns. For a tall matrix, only the ``thin-side product'' $M^\top M = I$ holds; the ``fat-side product'' $M M^\top$ is a projector, not the identity.
+
+\begin{result}
+\begin{enumerate}[label=(\alph*)]
+    \item $UU^\top = I$: \textbf{True.} $U$ is $m \times m$ orthonormal (square), so $UU^\top = I_m$.
+
+    \item $U^\top U = I$: \textbf{True.} Same reason: $U$ is square orthonormal, so $U^\top U = I_m$.
+
+    \item $V^\top V = I$: \textbf{True.} $V$ is $n \times n$ orthonormal (square), so $V^\top V = I_n$.
+
+    \item $VV^\top = I$: \textbf{True.} Same reason: $V$ is square orthonormal, so $VV^\top = I_n$.
+
+    \item $U_r^\top U_r = I$: \textbf{True.} $U_r$ is $m \times r$ with orthonormal columns; the product $U_r^\top U_r$ is $r \times r$ and equals $I_r$.
+
+    \item $U_r U_r^\top = I$: \textbf{False.} $U_r U_r^\top$ is $m \times m$ but has $\rank = r < m$. It is the orthogonal projector onto $\Range(A)$, not the identity.
+
+    \item $V_r V_r^\top = I$: \textbf{False.} $V_r V_r^\top$ is $n \times n$ but has $\rank = r < n$. It is the orthogonal projector onto $\Range(A^\top)$, not the identity.
+
+    \item $V_r^\top V_r = I$: \textbf{True.} $V_r$ is $n \times r$ with orthonormal columns; the product $V_r^\top V_r$ is $r \times r$ and equals $I_r$.
+\end{enumerate}
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Key Distinction}]
+For a \textbf{tall} matrix $M$ ($m \times r$, $m > r$) with orthonormal columns: $M^\top M = I_r$ always holds, but $M M^\top \neq I_m$. The product $M M^\top$ is the orthogonal projector onto the column space of $M$. It equals $I$ only when $M$ is square.
+
+\medskip
+\textbf{Quick test:} Is the matrix square? If yes, both $MM^\top$ and $M^\top M$ give $I$. If no (tall or wide), only the ``thin-side product'' gives $I$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colframe=red!60!black, colback=red!3, title={\small Common Mistake}]
+Students often confuse ``orthonormal columns'' with ``orthogonal matrix.'' A matrix with orthonormal columns satisfies $M^\top M = I$, but an \textbf{orthogonal matrix} must also be \emph{square}, which additionally gives $MM^\top = I$. The compact SVD factors $U_r, V_r$ have orthonormal columns but are \emph{not} orthogonal matrices (they are not square).
+\end{tcolorbox}
+
+\subsection{Part (b): Compact SVD from Full SVD}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Recipe: Compact SVD from Full SVD}]
+Given the full SVD $A = U \Sigma V^\top$:
+\begin{enumerate}[label=\arabic*.]
+    \item Count the nonzero singular values in $\Sigma$ to determine $\rank(A) = r$.
+    \item Keep the first $r$ columns of $U$ $\to$ $U_r$.
+    \item Keep the top-left $r \times r$ block of $\Sigma$ $\to$ $\Sigma_r$.
+    \item Keep the first $r$ rows of $V^\top$ (equivalently, first $r$ columns of $V$) $\to$ $V_r^\top$.
+\end{enumerate}
+The ``first $r$'' columns correspond to the $r$ largest singular values, which are already ordered $\sigma_1 \ge \sigma_2 \ge \cdots \ge \sigma_r > 0$ in $\Sigma$.
+\end{tcolorbox}
+
+\textbf{Goal:} Find the compact SVD given the full SVD:
+\[
+    A = \begin{bmatrix} 0 & 1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} 2 & 0 \\ 0 & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
+\]
+
+\textbf{Step 1: Identify the rank.}
+
+The matrix $\Sigma$ has only one non-zero singular value $\sigma_1 = 2$, so $r = 1$.
+
+\textbf{Step 2: Extract the compact components.}
+
+\begin{itemize}
+    \item $\Sigma_r = \begin{bmatrix} 2 \end{bmatrix}$ (the $1 \times 1$ block of non-zero singular values).
+    \item $U_r$ = first column of $U$ = $\begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}$ (the left singular vector for $\sigma_1$).
+    \item $V_r^\top$ = first row of $V^\top$ = $\begin{bmatrix} 1 & 0 \end{bmatrix}$ (the right singular vector for $\sigma_1$).
+\end{itemize}
+
+\begin{result}
+\textbf{Compact SVD:}
+\[
+    A = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} \begin{bmatrix} 2 \end{bmatrix} \begin{bmatrix} 1 & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 2 & 0 \\ 0 & 0 \end{bmatrix}
+\]
+\end{result}
+
+\textbf{Verification.} Multiply out $U_r \Sigma_r V_r^\top$:
+\[
+    \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} (2) \begin{bmatrix} 1 & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 2 & 0 \\ 0 & 0 \end{bmatrix}
+\]
+This matches the product from the full SVD: $U \Sigma V^\top = \begin{bmatrix} 0 & 0 \\ 2 & 0 \\ 0 & 0 \end{bmatrix}$. \checkmark
+
+\subsection{Part (c): Full SVD from Compact SVD}
+
+\textbf{Goal:} Find the full SVD given the compact SVD:
+\[
+    A = \begin{bmatrix} \frac{1}{\sqrt{2}} & 0 \\[3pt] \frac{1}{\sqrt{2}} & 0 \\[3pt] 0 & 1 \end{bmatrix} \begin{bmatrix} 2 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
+\]
+
+Here $A \in \RR^{3 \times 2}$ with $r = 2$ (both singular values are non-zero).
+
+\textbf{Step 1: Identify what we have and what we need.}
+
+We have $U_r \in \RR^{3 \times 2}$, $\Sigma_r \in \RR^{2 \times 2}$, and $V_r = I_2$.
+
+For the full SVD, we need $U \in \RR^{3 \times 3}$ (square orthonormal), $\Sigma \in \RR^{3 \times 2}$, and $V \in \RR^{2 \times 2}$. The key challenge is that $U_r$ is $3 \times 2$ --- it has orthonormal columns but is not square. We must find one additional column to make $U$ a full $3 \times 3$ orthonormal matrix.
+
+\textbf{Step 2: Extend $V$.}
+
+Since $r = n = 2$, we have $V_r = V = I_2$. No additional columns needed.
+
+\textbf{Step 3: Extend $U$ to a $3 \times 3$ orthonormal matrix.}
+
+The columns of $U_r$ are $u_1 = \begin{bmatrix} 1/\sqrt{2} \\ 1/\sqrt{2} \\ 0 \end{bmatrix}$ and $u_2 = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}$. We need a third column $u_3$ orthogonal to both. Since we are in $\RR^3$, we can use the cross product:
+\[
+    u_3 = u_1 \times u_2 = \begin{bmatrix} \frac{1}{\sqrt{2}} \cdot 1 - 0 \cdot 0 \\[3pt] 0 \cdot 0 - \frac{1}{\sqrt{2}} \cdot 1 \\[3pt] \frac{1}{\sqrt{2}} \cdot 0 - \frac{1}{\sqrt{2}} \cdot 0 \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{2}} \\[3pt] -\frac{1}{\sqrt{2}} \\[3pt] 0 \end{bmatrix}
+\]
+
+\textbf{Step 4: Extend $\Sigma$.}
+
+Pad with a zero row: $\Sigma = \begin{bmatrix} 2 & 0 \\ 0 & 1 \\ 0 & 0 \end{bmatrix}$.
+
+\begin{result}
+\textbf{Full SVD:}
+\[
+    A = \begin{bmatrix} \frac{1}{\sqrt{2}} & 0 & \frac{1}{\sqrt{2}} \\[3pt] \frac{1}{\sqrt{2}} & 0 & -\frac{1}{\sqrt{2}} \\[3pt] 0 & 1 & 0 \end{bmatrix} \begin{bmatrix} 2 & 0 \\ 0 & 1 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}
+\]
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small What does the extra column represent?}]
+The third column $u_3$ spans $\NN(A^\top)$: it is a left singular vector corresponding to the zero singular value. This connects to the \textbf{four fundamental subspaces}: the columns of $U_r$ span $\Range(A)$, while the extra columns of $U$ span $\NN(A^\top)$. Similarly, extra columns of $V$ (if any) would span $\NN(A)$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colframe=black!50, title={\small General method and non-uniqueness}]
+\textbf{General method.} The cross product trick only works in $\RR^3$. In higher dimensions, find the extra columns by computing a basis for $\NN(U_r^\top)$ (e.g., via Gram--Schmidt on any vectors that extend $\{u_1, \ldots, u_r\}$ to a basis for $\RR^m$).
+
+\medskip
+\textbf{Non-uniqueness.} Any orthonormal basis for $\NN(U_r^\top)$ works as the extra columns; sign flips (e.g., $-u_3$ instead of $u_3$) or rotations within the null space all give valid full SVDs. The compact SVD is essentially unique (up to sign flips of paired $u_i, v_i$), but the full SVD is not.
+\end{tcolorbox}
+
+\newpage
+%==============================================================================
+\section{Problem 2: PCA and Regression}
+%==============================================================================
+
+\subsection{Part (a): Identifying Principal Components from a Scatter Plot}
+
+\textbf{Goal:} Given a scatter plot with candidate unit vectors $v_1, v_2, v_3, v_4$, identify the first and second principal components.
+
+\textbf{Step 1: Recall the PCA criterion.}
+
+The first principal component is the direction of \textbf{maximum variance} in the data. Concretely, ``variance along direction $w$'' means projecting every data point onto $w$ and measuring the spread: $\text{Var} = \|Xw\|_2^2$ (for centered data $X$). The second principal component is orthogonal to the first and captures the next largest variance.
+
+\textbf{Step 2: Analyze the data cloud.}
+
+From the scatter plot, the data is elongated along a diagonal from lower-left to upper-right, indicating positive correlation between the two variables.
+
+\textbf{Step 3: Match directions to principal components.}
+
+\begin{result}
+\begin{itemize}
+    \item \textbf{First principal component:} $v_3$ --- points along the direction of greatest spread (upper-right diagonal), capturing the maximum variance.
+    \item \textbf{Second principal component:} $v_2$ --- perpendicular to $v_3$ (upper-left diagonal), capturing the remaining variance.
+\end{itemize}
+\textbf{Why not $v_1$ or $v_4$?} These lie along the coordinate axes ($x$-axis and $y$-axis). Because the data has positive correlation, the direction of maximum spread is \emph{diagonal}, not axis-aligned. Projecting onto a coordinate axis ignores the correlation structure and yields less variance than projecting onto $v_3$.
+
+\medskip
+\textbf{Sign ambiguity:} Both $v_3$ and $-v_3$ are valid first PCs --- negating a direction does not change the variance of the projection.
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small PCA vs.\ Regression}]
+The first principal component is \emph{not} the same as the regression line.
+\begin{itemize}[topsep=2pt]
+    \item \textbf{Regression} (e.g., $y$ on $x$) minimizes \emph{vertical} distances (residuals in $y$). It treats $x$ and $y$ asymmetrically.
+    \item \textbf{PCA} minimizes \emph{perpendicular} distances to the line. It treats all variables symmetrically.
+\end{itemize}
+For positively correlated data, the PCA line is typically \emph{steeper} than the regression line of $y$ on $x$ (but shallower than the regression of $x$ on $y$). The two coincide only when the data lies exactly on a line.
+\end{tcolorbox}
+
+\subsection{Part (b): Top $k$ Principal Components from SVD}
+
+\textbf{Goal:} Given centered data $X \in \RR^{n \times d}$ with compact SVD $X = U_d \Sigma_d V_d^\top$, identify the top $k$ principal components.
+
+\textbf{Given:} Centered data matrix $X \in \RR^{n \times d}$ (each row is one data point, columns are features), its compact SVD $X = U_d \Sigma_d V_d^\top$, and the optimization formulation for PCA: $\arg\max_{\|w\|_2 = 1} w^\top X^\top X w$.
+
+\textbf{Step 1: Relate PCA to the eigendecomposition of $X^\top X$.}
+
+The first principal component solves:
+\[
+    \arg\max_{\|w\|_2 = 1} w^\top X^\top X w
+\]
+This is a \textbf{Rayleigh quotient} problem. The general theorem states: for a symmetric matrix $M$, the maximizer of $w^\top M w$ subject to $\|w\|_2 = 1$ is the eigenvector of $M$ corresponding to its \emph{largest} eigenvalue, and the maximum value is that eigenvalue. Applying this with $M = X^\top X$, the first PC is the top eigenvector of $X^\top X$.
+
+\textbf{Step 2: Connect $X^\top X$ to the SVD of $X$.}
+
+From the compact SVD $X = U_d \Sigma_d V_d^\top$:
+\[
+    X^\top X = (U_d \Sigma_d V_d^\top)^\top (U_d \Sigma_d V_d^\top) = V_d \Sigma_d^\top \underbrace{U_d^\top U_d}_{= \, I_d} \Sigma_d V_d^\top = V_d \Sigma_d^2 V_d^\top
+\]
+The key simplification is $U_d^\top U_d = I_d$, which holds because $U_d$ has orthonormal columns (as discussed in Problem~1a). This is precisely the eigendecomposition of $X^\top X$: the eigenvalues are $\sigma_1^2 \ge \sigma_2^2 \ge \cdots \ge \sigma_d^2$, and the eigenvectors are the columns $v_1, \ldots, v_d$ of $V_d$.
+
+\textbf{Step 3: Identify the top $k$ principal components.}
+
+Since $\sigma_1 \ge \sigma_2 \ge \cdots \ge \sigma_d > 0$, the eigenvector corresponding to the largest eigenvalue $\sigma_1^2$ is $v_1$, the next is $v_2$, and so on.
+
+\begin{result}
+The top $k$ principal components are the first $k$ right singular vectors of $X$:
+\[
+    v_1, \; v_2, \; \ldots, \; v_k
+\]
+These are the columns of $V_d$ corresponding to the $k$ largest singular values $\sigma_1 \ge \sigma_2 \ge \cdots \ge \sigma_k$.
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Practical Interpretation: Variance Explained}]
+The $i$-th principal component $v_i$ explains a fraction of the total variance:
+\[
+    \text{Fraction explained by } v_i = \frac{\sigma_i^2}{\sigma_1^2 + \sigma_2^2 + \cdots + \sigma_d^2}
+\]
+The top $k$ PCs together explain $\sum_{i=1}^k \sigma_i^2 \big/ \sum_{j=1}^d \sigma_j^2$ of the total variance. Projecting data onto the top $k$ components gives the best rank-$k$ approximation to the data in the least-squares sense (Eckart--Young theorem).
+\end{tcolorbox}
+
+\newpage
+%==============================================================================
+\section{Problem 3: Singular Values}
+%==============================================================================
+
+\subsection{Part (a): Singular Values from Eigendecomposition of $A^\top A$}
+
+\textbf{Goal:} Find the singular values of $A \in \RR^{3 \times 2}$ given:
+\[
+    A^\top A = \begin{bmatrix} \frac{1}{\sqrt{2}} & -\frac{1}{\sqrt{2}} \\[3pt] \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \end{bmatrix} \begin{bmatrix} 5 & 0 \\ 0 & 3 \end{bmatrix} \begin{bmatrix} \frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\[3pt] -\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \end{bmatrix}
+\]
+
+\textbf{Step 1: Recognize the eigendecomposition.}
+
+\textbf{How to recognize $PDP^\top$:} We are given a product of three matrices where the outer matrices are transposes of each other and the middle matrix is diagonal. Check that $P$ is orthogonal (its columns are orthonormal). If so, this is an eigendecomposition: the diagonal entries of $D$ are the eigenvalues, and the columns of $P$ are the corresponding eigenvectors.
+
+Here $P = \begin{bmatrix} 1/\sqrt{2} & -1/\sqrt{2} \\ 1/\sqrt{2} & 1/\sqrt{2} \end{bmatrix}$ is orthogonal and $D = \text{diag}(5, 3)$, so the eigenvalues of $A^\top A$ are $5$ and $3$.
+
+\textbf{Step 2: Recall the relationship between singular values and eigenvalues.}
+
+The singular values of $A$ are the square roots of the eigenvalues of $A^\top A$:
+\[
+    \sigma_i = \sqrt{\lambda_i(A^\top A)}
+\]
+
+\textbf{Why is taking square roots always valid?} The matrix $A^\top A$ is always positive semidefinite (PSD), since for any $x$:
+\[
+    x^\top (A^\top A) x = \|Ax\|_2^2 \ge 0
+\]
+Therefore all eigenvalues of $A^\top A$ are $\ge 0$, and taking square roots is well-defined.
+
+\textbf{Step 3: Compute.}
+
+\begin{result}
+The singular values of $A$ are:
+\[
+    \sigma_1 = \sqrt{5}, \qquad \sigma_2 = \sqrt{3}
+\]
+\end{result}
+
+\textbf{Bonus connection.} The columns of $P$ in the decomposition $A^\top A = P D P^\top$ are actually the right singular vectors $V$ of $A$. This is because $A^\top A = V \Sigma^2 V^\top$ (from the SVD). So the eigendecomposition of $A^\top A$ simultaneously gives us both the singular values (via $D$) and the right singular vectors (via $P$).
+
+\subsection{Part (b): Singular Values of $C = \begin{bmatrix} B & -B & 3I_3 \end{bmatrix}$}
+
+\textbf{Goal:} Given $B \in \RR^{3 \times 2}$ with singular values $0$, $\sqrt{2}$, $\sqrt{7}$, find the singular values of $C = \begin{bmatrix} B & -B & 3I_3 \end{bmatrix} \in \RR^{3 \times 7}$.
+
+\textbf{Step 1: Choose $CC^\top$ over $C^\top C$.}
+
+Since $C \in \RR^{3 \times 7}$, we have two options: $C^\top C \in \RR^{7 \times 7}$ or $CC^\top \in \RR^{3 \times 3}$. Both share the same nonzero eigenvalues (recall Discussion~2, Problem~2c), so always work with the \textbf{smaller} one. Here $CC^\top$ is $3 \times 3$ --- much easier.
+
+\textbf{Step 2: Compute $CC^\top$ using the block product rule.}
+
+For any block matrix $C = [A_1 \; A_2 \; \cdots \; A_k]$, we have:
+\[
+    CC^\top = A_1 A_1^\top + A_2 A_2^\top + \cdots + A_k A_k^\top
+\]
+Applying this with $A_1 = B$, $A_2 = -B$, $A_3 = 3I_3$:
+\begin{align*}
+    CC^\top &= B B^\top + (-B)(-B)^\top + (3I_3)(3I_3)^\top \\
+    &= B B^\top + B B^\top + 9 I_3 \\
+    &= 2 B B^\top + 9 I_3
+\end{align*}
+
+\textbf{Step 3: Find the eigenvalues of $BB^\top$.}
+
+The singular values of $B \in \RR^{3 \times 2}$ are given as $0$, $\sqrt{2}$, $\sqrt{7}$. Note: $B$ has $\min(3, 2) = 2$ nonzero singular values at most. The ``third singular value'' $0$ arises because $BB^\top$ is $3 \times 3$ but has $\rank \le 2$, giving a zero eigenvalue. The eigenvalues of $BB^\top$ (squares of singular values) are:
+\[
+    0, \quad 2, \quad 7
+\]
+
+\textbf{Step 4: Find the eigenvalues of $CC^\top = 2BB^\top + 9I$.}
+
+We use two eigenvalue properties:
+\begin{itemize}
+    \item \textbf{Scaling:} $\lambda(cM) = c \cdot \lambda(M)$. So $\lambda(2BB^\top) = 2 \cdot \lambda(BB^\top) = 0, \; 4, \; 14$.
+    \item \textbf{Shifting:} $\lambda(M + cI) = \lambda(M) + c$. So $\lambda(2BB^\top + 9I) = 0 + 9, \; 4 + 9, \; 14 + 9$.
+\end{itemize}
+\[
+    \text{Eigenvalues of } CC^\top: \quad 9, \quad 13, \quad 23
+\]
+
+\textbf{Step 5: Take square roots.}
+
+The singular values of $C$ are the square roots of the eigenvalues of $CC^\top$:
+
+\begin{result}
+The singular values of $C$ are:
+\[
+    \sigma_1 = \sqrt{23}, \qquad \sigma_2 = \sqrt{13}, \qquad \sigma_3 = 3
+\]
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Strategy}]
+When $C$ is wide ($3 \times 7$), computing $CC^\top$ ($3 \times 3$) is much easier than $C^\top C$ ($7 \times 7$). Both share the same \emph{nonzero} eigenvalues, so always work with the smaller product. The singular values of $C$ are the same either way.
+\end{tcolorbox}
+
+%==============================================================================
+
+\vfill
+
+\begin{center}
+\rule{0.5\linewidth}{0.4pt}
+
+\textit{Key Takeaways}
+\end{center}
+
+\begin{enumerate}
+    \item \textbf{Compact vs.\ full SVD:} The compact SVD keeps only the $r$ non-zero singular values and their singular vectors. The full SVD extends $U$ and $V$ to square orthonormal matrices by adding vectors spanning $\NN(A^\top)$ and $\NN(A)$.
+
+    \item \textbf{Orthonormality of SVD factors:} For the compact SVD, $U_r^\top U_r = I_r$ and $V_r^\top V_r = I_r$ (columns are orthonormal), but $U_r U_r^\top \neq I$ and $V_r V_r^\top \neq I$ when $r$ is less than the ambient dimension. These products are projectors, not identities.
+
+    \item \textbf{PCA from SVD:} The top $k$ principal components of centered data $X$ are the first $k$ right singular vectors of $X$ (columns of $V$), corresponding to the $k$ largest singular values.
+
+    \item \textbf{Singular values from $A^\top A$:} The singular values of $A$ are $\sigma_i = \sqrt{\lambda_i(A^\top A)}$. When given an eigendecomposition of $A^\top A$, simply read off the eigenvalues and take square roots.
+
+    \item \textbf{Block matrix trick:} For $C = [B \; {-B} \; 3I]$, compute $CC^\top = 2BB^\top + 9I$ and use eigenvalue shifting. Always work with the smaller of $CC^\top$ and $C^\top C$.
+
+    \item \textbf{Recognizing eigendecompositions:} When you see $PDP^\top$ with $P$ orthogonal and $D$ diagonal, the diagonal entries of $D$ are eigenvalues and the columns of $P$ are eigenvectors. For $A^\top A = PDP^\top$, the columns of $P$ are the right singular vectors of $A$.
+
+    \item \textbf{Non-uniqueness in SVD:} The compact SVD is essentially unique up to sign flips of paired singular vectors ($u_i, v_i \to -u_i, -v_i$). The full SVD is \emph{not} unique: any orthonormal basis for $\NN(A^\top)$ or $\NN(A)$ can serve as the extra columns of $U$ or $V$.
+\end{enumerate}
+
+\end{document}

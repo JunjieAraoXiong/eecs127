@@ -1,0 +1,484 @@
+%==============================================================================
+% EECS 127 - Discussion 2: Least Squares, Eigenvalues, and Symmetric Matrices
+%==============================================================================
+
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+
+%------------------------------------------------------------------------------
+% REQUIRED PACKAGES
+%------------------------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+%------------------------------------------------------------------------------
+% SPACING
+%------------------------------------------------------------------------------
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+%------------------------------------------------------------------------------
+% BOX STYLES
+%------------------------------------------------------------------------------
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+%------------------------------------------------------------------------------
+% HEADER/FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 2}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+%==============================================================================
+
+\begin{document}
+
+\noindent
+\begin{minipage}{\linewidth}
+    \centering
+    \textbf{\Large Discussion 2: Least Squares, Eigenvalues, and Symmetric Matrices} \\[0.5em]
+    \hrule
+\end{minipage}
+\vspace{1em}
+
+%==============================================================================
+\section{Review: Key Concepts}
+%==============================================================================
+
+Before diving into the problems, we review the essential definitions and properties.
+
+\subsection{QR Factorization}
+
+\begin{definition}[QR Factorization]
+Any matrix $A \in \RR^{m \times n}$ with full column rank can be factored as:
+\[
+    A = QR = \begin{bmatrix} Q_1 & Q_2 \end{bmatrix} \begin{bmatrix} R_1 \\ 0 \end{bmatrix}
+\]
+where $Q \in \RR^{m \times m}$ is orthonormal ($Q^\top Q = I$), $R_1 \in \RR^{n \times n}$ is upper triangular and invertible, the columns of $Q_1$ form an orthonormal basis for $\Range(A)$, and the columns of $Q_2$ form an orthonormal basis for $\Range(A)^\perp$.
+\end{definition}
+
+\begin{result}
+\textbf{Key property:} Multiplying by an orthonormal matrix preserves norms: $\|Q^\top x\|_2 = \|x\|_2$ for any orthonormal $Q$.
+\end{result}
+
+\subsection{Least Squares}
+
+\begin{definition}[Least Squares Problem]
+Given $A \in \RR^{m \times n}$ and $b \in \RR^m$, the least squares solution minimizes the residual:
+\[
+    x^\star = \arg\min_{x \in \RR^n} \|Ax - b\|_2^2
+\]
+\end{definition}
+
+\begin{result}
+\textbf{Normal Equations:} When $A$ has full column rank, the unique solution is:
+\[
+    x^\star = (A^\top A)^{-1} A^\top b
+\]
+\end{result}
+
+\subsection{Eigenvalues and Eigenvectors}
+
+Recall that $(\lambda, v)$ is an eigenpair of $A$ if $Av = \lambda v$ with $v \neq 0$. For a symmetric matrix $A = A^\top$, eigenvectors corresponding to distinct eigenvalues are orthogonal.
+
+\subsection{Positive Semidefinite Matrices}
+
+\begin{definition}[PSD and PD]
+A symmetric matrix $A \in \RR^{n \times n}$ is \textbf{positive semidefinite} (PSD) if $x^\top A x \ge 0$ for all $x \in \RR^n$, and \textbf{positive definite} (PD) if $x^\top A x > 0$ for all $x \neq 0$.
+\end{definition}
+
+\begin{result}
+\textbf{Spectral characterization:} A symmetric matrix is PSD $\iff$ all eigenvalues $\ge 0$, and PD $\iff$ all eigenvalues $> 0$.
+\end{result}
+
+\newpage
+%==============================================================================
+\section{Problem 1: Least Squares and Gram-Schmidt}
+%==============================================================================
+
+Consider the least squares problem $x^\star = \arg\min_{x \in \RR^n} \|Ax - b\|_2^2$ where $A \in \RR^{m \times n}$, $b \in \RR^m$, and $A$ has full column rank. Using the QR factorization $A = QR = \begin{bmatrix} Q_1 & Q_2 \end{bmatrix} \begin{bmatrix} R_1 \\ 0 \end{bmatrix}$.
+
+\subsection{Part (a): Residual Norm Decomposition}
+
+\textbf{Goal:} Show that $\|b - Ax\|_2^2 = \|Q_1^\top b - R_1 x\|_2^2 + \|Q_2^\top b\|_2^2$.
+
+\textbf{Step 1: Substitute the QR factorization.}
+
+Since $A = Q \begin{bmatrix} R_1 \\ 0 \end{bmatrix}$, we write:
+\[
+    \|b - Ax\|_2^2 = \left\| b - Q \begin{bmatrix} R_1 \\ 0 \end{bmatrix} x \right\|_2^2
+\]
+
+\textbf{Step 2: Multiply by $Q^\top$ (preserves norms).}
+
+Since $Q$ is orthonormal, $\|Q^\top y\|_2 = \|y\|_2$ for any $y$. Multiplying the argument by $Q^\top$:
+\[
+    \|b - Ax\|_2^2 = \left\| Q^\top \left( b - Q \begin{bmatrix} R_1 \\ 0 \end{bmatrix} x \right) \right\|_2^2 = \left\| Q^\top b - \begin{bmatrix} R_1 \\ 0 \end{bmatrix} x \right\|_2^2
+\]
+
+\textbf{Step 3: Expand the block structure.}
+
+Using $Q^\top b = \begin{bmatrix} Q_1^\top b \\ Q_2^\top b \end{bmatrix}$:
+\[
+    = \left\| \begin{bmatrix} Q_1^\top b \\ Q_2^\top b \end{bmatrix} - \begin{bmatrix} R_1 x \\ 0 \end{bmatrix} \right\|_2^2 = \left\| \begin{bmatrix} Q_1^\top b - R_1 x \\ Q_2^\top b \end{bmatrix} \right\|_2^2
+\]
+
+\textbf{Step 4: Split the squared norm.}
+
+The squared norm of a stacked vector equals the sum of the squared norms:
+\[
+    = \|Q_1^\top b - R_1 x\|_2^2 + \|Q_2^\top b\|_2^2 \quad \square
+\]
+
+\begin{tcolorbox}[colframe=black!50, title={\small Intuition}]
+The QR factorization decomposes the residual into two independent pieces: one that depends on $x$ (the projection onto $\Range(A)$) and one that is fixed regardless of $x$ (the component in $\Range(A)^\perp$).
+\end{tcolorbox}
+
+\subsection{Part (b): Optimal $x^\star$ via QR}
+
+\textbf{Goal:} Find $x^\star$ minimizing $\|b - Ax\|_2^2$ using the decomposition from part (a).
+
+\textbf{Step 1: Identify what we can control.}
+
+From part (a):
+\[
+    \|b - Ax\|_2^2 = \underbrace{\|Q_1^\top b - R_1 x\|_2^2}_{\text{depends on } x} + \underbrace{\|Q_2^\top b\|_2^2}_{\text{constant w.r.t.\ } x}
+\]
+The second term does not involve $x$, so minimizing over $x$ only affects the first term.
+
+\textbf{Step 2: Set the controllable term to zero.}
+
+The minimum of $\|Q_1^\top b - R_1 x\|_2^2$ is $0$, achieved when $R_1 x = Q_1^\top b$.
+
+\textbf{Step 3: Solve for $x^\star$.}
+
+Since $R_1$ is upper triangular and invertible:
+
+\begin{result}
+\[
+    x^\star = R_1^{-1} Q_1^\top b
+\]
+\end{result}
+
+\subsection{Part (c): Equivalence with Normal Equations}
+
+\textbf{Goal:} Verify that $R_1^{-1} Q_1^\top b = (A^\top A)^{-1} A^\top b$.
+
+\textbf{Step 1: Express $A$ in terms of $Q_1$ and $R_1$.}
+
+By block multiplication: $A = QR = Q_1 R_1$ (since the $Q_2$ block multiplies the zero block).
+
+\textbf{Step 2: Substitute into the normal equations formula.}
+\begin{align*}
+    (A^\top A)^{-1} A^\top b &= \bigl((Q_1 R_1)^\top (Q_1 R_1)\bigr)^{-1} (Q_1 R_1)^\top b \\
+    &= (R_1^\top Q_1^\top Q_1 R_1)^{-1} R_1^\top Q_1^\top b \\
+    &= (R_1^\top R_1)^{-1} R_1^\top Q_1^\top b
+\end{align*}
+
+\textbf{Step 3: Simplify using the inverse of a product.}
+\[
+    (R_1^\top R_1)^{-1} R_1^\top = R_1^{-1} (R_1^\top)^{-1} R_1^\top = R_1^{-1}
+\]
+
+\textbf{Step 4: Conclude.}
+\[
+    (A^\top A)^{-1} A^\top b = R_1^{-1} Q_1^\top b = x^\star \quad \square
+\]
+
+\begin{tcolorbox}[colframe=black!50, title={\small Why QR is Better in Practice}]
+While both formulas give the same answer, the QR approach ($x^\star = R_1^{-1} Q_1^\top b$) is numerically more stable than forming $A^\top A$ and solving the normal equations. Computing $A^\top A$ squares the condition number, amplifying numerical errors.
+\end{tcolorbox}
+
+\newpage
+%==============================================================================
+\section{Problem 2: Eigenvalues}
+%==============================================================================
+
+\subsection{Part (a): Eigenvalues of $A + cI$}
+
+\textbf{Goal:} Given that $A$ has eigenpairs $(\lambda_i, v_i)$, find the eigenpairs of $B = A + cI$.
+
+\textbf{Step 1: Apply $B$ to an eigenvector of $A$.}
+
+Suppose $(\lambda, v)$ is an eigenpair of $A$, so $Av = \lambda v$. Then:
+\begin{align*}
+    Bv &= (A + cI)v \\
+    &= Av + cIv \\
+    &= \lambda v + cv \\
+    &= (\lambda + c)v
+\end{align*}
+
+\textbf{Step 2: Conclude.}
+
+\begin{result}
+$B = A + cI$ has the \textbf{same eigenvectors} as $A$, and the eigenvalues are \textbf{shifted by $c$}: eigenvalue $\lambda_i$ becomes $\lambda_i + c$.
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Eigenvalue Shifting}]
+Adding $cI$ to a matrix shifts the entire spectrum by $c$ without changing the eigenvectors. This is useful for making matrices invertible (shift away from zero eigenvalues) or for making matrices PSD (shift eigenvalues to be non-negative).
+\end{tcolorbox}
+
+\subsection{Part (b): Eigenpairs of $QAQ^\top$}
+
+\textbf{Goal:} Given $Av = \lambda v$ and $Q^\top Q = I$, show that $(QAQ^\top)(Qv) = \lambda(Qv)$.
+
+\textbf{Step 1: Insert $Q^\top Q = I$ into the eigenvector equation.}
+
+Since $Q^\top Q = I$, we can write:
+\[
+    A v = A(Q^\top Q)v = \lambda v
+\]
+
+\textbf{Step 2: Multiply both sides by $Q$.}
+\[
+    Q A (Q^\top Q) v = \lambda Q v
+\]
+\[
+    (QAQ^\top)(Qv) = \lambda(Qv) \quad \square
+\]
+
+\begin{result}
+If $(\lambda, v)$ is an eigenpair of $A$, then $(\lambda, Qv)$ is an eigenpair of $QAQ^\top$. Orthogonal similarity preserves eigenvalues and transforms eigenvectors by $Q$.
+\end{result}
+
+\subsection{Part (c): Non-zero Eigenvalues of $AA^\top$ and $A^\top A$}
+
+\textbf{Goal:} For $A \in \RR^{d \times n}$, prove that the non-zero eigenvalues of $AA^\top$ equal those of $A^\top A$.
+
+\textbf{Step 1: Start with an eigenpair of $A^\top A$.}
+
+Suppose $\lambda \neq 0$ and $v$ is an eigenvector of $A^\top A$:
+\[
+    (A^\top A) v = \lambda v
+\]
+
+\textbf{Step 2: Multiply both sides by $A$.}
+\[
+    A(A^\top A)v = A(\lambda v)
+\]
+\[
+    (AA^\top)(Av) = \lambda(Av)
+\]
+
+\textbf{Step 3: Verify $Av \neq 0$.}
+
+Since $\lambda \neq 0$ and $v \neq 0$, we have $(A^\top A)v = \lambda v \neq 0$, so $A^\top(Av) \neq 0$, which implies $Av \neq 0$.
+
+\textbf{Step 4: Conclude.}
+
+Therefore $Av$ is an eigenvector of $AA^\top$ with eigenvalue $\lambda$. The same argument in reverse (starting from an eigenpair of $AA^\top$ and multiplying by $A^\top$) shows the converse. $\square$
+
+\begin{result}
+The non-zero eigenvalues of $AA^\top$ and $A^\top A$ are identical. (They may differ in their zero eigenvalues since the matrices have different sizes: $AA^\top \in \RR^{d \times d}$ vs.\ $A^\top A \in \RR^{n \times n}$.)
+\end{result}
+
+\subsection{Part (d): Eigenvalues of $\left[\begin{smallmatrix} 2 & 2 \\ 2 & 2 \end{smallmatrix}\right]$ Without Characteristic Polynomial}
+
+\textbf{Goal:} Find eigenvalues and eigenvectors of $A = \begin{bmatrix} 2 & 2 \\ 2 & 2 \end{bmatrix}$ without using the characteristic polynomial.
+
+\textbf{Step 1: Observe the rank.}
+
+Both columns of $A$ are identical, so $\rank(A) = 1$. This means one eigenvalue must be $\lambda_2 = 0$ (since a rank-1 matrix in $\RR^{2 \times 2}$ has a one-dimensional null space).
+
+\textbf{Step 2: Find the eigenvector for $\lambda_2 = 0$.}
+
+The eigenvector with eigenvalue $0$ spans $\NN(A)$. Solving $Ax = 0$:
+\[
+    v_2 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ -1 \end{bmatrix}
+\]
+
+\textbf{Step 3: Find the other eigenvector using symmetry.}
+
+Since $A$ is symmetric, its eigenvectors are orthogonal. A unit vector orthogonal to $v_2$ in $\RR^2$ is:
+\[
+    v_1 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix}
+\]
+
+\textbf{Step 4: Find the corresponding eigenvalue.}
+
+Compute $Av_1$ directly:
+\[
+    A v_1 = \begin{bmatrix} 2 & 2 \\ 2 & 2 \end{bmatrix} \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 4 \\ 4 \end{bmatrix} = 4 \cdot \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix} = 4 v_1
+\]
+
+So $\lambda_1 = 4$.
+
+\begin{result}
+\textbf{Eigenvalues:} $\lambda_1 = 4$, $\lambda_2 = 0$. \quad \textbf{Eigenvectors:} $v_1 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix}$, $v_2 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ -1 \end{bmatrix}$.
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Alternative: Frobenius Norm}]
+Since $A$ is symmetric, $\|A\|_F^2 = \sum \lambda_i^2$. Computing entry-wise: $\|A\|_F^2 = 4 \cdot 4 = 16$. With $\lambda_2 = 0$, we get $\lambda_1^2 = 16$, so $\lambda_1 = \pm 4$. Since $A$ is PSD (verify $x^\top A x = 2(x_1 + x_2)^2 \ge 0$), we conclude $\lambda_1 = 4$.
+\end{tcolorbox}
+
+\newpage
+%==============================================================================
+\section{Problem 3: Symmetric Matrices}
+%==============================================================================
+
+\subsection{Part (a): PSD $\iff$ $A = C^\top C$ for Symmetric $C$}
+
+\textbf{Goal:} Show that a symmetric $A$ is PSD if and only if $A = C^\top C$ for some symmetric $C$.
+
+\textbf{Forward direction ($\Leftarrow$):} Suppose $A = C^\top C$. For any $x \in \RR^n$:
+\[
+    x^\top A x = x^\top C^\top C x = \|Cx\|_2^2 \ge 0
+\]
+So $A$ is PSD.
+
+\textbf{Reverse direction ($\Rightarrow$):} Suppose $A$ is symmetric and PSD. By the spectral theorem:
+\[
+    A = U D U^\top
+\]
+where $U$ is orthogonal and $D = \text{diag}(\lambda_1, \ldots, \lambda_n)$ with all $\lambda_i \ge 0$.
+
+Define $D^{1/2} = \text{diag}(\sqrt{\lambda_1}, \ldots, \sqrt{\lambda_n})$ and set $C = U D^{1/2} U^\top$. Then:
+\[
+    C^\top C = (U D^{1/2} U^\top)^\top (U D^{1/2} U^\top) = U D^{1/2} U^\top U D^{1/2} U^\top = U D U^\top = A
+\]
+Moreover, $C = U D^{1/2} U^\top$ is symmetric since $(U D^{1/2} U^\top)^\top = U (D^{1/2})^\top U^\top = U D^{1/2} U^\top$. $\square$
+
+\begin{tcolorbox}[colframe=black!50, title={\small Remark}]
+The symmetric square root $C = U D^{1/2} U^\top$ is not the only valid choice. For example, $C = D^{1/2} U^\top$ also satisfies $C^\top C = A$, but this $C$ is generally not symmetric.
+\end{tcolorbox}
+
+\subsection{Part (b): Ellipse Region}
+
+\textbf{Goal:} Draw the region $\{x \in \RR^2 \mid x^\top \left[\begin{smallmatrix} 4 & 0 \\ 0 & 1 \end{smallmatrix}\right] x \le 1\}$.
+
+\textbf{Step 1: Expand the quadratic form.}
+\[
+    x^\top \begin{bmatrix} 4 & 0 \\ 0 & 1 \end{bmatrix} x = 4x_1^2 + x_2^2
+\]
+
+\textbf{Step 2: Identify the region.}
+
+The inequality $4x_1^2 + x_2^2 \le 1$ can be rewritten as:
+\[
+    \frac{x_1^2}{(1/2)^2} + \frac{x_2^2}{1^2} \le 1
+\]
+
+\begin{result}
+This is an \textbf{ellipse} centered at the origin with semi-axis $\frac{1}{2}$ along $x_1$ and semi-axis $1$ along $x_2$. The region is \textbf{bounded}.
+\end{result}
+
+\subsection{Part (c): Strip Region}
+
+\textbf{Goal:} Draw the region $\{x \in \RR^2 \mid x^\top \left[\begin{smallmatrix} 1 & -1 \\ -1 & 1 \end{smallmatrix}\right] x \le 1\}$.
+
+\textbf{Step 1: Expand the quadratic form.}
+\[
+    x^\top \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} x = x_1^2 + x_2^2 - 2x_1 x_2 = (x_1 - x_2)^2
+\]
+
+\textbf{Step 2: Find the eigendecomposition.}
+
+The matrix $A = \left[\begin{smallmatrix} 1 & -1 \\ -1 & 1 \end{smallmatrix}\right]$ has eigenvalues $\lambda = 0$ and $\lambda = 2$, with eigenvectors:
+\[
+    v_1 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix} \; (\lambda = 0), \qquad v_2 = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ -1 \end{bmatrix} \; (\lambda = 2)
+\]
+
+\textbf{Step 3: Change coordinates.}
+
+Writing $x = a v_1 + b v_2$, the quadratic form becomes $x^\top A x = 2b^2$.
+
+The constraint $2b^2 \le 1$ gives $|b| \le \frac{1}{\sqrt{2}}$, with $a$ free (any real value).
+
+\begin{result}
+The region is an \textbf{unbounded strip} of width $\sqrt{2}$ centered on the line $x_1 = x_2$ (the direction of eigenvector $v_1$). Any point $x = a v_1$ along this line satisfies the constraint for all $a \in \RR$.
+\end{result}
+
+\subsection{Part (d): Bounded vs.\ Unbounded Regions}
+
+\textbf{Goal:} Explain why part (b) is bounded and part (c) is unbounded.
+
+The matrix in part (b) has eigenvalues $4$ and $1$, both strictly positive, so it is \textbf{positive definite}. For a PD matrix, $x^\top A x > 0$ for all $x \neq 0$, which forces $\|x\|$ to be bounded.
+
+The matrix in part (c) has eigenvalues $2$ and $0$, so it is \textbf{positive semidefinite} (but not PD). The zero eigenvalue means there exists a direction $v$ (the null space) along which $x^\top A x = 0$ regardless of how far we go. Specifically, $x = tv_1$ satisfies the constraint for all $t \in \RR$.
+
+\begin{result}
+\textbf{PD matrix $\Rightarrow$ bounded sublevel set.} \quad \textbf{PSD (not PD) matrix $\Rightarrow$ unbounded sublevel set.}
+
+The null space of a PSD matrix provides directions along which the quadratic form vanishes, allowing the region to extend infinitely.
+\end{result}
+
+%==============================================================================
+
+\vfill
+
+\begin{center}
+\rule{0.5\linewidth}{0.4pt}
+
+\textit{Key Takeaways}
+\end{center}
+
+\begin{enumerate}
+    \item \textbf{QR and least squares:} The QR factorization decomposes the residual into a controllable part and a fixed part. The optimal solution is $x^\star = R_1^{-1} Q_1^\top b$, equivalent to the normal equations but numerically more stable.
+
+    \item \textbf{Eigenvalue shifting:} Adding $cI$ shifts all eigenvalues by $c$ without changing eigenvectors. Orthogonal similarity $QAQ^\top$ preserves eigenvalues and transforms eigenvectors by $Q$.
+
+    \item \textbf{Shared non-zero eigenvalues:} $AA^\top$ and $A^\top A$ have the same non-zero eigenvalues. The trick is to multiply the eigenvector equation by $A$ (or $A^\top$) to transfer eigenpairs between the two.
+
+    \item \textbf{Structured eigenvalue computation:} For structured matrices (e.g., rank-1), use null space analysis and orthogonality of symmetric eigenvectors rather than the characteristic polynomial.
+
+    \item \textbf{PSD geometry:} PD matrices yield bounded ellipsoids; PSD matrices with zero eigenvalues yield unbounded strips. The null space determines the unbounded directions.
+\end{enumerate}
+
+\end{document}
