@@ -1,0 +1,250 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 6}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\begin{document}
+
+\begin{center}
+    {\large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[1ex]
+    {\LARGE\bfseries Homework 6}
+\end{center}
+
+\medskip
+
+\textbf{This homework is due at 11 PM on March 6, 2026.}
+
+\textbf{Submission Format:} Your homework submission should consist of a single PDF file that contains all of your answers (any handwritten answers should be scanned).
+
+\section{Best Approximations}
+
+We start by recalling the Eckart-Young Theorem: Consider any square matrix $C \in \RR^{n \times n}$ and assume that we can write its full singular value decomposition as $C = U\Sigma V^\top$ where $\Sigma$ is the $n \times n$ diagonal matrix with distinct diagonal entries $\sigma_1 > \sigma_2 > \cdots > \sigma_n > 0$. Then, for $0 \le k \le n$, the Eckart-Young Theorem for Frobenius norm states that
+\[
+    C_k = U_k \Sigma_k V_k^\top = \argmin_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|C - B\|_F
+\]
+where $U_k \in \RR^{n \times k}$ is the matrix consisting of the first $k$ columns of $U$, $V_k \in \RR^{n \times k}$ is the matrix consisting of the first $k$ columns of $V$, and $\Sigma_k$ is the $k \times k$ diagonal matrix with the top-$k$ singular values $\sigma_1 > \cdots > \sigma_k$ as its diagonal entries.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Now, consider any square matrix $C \in \RR^{n \times n}$ and let $C_k \in \RR^{n \times n}$ denote its best rank-$k$ approximation in the Frobenius norm. Then, for any orthonormal matrix $W \in \RR^{n \times n}$, show that
+    \[
+        W C_k W^\top = \argmin_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|WCW^\top - B\|_F.
+    \]
+\end{enumerate}
+
+For the remainder of this problem, we consider a square matrix $A \in \RR^{n \times n}$ and assume $A$ has full rank. Using Gram-Schmidt Orthonormalization (GSO), we can write the matrix $A$ as
+\begin{equation}
+    A = QR
+\end{equation}
+where $Q \in \RR^{n \times n}$ is an orthonormal matrix and $R \in \RR^{n \times n}$ is an upper triangular matrix.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item Find the best rank-$n$ approximation to $AA^\top$ in the Frobenius norm. \emph{Justify your answer.}
+
+    \item Recall that $A \in \RR^{n \times n}$ is a square matrix with full rank, and we can write the matrix $A$ as
+    \begin{equation}
+        A = QR
+    \end{equation}
+    where $Q \in \RR^{n \times n}$ is an orthonormal matrix and $R \in \RR^{n \times n}$ is an upper triangular matrix.
+
+    Assume that $R = \diag(r_1, r_2, \ldots, r_n) \in \RR^{n \times n}$ is a diagonal matrix with
+    \[
+        |r_1| > |r_2| > \cdots > |r_n|,
+    \]
+    and all $r_1, r_2, \ldots, r_n$ are real numbers. Let $k < n$. Then, show that the best rank-$k$ approximation to $AA^\top$ in the Frobenius norm is $QSQ^\top$, where $S$ is a diagonal matrix defined as
+    \[
+        S = \diag(r_1^2, \ldots, r_k^2, 0, \ldots, 0) \in \RR^{n \times n}.
+    \]
+
+    \item Recall that $A \in \RR^{n \times n}$ is a square matrix with full rank, and we can write the matrix $A$ as
+    \begin{equation}
+        A = QR
+    \end{equation}
+    where $Q \in \RR^{n \times n}$ is an orthonormal matrix and $R \in \RR^{n \times n}$ is an upper triangular matrix.
+
+    Now, we no longer assume that $R$ is diagonal. Let $k < n$ and assume that the best rank-$k$ approximation to $RR^\top \in \RR^{n \times n}$ in the Frobenius norm is given by $G \in \RR^{n \times n}$. Then, using the result of part (a), show that the best rank-$k$ approximation to $AA^\top$ in the Frobenius norm is given by $QGQ^\top$.
+\end{enumerate}
+
+\section{Convexity Potpourri}
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Non-negative weighted sum.}
+
+    Show that the non-negative weighted sum of convex functions is convex: i.e.\ if $f_1, \ldots, f_n$ are $n$ convex functions from $\RR^n$ to $\RR$ and $w_1, \ldots, w_n \in \RR_+$ are $n$ positive scalars, then the function:
+    \begin{equation}
+        f = \sum_{i=1}^{n} w_i f_i
+    \end{equation}
+    is convex. To make the question easier, you can assume that the functions $f_1, \ldots, f_n$ are twice-differentiable.
+\end{enumerate}
+
+A set $C$ is convex if and only if the line segment between any two points in $C$ lies in $C$:
+\begin{equation}
+    C \text{ is convex} \iff \forall \vec{x}_1, \vec{x}_2 \in C, \; \forall \theta \in [0,1], \; \theta \vec{x}_1 + (1-\theta)\vec{x}_2 \in C
+\end{equation}
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item Prove the convexity of a hyperplane, $\mathcal{L} = \{\vec{x} \mid \vec{a}^\top \vec{x} = b\}$.
+
+    \item Prove the convexity of a halfspace, $\mathcal{H} = \{\vec{x} \mid \vec{a}^\top \vec{x} \le b\}$.
+
+    \item A function $f : \RR^n \to \RR^m$ is affine if it is the sum of a linear function and a constant,
+    \begin{equation}
+        f(\vec{x}) = A\vec{x} + \vec{b},
+    \end{equation}
+    for $A \in \RR^{m \times n}$ and $\vec{b} \in \RR^m$.
+
+    Prove that if $S \subseteq \RR^n$ is convex, then the image of $S$ under an affine function $f$,
+    \begin{equation}
+        f(S) = \{f(\vec{x}) \mid \vec{x} \in S\},
+    \end{equation}
+    is convex.
+\end{enumerate}
+
+\section{Perspective function}
+
+Let $f : \RR^n \to \RR$ be a differentiable convex function, with domain the entire space $\RR^n$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that we can represent $f$ as a pointwise maximum of affine functions, specifically
+    \begin{equation}
+        \forall\, x \in \RR^n \;:\; f(x) = \max_{(a,b) \in \mathcal{A}} a^T x + b,
+    \end{equation}
+    where $\mathcal{A} \subseteq \RR^{n+1}$ is to be determined.
+
+    \emph{Hint:} For every $x, y \in \RR^n$: $f(x) \ge f(y) + (x - y)^T \nabla f(y)$.
+
+    \item We define the \emph{perspective} of $f$ as the function $g : \RR^n \times \RR \to \RR$ with values
+    \[
+        g(x, t) = \begin{cases} tf(x/t) & \text{if } t > 0, \\ +\infty & \text{otherwise.} \end{cases}
+    \]
+    Prove that $g$ is convex.
+
+    \emph{Hint:} Use (8).
+
+    \item Show that the function $h : \RR^n \to \RR$ with values
+    \[
+        h(x) = \begin{cases} \dfrac{(a^T x + b)^2}{c^T x + d} & \text{if } c^T x + d > 0, \\[6pt] +\infty & \text{otherwise,} \end{cases}
+    \]
+    is convex.
+
+    \emph{Hint:} Consider the perspective function of $f(z) = z^2$ on $\RR$.
+\end{enumerate}
+
+\section{Convexity of Sets}
+
+Determine if each set $C$ given below is convex. Prove that each set is convex or provide an example to show that it is not convex. You may use any techniques used in class or discussion to demonstrate or disprove convexity.
+
+\begin{enumerate}[label=(\alph*)]
+    \item $C = \{\vec{x} \in \RR^2 \mid x_1 x_2 \ge 0\}$, where $\vec{x} = \begin{bmatrix} x_1 & x_2 \end{bmatrix}^\top$.
+
+    \item $C = \{X \in \mathbb{S}^n \mid \lambda_{\min}(X) \ge 2\}$, where $\mathbb{S}^n$ is the set of symmetric matrices in $\RR^{n \times n}$ and $\lambda_{\min}(X)$ is the minimum eigenvalue of $X$.
+
+    \item Let $\mathcal{H}(\vec{w})$ denote the hyperplane with normal direction $\vec{w} \in \RR^n$, i.e.,
+    \begin{equation}
+        \mathcal{H}(\vec{w}) = \{\vec{x} \in \RR^n \mid \vec{x}^\top \vec{w} = 0\}.
+    \end{equation}
+    Let $P : \RR^n \to \RR^n$ be given by
+    \begin{equation}
+        P(\vec{x}) = \argmin_{\vec{y} \in \mathcal{H}(\vec{w})} \|\vec{y} - \vec{x}\|_2.
+    \end{equation}
+    Let
+    \begin{equation}
+        C = \{P(\vec{x}) \mid \vec{x} \in \mathcal{B}\}
+    \end{equation}
+    where $\mathcal{B} = \{\vec{x} \in \RR^n \mid \|\vec{x}\|_2 \le 1\}$.
+\end{enumerate}
+
+\section{PSD Matrices}
+
+In this problem, we will analyze properties of positive semidefinite (PSD) matrices. A \emph{symmetric} matrix $M \in \RR^{n \times n}$ is a PSD matrix if $\vec{x}^\top M \vec{x} \ge 0$ for all $\vec{x} \in \RR^n$, and we denote that as $M \succeq 0$ or $M \in \mathbb{S}^n_+$.
+
+Assume $A \in \RR^{n \times n}$ is a symmetric matrix.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that $A \succeq 0$ if and only if all eigenvalues of $A$ are non-negative.
+
+    \item Show that if $A \succeq 0$ then all diagonal entries of $A$ are non-negative, $A_{ii} \ge 0$.
+\end{enumerate}
+
+Now we will show that $A \in \mathbb{S}^n_+$ (i.e., $A \in \RR^{n \times n}$ and $A \succeq 0$) if and only if there exists $P \in \mathbb{S}^n_+$ such that $A = P^\top P = P^2$. Such a matrix $P$ is known as a \emph{PSD square root} of $A$.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item First, show that if $A \in \mathbb{S}^n_+$, then there exists $P \in \mathbb{S}^n_+$ such that $A = P^2$.
+
+    \item Now, show that for any matrix $Q \in \RR^{m \times n}$, if $A = Q^\top Q$ then $A \in \mathbb{S}^n_+$.
+
+    \emph{NOTE:} If we take $Q = P \in \mathbb{S}^n_+$, we have $A = P^2 \in \mathbb{S}^n_+$; this proves the other direction of the above ``if-and-only-if.''
+\end{enumerate}
+
+We will use positive semidefinite matrices to construct the singular value decomposition (SVD). One can construct the SVD of a matrix $B \in \RR^{m \times n}$ in two ways, using either the matrices $BB^\top \in \RR^{m \times m}$ or $B^\top B \in \RR^{n \times n}$, and usually one chooses the method depending on which matrix is smaller. The following result shows that the singular values will be the same no matter what construction you use.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item Let $B \in \RR^{m \times n}$ be an arbitrary matrix (not necessarily PSD or even square). From the previous parts of this problem, $BB^\top$ and $B^\top B$ are PSD, thus having real non-negative eigenvalues. Prove that the non-zero eigenvalues of $BB^\top$ are the same as the non-zero eigenvalues of $B^\top B$.
+\end{enumerate}
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\emph{NOTE:} If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\begin{center}
+    \small \copyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+\end{center}
+
+\end{document}

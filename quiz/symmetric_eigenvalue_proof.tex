@@ -1,0 +1,144 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+\usepackage{mathtools}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+
+% Dark axiom box style
+\newtcolorbox{axiombox}{
+  colback=black!85!white,
+  coltext=white,
+  colframe=black!90!white,
+  boxrule=0pt,
+  arc=4pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+}
+
+% Intuition box style
+\newtcolorbox{intuitionbox}[1][]{
+  colback=blue!5!white,
+  colframe=blue!40!black,
+  boxrule=0.8pt,
+  arc=4pt,
+  title={\textbf{Intuition}},
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  #1
+}
+
+% Operators
+\DeclareMathOperator{\rank}{rank}
+
+\begin{document}
+
+% Title
+\begin{center}
+  {\Huge \textbf{Symmetric Matrix Eigenvalue Properties}} \\[12pt]
+  {\Large EECS 127} \\[24pt]
+\end{center}
+
+\vspace{10pt}
+
+% Problem Statement
+\begin{axiombox}
+\textbf{Problem.} \; Let $A \in \mathbb{R}^{n \times n}$ be a real symmetric matrix, i.e.\ $A = A^T$.
+
+\begin{enumerate}[label=(\alph*), itemsep=6pt]
+  \item Prove that every eigenvalue of $A$ is real.
+  \item Prove that eigenvectors corresponding to distinct eigenvalues are orthogonal.
+\end{enumerate}
+\end{axiombox}
+
+\vspace{20pt}
+
+%% ---- Part (a) ---- %%
+\section*{Part (a): Eigenvalues are real}
+
+\emph{Idea: compute $v^*Av$ two ways, using $A^* = A$.}
+
+\begin{proof}
+Let $\lambda \in \mathbb{C}$, $v \in \mathbb{C}^n \setminus \{0\}$, $Av = \lambda v$.
+
+Left-multiply by $v^*$:
+\[
+  v^* (Av) = v^* (\lambda v) = \lambda \, (v^* v).
+\]
+
+On one hand, take the conjugate transpose of $v^* A v$. Since $A$ is real, $\bar{A} = A$, so $A^* = A^T = A$:
+\[
+  (v^* A v)^* = v^* A^* v = v^* A v,
+\]
+so $v^* A v = \overline{v^* A v}$, i.e.\ $v^* A v \in \mathbb{R}$.
+
+On the other hand, conjugate $\lambda\,(v^*v)$. Note $v^* v = \|v\|^2 > 0$ is real, so:
+\[
+  \overline{\lambda \, (v^* v)} = \bar\lambda \, \overline{(v^* v)} = \bar\lambda \, (v^* v).
+\]
+
+Combining: $v^* A v$ is real, so $v^* A v = \overline{v^* A v}$. But $v^* A v = \lambda\,(v^*v)$, so:
+\[
+  \lambda \, (v^* v) = \overline{\lambda \, (v^* v)} = \bar\lambda \, (v^* v).
+\]
+
+Since $v \neq 0$, we have $v^* v > 0$, so divide both sides:
+\[
+  \boxed{\lambda = \bar\lambda,}
+\]
+hence $\lambda \in \mathbb{R}$. \qedhere
+\end{proof}
+
+\vspace{20pt}
+
+%% ---- Part (b) ---- %%
+\section*{Part (b): Eigenvectors for distinct eigenvalues are orthogonal}
+
+\emph{Idea: compute $u_1^T A\, u_2$ two ways, using $A = A^T$.}
+
+\begin{proof}
+Let $\lambda_1, \lambda_2$ be distinct eigenvalues with eigenvectors $u_1, u_2 \in \mathbb{R}^n$:
+\[
+  A u_1 = \lambda_1 u_1, \qquad A u_2 = \lambda_2 u_2, \qquad \lambda_1 \neq \lambda_2.
+\]
+
+Way A --- act on the right with $A u_2 = \lambda_2 u_2$:
+\[
+  u_1^T (A u_2) = u_1^T (\lambda_2 u_2) = \lambda_2 \, (u_1^T u_2).
+\]
+
+Way B --- act on the left. Since $A = A^T$, rewrite $u_1^T A$:
+\[
+  u_1^T A = u_1^T A^T = (A u_1)^T = (\lambda_1 u_1)^T = \lambda_1\, u_1^T.
+\]
+So:
+\[
+  u_1^T (A u_2) = \lambda_1\, u_1^T u_2 = \lambda_1 \, (u_1^T u_2).
+\]
+
+Equate Way A and Way B:
+\[
+  \lambda_2 \, (u_1^T u_2) = \lambda_1 \, (u_1^T u_2).
+\]
+
+Rearrange:
+\[
+  (\lambda_1 - \lambda_2)\, u_1^T u_2 = 0.
+\]
+
+Since $\lambda_1 \neq \lambda_2$, we have $(\lambda_1 - \lambda_2) \neq 0$, so divide:
+\[
+  \boxed{u_1^T u_2 = 0.} \qedhere
+\]
+\end{proof}
+
+\end{document}

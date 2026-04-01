@@ -1,0 +1,88 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Discussion 1}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[6pt]
+{\LARGE\bfseries Discussion 1}
+\end{center}
+
+\section{Invertibility of $A^\top A$}
+
+In this problem, we show that if the matrix $A \in \RR^{m \times n}$ has a full column rank, then the matrix $A^\top A$ is invertible.
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that if a vector $\vec{x}$ is in the null space of $A$ then $\vec{x}$ is in the null space of $A^\top A$.
+
+\vspace{8cm}
+
+\item Conversely, show that if $\vec{x}$ is in the null space of $A^\top A$ then $\vec{x}$ is in the null space of $A$.
+
+\vspace{10cm}
+
+\item Given that matrix $A$ has a full column rank, what can you say about its null space? What does this imply about the null space and invertibility of the matrix $A^\top A$?
+
+\vspace{5cm}
+
+\end{enumerate}
+
+\newpage
+
+\section{Eigenvalues}
+
+Let $A \in \RR^{n \times n}$ have the eigendecomposition $P\Lambda P^{-1}$ where $\Lambda \in \RR^{n \times n}$ is a diagonal matrix with entries consisting of the eigenvalues $\lambda_1, \lambda_2, \ldots, \lambda_n$ and $P \in \RR^{n \times n}$ is an invertible matrix. Note that this is equivalent to stating that $A$ is diagonalizable via the transformation,
+\begin{equation}
+P^{-1}AP = \Lambda.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that $A^m = P\Lambda^m P^{-1}$, for integer $m \geq 1$.
+
+\vspace{10cm}
+
+\item Show that determinant of $A$ is the product of its eigenvalues, i.e.
+\begin{equation}
+\det(A) = \prod_{i=1}^{n} \lambda_i.
+\end{equation}
+
+\textit{HINT: We have the identity} $\det(XY) = \det(X)\det(Y)$.
+
+\vspace{8cm}
+
+\end{enumerate}
+
+\vfill
+\noindent\textcopyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+
+\end{document}

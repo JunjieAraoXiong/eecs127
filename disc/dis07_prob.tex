@@ -1,0 +1,104 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 7}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\epi}{epi}
+
+\begin{document}
+
+\begin{center}
+    {\large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[6pt]
+    {\LARGE\bfseries Discussion 7}
+\end{center}
+
+\section{Convexity of Functions}
+
+\underline{Definition.} A function $f\colon \RR^n \to \RR$ is convex if $\dom(f)$ is a convex set and if for all $\vec{x}, \vec{y} \in \dom(f)$ and $\theta \in [0,1]$, we have,
+\begin{equation}
+    f(\theta \vec{x} + (1-\theta)\vec{y}) \leq \theta f(\vec{x}) + (1-\theta) f(\vec{y}).
+\end{equation}
+The function $f$ is strictly convex if the inequality is strict.
+
+\underline{Definition.} A function $f\colon \RR^n \to \RR$ is concave if $\dom(f)$ is a convex set and if for all $\vec{x}, \vec{y} \in \dom(f)$ and $\theta$ with $0 \leq \theta \leq 1$, we have,
+\begin{equation}
+    f(\theta \vec{x} + (1-\theta)\vec{y}) \geq \theta f(\vec{x}) + (1-\theta) f(\vec{y}).
+\end{equation}
+The function $f$ is strictly concave if the inequality is strict.
+
+\underline{Definition.} The epigraph $\epi(f)$ of a function $f\colon \Omega \to \RR$ is the set $\{(\vec{x}, t) \in \Omega \times \RR \mid t \geq f(x)\}$.
+
+\textbf{Property.} A function $f$ is concave if and only if $-f$ is convex. An affine function is both convex and concave.
+
+\textbf{Property: Jensen's inequality.} The inequality in Equation~(1) is known as \textbf{Jensen's Inequality}. This can be extended to convex combinations of more than one point. If $f$ is convex, and $\vec{x}_1, \vec{x}_2, \ldots, \vec{x}_k \in \dom(f)$, and $\theta_1, \theta_2, \ldots, \theta_k \geq 0$ with $\sum_{i=1}^{k} \theta_i = 1$ then,
+\begin{equation}
+    f(\theta_1 \vec{x}_1 + \theta_2 \vec{x}_2 + \cdots + \theta_k \vec{x}_k) \leq \theta_1 f(\vec{x}_1) + \theta_2 f(\vec{x}_2) + \cdots + \theta_k f(\vec{x}_k).
+\end{equation}
+
+\textbf{Property: first order condition.} Suppose $f$ is differentiable. Then $f$ is convex if and only if $\dom(f)$ is convex and
+\begin{equation}
+    f(\vec{y}) \geq f(\vec{x}) + \nabla f(\vec{x})^\top (\vec{y} - \vec{x}),
+\end{equation}
+for all $\vec{x}, \vec{y} \in \dom(f)$.
+
+\textbf{Property: Second order condition.} Suppose $f$ is twice differentiable. Then $f$ is convex if and only if, $\dom(f)$ is convex and the Hessian of $f$, $\nabla^2 f(\vec{x})$, is positive semi-definite for all $\vec{x} \in \dom(f)$.
+
+\textbf{Property: Convexity of the epigraph.} A function $f\colon \Omega \to \RR$, where $\Omega$ is a vector space, is convex if and only if its epigraph is convex, where linear combinations of elements of $\Omega \times \RR$ are defined in the obvious way.
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Restriction to a line.}
+
+    Show that a function $f$ is convex if and only if for all $\vec{x} \in \dom(f)$ and all $\vec{v}$, the function $g\colon \dom(g) \to \RR$ given by $g(t) = f(\vec{x} + t\vec{v})$ is convex for $\dom(g) = \{t \in \RR \mid \vec{x} + t\vec{v} \in \dom(f)\}$.
+
+    \item \textbf{Point-wise maximum.}
+
+    Show that if $f_1$ and $f_2$ are convex functions then their pointwise maximum $f$, defined by
+    \begin{equation}
+        f(\vec{x}) = \max(f_1(\vec{x}), f_2(\vec{x})),
+    \end{equation}
+    with $\dom(f) = \dom(f_1) \cap \dom(f_2)$, is also convex.
+\end{enumerate}
+
+\section{Convexity of Sets}
+
+\underline{Definition.} A set $C$ is convex if and only if the line segment between any two points in $C$ lies in $C$:
+\begin{equation}
+    C \text{ is convex} \iff \forall\, \vec{x}_1, \vec{x}_2 \in C,\; \forall\, \theta \in [0,1],\; \theta \vec{x}_1 + (1-\theta)\vec{x}_2 \in C
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the \textbf{intersection of convex sets is convex}:
+    \begin{equation}
+        C_1, C_2 \text{ are convex} \implies C = C_1 \cap C_2 \text{ is convex}
+    \end{equation}
+\end{enumerate}
+
+\end{document}

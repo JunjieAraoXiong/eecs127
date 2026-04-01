@@ -1,0 +1,262 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 5 -- Solutions}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{lcr}
+\textbf{EECS 127/227AT} & Optimization Models in Engineering & UC Berkeley \quad Spring 2026
+\end{tabular}
+\end{center}
+
+\begin{center}
+{\LARGE \textbf{Discussion 5}}
+\end{center}
+
+\section{Linear Regression Versus Orthogonal Distance Regression}
+
+In this exercise, we explore three regression techniques:
+\begin{itemize}
+\item ordinary least squares (OLS), a formulation for solving linear regression,
+\item orthogonal distance regression (ODR), solved using PCA, and
+\item total least squares (TLS), a generalization of OLS where observation error on both the dependent and independent variables is assumed
+\end{itemize}
+
+We will examine these regression methods in turn and compare their possible use cases.
+
+In general, regression is used to model the relationship between observed input data and corresponding output data. In this problem, we consider $n$ input data points $\vec{a}_i \in \RR^d$ and $n$ corresponding output data points $b_i \in \RR$. Note that the input comprises $d$ real-valued features and the output is a real-valued scalar.
+
+In the case of \textit{linear regression} (LR), each output $b_i$ is assumed to be approximately a linear combination of the features of the input $\vec{a}_i$, i.e., $b_i \approx \vec{a}_i^\top \vec{x}$, where $\vec{x} \in \RR^d$ is a $d$--dimensional vector of weights used in the linear combination. We define the LR computation as finding the $\vec{x}$ that minimizes the sum of the squared errors between the outputs $b_i$ and the predicted outputs $\vec{a}_i^\top \vec{x}$ (least-squares), i.e., computing
+\begin{equation}
+\vec{x}^\star_{\text{LR}} = \argmin_{\vec{x}} \sum_{i=1}^{n} (\vec{a}_i^\top \vec{x} - b_i)^2.
+\end{equation}
+
+Assume for the entirety of this problem that the data are centered, i.e., for all $j \in \{1, \ldots, d\}$, we have $\sum_{i=1}^{n} a_{ij} = 0$ and $\sum_{i=1}^{n} b_i = 0$. This means that all trendlines we compute (during LR, and later, ODR) will pass through the origin.
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that the LR computation can be formulated as a least squares problem of the form
+\begin{equation}
+\vec{x}^\star_{\text{LR}} = \argmin_{\vec{x}} \left\| A\vec{x} - \vec{b} \right\|_2^2,
+\end{equation}
+where
+\begin{equation}
+A = \begin{bmatrix} \leftarrow \vec{a}_1^\top \rightarrow \\ \vdots \\ \leftarrow \vec{a}_i^\top \rightarrow \\ \vdots \\ \leftarrow \vec{a}_n^\top \rightarrow \end{bmatrix} \qquad \vec{b} = \begin{bmatrix} b_1 \\ \vdots \\ b_i \\ \vdots \\ b_n \end{bmatrix}.
+\end{equation}
+
+\textbf{Solution:} It suffices to show that $\left\| A\vec{x} - \vec{b} \right\|_2^2 = \sum_{i=1}^{n} (\vec{a}_i^\top \vec{x} - b_i)^2$. We have
+\begin{align}
+\left\| A\vec{x} - \vec{b} \right\|_2^2
+&= \left\| \begin{bmatrix} \vec{a}_1^\top \\ \vdots \\ \vec{a}_n^\top \end{bmatrix} \vec{x} - \begin{bmatrix} b_1 \\ \vdots \\ b_n \end{bmatrix} \right\|_2^2 \\
+&= \left\| \begin{bmatrix} \vec{a}_1^\top \vec{x} \\ \vdots \\ \vec{a}_n^\top \vec{x} \end{bmatrix} - \begin{bmatrix} b_1 \\ \vdots \\ b_n \end{bmatrix} \right\|_2^2 \\
+&= \left\| \begin{bmatrix} \vec{a}_1^\top \vec{x} - b_1 \\ \vdots \\ \vec{a}_n^\top \vec{x} - b_n \end{bmatrix} \right\|_2^2 \\
+&= \sum_{i=1}^{n} (\vec{a}_i^\top \vec{x} - b_i)^2
+\end{align}
+
+\item We now consider an example LR computation in which $d = 1$ and $n = 3$. Let
+\begin{equation}
+A = \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} \qquad \vec{b} = \begin{bmatrix} -1 \\ -1 \\ 2 \end{bmatrix}.
+\end{equation}
+Compute the best fit LR regression line --- in this case, a 1--dimensional scalar representing the slope of the line --- $x^\star_{\text{LR}}$.
+
+\textbf{Solution:} We use the least squares formula $x^\star_{\text{LR}} = (A^\top A)^{-1} A^\top \vec{b}$. We have
+\begin{align}
+A^\top A &= \begin{bmatrix} -1 & 0 & 1 \end{bmatrix} \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} = 2 \\
+x^\star_{\text{LR}} &= (A^\top A)^{-1} A^\top \vec{b} \\
+&= \frac{1}{2} A^\top \vec{b} \\
+&= \frac{1}{2} \begin{bmatrix} -1 & 0 & 1 \end{bmatrix} \begin{bmatrix} -1 \\ -1 \\ 2 \end{bmatrix} \\
+&= \frac{3}{2}.
+\end{align}
+
+\item Now let
+\begin{equation}
+A = \begin{bmatrix} -1 \\ -1 \\ 2 \end{bmatrix} \qquad \vec{b} = \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix}.
+\end{equation}
+Compute the best fit LR regression value $x^\star_{\text{LR}}$.
+
+\textbf{Solution:}
+\begin{align}
+A^\top A &= \begin{bmatrix} -1 & -1 & 2 \end{bmatrix} \begin{bmatrix} -1 \\ -1 \\ 2 \end{bmatrix} = 6 \\
+x^\star_{\text{LR}} &= (A^\top A)^{-1} A^\top \vec{b} \\
+&= \frac{1}{6} A^\top \vec{b} \\
+&= \frac{1}{6} \begin{bmatrix} -1 & -1 & 2 \end{bmatrix} \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} \\
+&= \frac{3}{6} = \frac{1}{2}.
+\end{align}
+
+\item Note that the computations in 1(b) and 1(c) above are performed on the same values; inputs and outputs are simply switched. Plot these data points on the $a$--$b$ plane and plot the trendlines corresponding to each $x^\star_{\text{LR}}$ from 1(b) and 1(c) above. Are these trendlines the same? Reason geometrically about why this is the case.
+
+\textbf{Solution:} See figure~\ref{fig:lr_plot}: in the case where $d = 1$, the LR in (b) finds the line that goes through the origin and minimizes the sum of the squares of the vertical distance ($y$-distance) from the points to the line. The LR in (c) finds the line that goes through the origin and minimizes the sum of the squares of the horizontal distance ($x$-distance).
+\end{enumerate}
+
+\begin{figure}[ht]
+\centering
+\fbox{\parbox{0.7\textwidth}{\centering\vspace{3cm}\textit{[Figure: Illustration of solution of (b) and (c) on the $a$--$b$ plane.]}\vspace{3cm}}}
+\caption{Illustration of solution of (b) and (c) on the $a - b$ plane.}
+\label{fig:lr_plot}
+\end{figure}
+
+\bigskip
+
+In some cases, we may not have a preference for which values are designated inputs or outputs and want to avoid differences in regression result based on our choice. In this case, we can use \textit{orthogonal distance regression} (ODR) to compute the regression line that minimizes the sum of the squares of the orthogonal distances of each data point to the line.
+
+To perform the ODR computation, we define vectors $\vec{z}_i$, each of which concatenates all inputs and outputs at observation point $i$, i.e.,
+\begin{equation}
+\vec{z}_i = \begin{bmatrix} \uparrow \\ \vec{a}_i \\ \downarrow \\ b_i \end{bmatrix}.
+\end{equation}
+
+The ODR regression line is then the direction $\vec{x} \in \RR^{d+1}$ such that the sum of squares of the (orthogonal) distances between the points $\vec{z}_i$ and their projections on the line passing through the origin along direction $\vec{x}$ are minimized.
+\begin{align}
+\vec{x}^\star_{\text{ODR}} &= \argmin_{\vec{x}:\|\vec{x}\|_2=1} \sum_{i=1}^{n} \left\| \vec{z}_i - \text{proj}_{\text{span}(\vec{x})}(\vec{z}_i) \right\|_2^2 \\
+&= \argmin_{\vec{x}:\|\vec{x}\|_2=1} \sum_{i=1}^{n} \min_{v_i} \|\vec{z}_i - v_i \vec{x}\|_2^2.
+\end{align}
+
+\begin{enumerate}[label=(\alph*), start=5]
+\item Show that the ODR computation can be formulated as the problem of finding the eigenvector corresponding to the largest eigenvalue of $H = \sum_{i=1}^{n} \vec{z}_i \vec{z}_i^\top$, i.e.,
+\begin{equation}
+\vec{x}^\star_{\text{ODR}} = \argmax_{\vec{x}:\|\vec{x}\|_2=1} \vec{x}^\top H \vec{x}.
+\end{equation}
+Solve ODR using the singular value decomposition (SVD) of the ``augmented'' data matrix:
+\begin{equation}
+Z = \begin{bmatrix} \leftarrow \vec{z}_1^\top \rightarrow \\ \vdots \\ \leftarrow \vec{z}_i^\top \rightarrow \\ \vdots \\ \leftarrow \vec{z}_n^\top \rightarrow \end{bmatrix}.
+\end{equation}
+
+\textbf{Solution:} The inner minimization problem can be solved using projections to obtain,
+\begin{equation}
+\text{proj}_{\text{span}(\vec{x})}(\vec{z}_i) = \argmin_{v_i} \|\vec{z}_i - v_i \vec{x}\|_2^2 = \vec{z}_i^\top \vec{x}
+\end{equation}
+
+Substituting this into the expression from original definition of ODR we have,
+\begin{align}
+\sum_{i=1}^{n} \left\| \vec{z}_i - (\vec{z}_i^\top \vec{x})\vec{x} \right\|_2^2
+&= \sum_{i=1}^{n} \vec{z}_i^\top \vec{z}_i - 2\vec{x}^\top \vec{z}_i \vec{z}_i^\top \vec{x} + \vec{x}^\top \vec{z}_i \vec{z}_i^\top \vec{x} \, \vec{x}^\top \vec{x} \\
+&= \left( \sum_{i=1}^{n} \vec{z}_i^\top \vec{z}_i \right) - \left( \sum_{i=1}^{n} \vec{x}^\top \vec{z}_i \vec{z}_i^\top \vec{x} \right) \\
+&= \left( \sum_{i=1}^{n} \vec{z}_i^\top \vec{z}_i \right) - \vec{x}^\top \left( \sum_{i=1}^{n} \vec{z}_i \vec{z}_i^\top \right) \vec{x}
+\end{align}
+\begin{align}
+\argmin_{\vec{x},\|\vec{x}\|_2=1} \sum_{i=1}^{n} \min_{v_i} \|\vec{z}_i - v_i \vec{x}\|_2^2
+&= \argmin_{\vec{x},\|\vec{x}\|_2=1} \left( \sum_{i=1}^{n} \vec{z}_i^\top \vec{z}_i \right) - \vec{x}^\top \left( \sum_{i=1}^{n} \vec{z}_i \vec{z}_i^\top \right) \vec{x} \\
+&= \argmax_{\vec{x},\|\vec{x}\|_2=1} \vec{x}^\top \left( \sum_{i=1}^{n} \vec{z}_i \vec{z}_i^\top \right) \vec{x} \\
+&= \argmax_{\vec{x},\|\vec{x}\|_2=1} \vec{x}^\top H \vec{x}
+\end{align}
+
+Note that the second line follows because we enforce in our optimization that $\vec{x}$ is unit norm, and thus $\vec{x}^\top \vec{x} = 1$. The solution is the eigenvector corresponding to the largest eigenvalue of $H$:
+\begin{align}
+\argmax_{\vec{x},\|\vec{x}\|_2=1} \vec{x}^\top H \vec{x}
+&= \argmax_{\vec{x},\|\vec{x}\|_2=1} \vec{x}^\top U \Lambda U^\top \vec{x} \\
+&= \argmax_{\vec{x},\|\vec{x}\|_2=1} \sum_{j=1}^{d+1} (\vec{x}^\top \vec{u}_i) \lambda_i (\vec{u}_i^\top \vec{x}) \\
+&\leq \argmax_{\vec{x},\|\vec{x}\|_2=1} \lambda_1 \sum_{j=1}^{d+1} (\vec{x}^\top \vec{u}_i)(\vec{u}_i^\top \vec{x}) \\
+&= \argmax_{\vec{x},\|\vec{x}\|_2=1} \lambda_1 \vec{x}^\top U U^\top \vec{x} \\
+&= \argmax_{\vec{x},\|\vec{x}\|_2=1} \lambda_1 \left\| U^\top \vec{x} \right\|^2 \\
+&= \lambda_1.
+\end{align}
+
+We know that $\vec{u}_1^\top H \vec{u}_1 = \lambda_1$, so $\vec{u}_1 \in \argmax_{\vec{x},\|\vec{x}\|_2=1} \vec{x}^\top H \vec{x}$.
+
+Note that $H = Z^\top Z$, so $u_1$ is also a right singular vector of $Z$ associated with the largest singular value of $Z$.
+
+\item Considering $d = 1$ and $n = 3$, numerically find the results of the ODR when
+\begin{equation}
+A = \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} \qquad \vec{b} = \begin{bmatrix} -1 \\ -1 \\ 2 \end{bmatrix}.
+\end{equation}
+using the associated Google Colab notebook. To use the notebook, first open the link, then click File $>$ Save a copy in Drive. Are the results similar if the $A$ and $\vec{b}$ values are switched?
+
+\textbf{Solution:} See the associated notebook for the code generating the ODR.
+\begin{equation}
+\vec{x}^\star_{\text{ODR}} \approx \begin{bmatrix} 0.472 \\ 0.882 \end{bmatrix}.
+\end{equation}
+In the case that inputs $A$ and $b$ are switched, the notebook returns the same output.
+
+\item Compare the two techniques. If your goal is to understand an invertible symmetric relationship between the ``Parent height'' and the ``Child height'', which method would you prefer? See figure~\ref{fig:galton}.
+
+\textbf{Solution:} ODR has the nice property that it treats the ``measurement matrix'' and the ``measurements'' symmetrically --- so unlike LR, it does not give you two different answers when you switch the roles of $\vec{a}$ and $\vec{b}$, in a simple scalar regression case. So if you really trust your ``experiment'' i.e.\ the values in the matrix $A$ then you can use LR, but if you want to just understand the relationship between the $(a_i, b_i)$ pairs in a symmetric way, then ODR will help with that. In the case of figure~\ref{fig:galton}, since you want to be able to just understand the relationships between the two heights, ODR might be a better choice.
+\end{enumerate}
+
+\bigskip
+
+Orthogonal Distance Regression assumes that there is no causal relationship between the two variables, and finds a relationship between two variables that explains the most variance (hence why we solve it using PCA). It is often, however, the case that we seek to find a causal relationship while also acknowledging that there is some measurement error in our dependent variable. Suppose again that we are seeking a relationship of the form $A\vec{x} \approx \vec{y}$. Instead of finding some $\vec{x}$ such that $\hat{\vec{y}} = A\vec{x}$ and $\|\vec{y} - \hat{\vec{y}}\|_2^2$ is minimized (as in OLS), we can seek to find $\tilde{A}$ and $\tilde{\vec{y}}$ such that $\tilde{\vec{y}} = \tilde{A}\vec{x}$ for some $\vec{x}$ and
+\[
+\|A - \tilde{A}\|_F^2 + \|\vec{y} - \tilde{\vec{y}}\|_2^2
+\]
+is minimized. Total Least Squares (TLS) solves this problem, equivalently expressed below:
+\begin{align}
+\min_{\tilde{A},\,\tilde{\vec{y}},\,\vec{x}} &\;\left\| \begin{bmatrix} A & \vec{y} \end{bmatrix} - \begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix} \right\|_F^2 \\
+\text{s.t.} &\;\begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix} \begin{bmatrix} \vec{x} \\ -1 \end{bmatrix} = \vec{0}
+\end{align}
+
+\begin{enumerate}[label=(\alph*), start=8]
+\item In the case where
+\[
+A = \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix} \qquad \vec{x} = x \in \RR \qquad \vec{y} = \begin{bmatrix} -1 \\ -1 \\ 2 \end{bmatrix}
+\]
+how would we find $\begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix}$ as well as the corresponding $x$? Solve for the matrix $\begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix}$ and $x$ in the associated Google Colab notebook. How do these results compare to OLS and ODR?
+
+\textit{HINT: What must the rank of $\begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix}$ be? How can we find the best such approximation?}
+
+\textbf{Solution:} Following the hint, the constraint implies that the rows/observations in the matrix $\begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix}$ must lie in a $d$--dimensional subspace, or equivalently, that we require an approximation of $\begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix}$ that has a nontrivial null space and so is of rank at most $d$.
+
+Moreover, the constraint places essentially no other limits on our optimal solution. Almost any vector in $\RR^{d+1}$ whose orthogonal complement is our subspace can be scaled to a vector of the form $\begin{bmatrix} \vec{x} \\ -1 \end{bmatrix}$, so relaxing the constraint to a dimension/rank constraint will only let us calculate invalid results in pathological cases where the optimal solution turns out to correspond to a dimensionality reduction to a subspace that exactly contains $e_{d+1}$. Such a subspace cannot give us a well-defined function from the input variables to the output variable.
+
+The above argument shows the optimization problem to be equivalent, barring a minor corner case, to the closely related dimension/rank reduction problems solved using PCA/Eckart-Young, respectively.
+
+For details, see the implementation of \texttt{plot\_LR\_ODR\_TLS} in the associated Google Colab notebook. Let $V_d$ denote the matrix consisting of the first $d$ columns of $V$. In the notebook, the loop in which we compute the rows of $\begin{bmatrix} \tilde{A} & \tilde{\vec{y}} \end{bmatrix}$ using projections of the rows of $\begin{bmatrix} A & \vec{y} \end{bmatrix}$ to the $d$--dimensional subspace that we found using ODR is equivalent to right multiplication of $\begin{bmatrix} A & \vec{y} \end{bmatrix}$ by $V_d V_d^T$, which in turn is equivalent to selecting the first $d$ terms of the dyadic expansion of the SVD of $\begin{bmatrix} A & \vec{y} \end{bmatrix}$ as in the usual statement of the Eckart-Young theorem.
+\end{enumerate}
+
+\begin{figure}[ht]
+\centering
+\fbox{\parbox{0.7\textwidth}{\centering\vspace{3cm}\textit{[Figure: Illustration of the correlation between the heights of adults and their parents. In red is the result of linear regression. In black is the result of the orthogonal direction regression.]}\vspace{3cm}}}
+\caption{Illustration of the correlation between the heights of adults and their parents. In red is the result of linear regression. In black is the result of the orthogonal direction regression. This work has first been done by Galton in 1886. Using linear regression, Galton remarks that: ``It appeared from these experiments that the offspring did not tend to resemble their parents in size, but always to be more mediocre than they -- to be smaller than the parents, if the parents were large; to be larger than the parents, if the parents were small.'' Figure comes from \texttt{https://select-statistics.co.uk/blog/regression-to-the-mean-as-relevant-today-as-it-was-in-the-1900s/} The original text can be found at \texttt{https://www.jstor.org/stable/2841583}.}
+\label{fig:galton}
+\end{figure}
+
+\section{Matrix Norm Calculations}
+
+Let $A$ have SVD equal to
+\begin{equation}
+A = \begin{bmatrix} 1/\sqrt{2} & 1/\sqrt{2} \\ -1/\sqrt{2} & 1/\sqrt{2} \end{bmatrix} \begin{bmatrix} 4 & 0 \\ 0 & 2 \end{bmatrix} \begin{bmatrix} 0 & 1 \\ 1 & 0 \end{bmatrix}.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Compute $\|A\|_F$, the Frobenius norm of $A$.
+
+\textbf{Solution:} We have $\|A\|_F = \sqrt{\sigma_1\{A\}^2 + \sigma_2\{A\}^2}$, i.e., the square root of the sum of squared singular values of $A$, which gives
+\begin{equation}
+\|A\|_F = \sqrt{4^2 + 2^2} = \sqrt{20} = 2\sqrt{5}.
+\end{equation}
+
+\item Compute $\|A\|_2$, the spectral norm of $A$.
+
+\textbf{Solution:} We have $\|A\|_2 = \sigma_1\{A\}$, i.e., the largest singular value of $A$, which gives $\|A\|_2 = 4$.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,125 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Discussion 6}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+    {\Large\bfseries EECS 127/227AT \quad Optimization Models in Engineering}\\[0.5em]
+    {\large UC Berkeley \hfill Spring 2026}\\[1em]
+    {\LARGE\bfseries Discussion 6}
+\end{center}
+
+\section{Linear Regression with Weights}
+
+In this problem, we discuss multiple interpretations of weighted linear regression.
+
+Let $A \in \RR^{m \times n}$ be a data matrix whose data points are the $m$ rows $\vec{a}_1^\top, \ldots, \vec{a}_m^\top \in \RR^n$. Suppose $m \geq n$ and $A$ has full column rank. Let $\vec{y} \in \RR^m$ be a vector of outputs, each corresponding to a data point. Let $\vec{w} \in \RR^m_{++}$ be a vector of \emph{positive} real numbers, also called weights, each corresponding to a data point---output pair. We are interested in the following least-squares type optimization problem:
+\begin{equation}
+    \min_{\vec{x} \in \RR^n} \sum_{i=1}^{m} w_i (\vec{a}_i^\top \vec{x} - y_i)^2.
+\end{equation}
+In general, assigning a high weight $w_i$ means that we want our learned linear predictor $\vec{a}_i^\top \vec{x}$ to achieve a close value to $y_i$; that is, we believe this data point is significant or important to get right.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the problem in Equation~(1) is equivalent to the problem:
+    \begin{equation}
+        \min_{\vec{x} \in \RR^n} \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2
+    \end{equation}
+    where $W \doteq \operatorname{diag}(\vec{w}) \in \RR^{m \times m}$ is a diagonal matrix whose diagonal entries are the entries of $\vec{w}$.
+
+    \item Using Equation~(2), compute the gradient (with respect to $\vec{x}$) of the objective function
+    \begin{equation}
+        f(\vec{x}) \doteq \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2.
+    \end{equation}
+
+    \item Show that the optimal solution to Equation~(2) is given by
+    \begin{equation}
+        \vec{x}^\star_{\mathrm{WLR}} \doteq (A^\top W A)^{-1} A^\top W \vec{y}.
+    \end{equation}
+
+    \emph{HINT: There are multiple ways to do this problem; one uses the gradient that you just computed, and another finds the least squares solution of a particular linear system.}
+
+    \emph{HINT: If using the gradient method, you may assume that $f$ is minimized at any $\vec{x}^\star$ such that $\nabla_{\vec{x}} f(\vec{x}^\star) = \vec{0}$; this is because $f$ is convex, as we will see a little later in the course.}
+
+    \item Now we will look at this problem from a probabilistic interpretation. Suppose our output value $\vec{y}$ is noisy, and in particular there is some $\vec{x}_0$ such that for every $i$ we have $y_i = \vec{a}_i^\top \vec{x}_0 + u_i$, where $u_i$ is a random variable. Here we assume the $u_i$ are independent but \emph{not} identically distributed. In particular, we assume that for each $i$ we have that $u_i$ is distributed according to a Gaussian $\NN(0, \sigma_i^2)$ where $\sigma_i > 0$ is a known noise parameter for each data point $i$.
+
+    To recover $\vec{x}_0$ given data $A$ and $\vec{y}$, as well as the $\sigma_i^2$, we want to compute the maximum likelihood estimator (MLE). Show that the maximum likelihood problem
+    \begin{equation}
+        \operatorname*{argmax}_{\vec{x} \in \RR^n}\, p(\vec{y} \mid A, \vec{x})
+    \end{equation}
+    is equivalent to the weighted linear regression problem:
+    \begin{equation}
+        \operatorname*{argmin}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} w_i (\vec{a}_i^\top \vec{x} - y_i)^2.
+    \end{equation}
+    for some choice of $\vec{w}$. What choice of $\vec{w}$ makes them equivalent?
+
+    \emph{Note: Refer to Sec.~4.5 of the course reader for a discussion on MLE.}
+
+    \item In addition to assigning weights to data points to place higher importance on getting those points right, sometimes we want to make sure that our learned $\vec{x}$ is close to some value $\vec{z} \in \RR^n$. This could be true, for example, if we had prior information that said $\vec{x}$ is close to $\vec{z}$.
+
+    In particular, we want to make sure that the quantity
+    \begin{equation}
+        \sum_{i=1}^{n} s_i (x_i - z_i)^2
+    \end{equation}
+    is small, where $\vec{s} \in \RR^n_{++}$ is a vector of \emph{positive} weights. We may add this term to the weighted least squares objective function, with a regularization parameter $\lambda \geq 0$, to create a modified objective function
+    \begin{equation}
+        g(\vec{x}) \doteq \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2 + \lambda \left\| S^{1/2}(\vec{x} - \vec{z}) \right\|_2^2
+    \end{equation}
+    where $S \doteq \operatorname{diag}(\vec{s}) \in \RR^{n \times n}$ is a diagonal matrix whose entries are the entries of $\vec{s}$. This formulation is called \emph{Tikhonov regression}.
+
+    Compute the gradient (with respect to $\vec{x}$) of $g$, and show that the optimal solution is
+    \begin{equation}
+        \vec{x}^\star_{\mathrm{TR}} \doteq (A^\top W A + \lambda S)^{-1}(A^\top W \vec{y} + \lambda S \vec{z}).
+    \end{equation}
+
+    \emph{HINT: You may assume that $g$ is minimized at any $\vec{x}^\star$ such that $\nabla_{\vec{x}} g(\vec{x}^\star) = \vec{0}$; this is because $g$ is convex, as we will see a little later in the course.}
+\end{enumerate}
+
+\section{Properties of Convex Functions}
+
+In this exercise, we examine convexity and what it represents graphically.
+
+\begin{enumerate}[label=(\alph*)]
+    \item In what region between $[0, 2\pi]$ is $\sin(x)$ a convex function? In what region between $[0, 2\pi]$ is $\sin(x)$ a concave function? Give a region between $[0, 2\pi]$ where $\sin(x)$ is neither convex nor concave.
+
+    \item Plot $\sin(x)$ between $[0, 2\pi]$. For each of the 3 intervals defined above in part 2(a), draw a chord to illustrate graphically on what regions the function is convex, concave, and neither convex nor concave.
+
+    \item Show that for all $x \in [0, \frac{\pi}{2}]$,
+    \begin{equation}
+        \frac{2}{\pi}\, x \leq \sin x \leq x.
+    \end{equation}
+\end{enumerate}
+
+\vfill
+\noindent\small\textcopyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+
+\end{document}

@@ -1,0 +1,103 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 8}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries EECS 127/227AT \hfill Optimization Models in Engineering \hfill UC Berkeley}\\[4pt]
+{\Large\bfseries Discussion 8} \hfill {\large Spring 2026}
+\end{center}
+
+\vspace{1em}
+
+\section{Convexity and Composition of Functions}
+
+Let $f : \RR \to \RR$ and $g : \RR^n \to \RR$. Define the composition of $f$ with $g$ as $h = f \circ g : \RR^n \to \RR$ such that
+$h(\vec{x}) = f(g(\vec{x}))$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that if $f$ is convex and non decreasing and $g$ is convex, then $h$ is convex.
+
+    \vspace{4cm}
+
+    \item Show that there exists $f$ non decreasing and $g$ convex, such that $h = f \circ g$ is not convex.
+
+    \vspace{4cm}
+
+    \item Show that there exists $f$ convex and $g$ convex such that $h = f \circ g$ is not convex.
+\end{enumerate}
+
+\newpage
+
+\section{Simple Constrained Optimization Problem}
+
+Consider the optimization problem
+\begin{alignat}{3}
+    &\min_{x_1, x_2 \in \RR} &\quad& f(x_1, x_2) \\
+    &\text{s.t.} && 2x_1 + x_2 \geq 1 \\
+    &&& x_1 + 3x_2 \geq 1 \\
+    &&& x_1 \geq 0,\; x_2 \geq 0
+\end{alignat}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Make a sketch of the feasible set.
+
+    \vspace{4cm}
+\end{enumerate}
+
+For each of the following objective functions, give the optimal set or the optimal value.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item $f(x_1, x_2) = x_1 + x_2$.
+
+    \vspace{3cm}
+
+    \item $f(x_1, x_2) = -x_1 - x_2$.
+
+    \vspace{3cm}
+
+    \item $f(x_1, x_2) = x_1$
+
+    \vspace{3cm}
+
+    \item $f(x_1, x_2) = \max\{x_1, x_2\}$
+
+    \vspace{3cm}
+
+    \item $f(x_1, x_2) = x_1^2 + 9x_2^2$
+\end{enumerate}
+
+\vfill
+\noindent\textcopyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+
+\end{document}

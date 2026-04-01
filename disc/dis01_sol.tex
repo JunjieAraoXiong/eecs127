@@ -1,0 +1,116 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Discussion 1}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[6pt]
+{\LARGE\bfseries Discussion 1}
+\end{center}
+
+\section{Invertibility of $A^\top A$}
+
+In this problem, we show that if the matrix $A \in \RR^{m \times n}$ has a full column rank, then the matrix $A^\top A$ is invertible.
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that if a vector $\vec{x}$ is in the null space of $A$ then $\vec{x}$ is in the null space of $A^\top A$.
+
+\textbf{Solution:}
+\begin{align}
+\vec{x} \in \NN(A) &\iff A\vec{x} = \vec{0} \\
+&\implies A^\top A\vec{x} = \vec{0} \\
+&\iff \vec{x} \in \NN\!\left(A^\top A\right)
+\end{align}
+Where line 2 follows by multiplying both sides of $A\vec{x} = 0$ by $A^\top$.
+
+\item Conversely, show that if $\vec{x}$ is in the null space of $A^\top A$ then $\vec{x}$ is in the null space of $A$.
+
+\textbf{Solution:}
+\begin{align}
+\vec{x} \in \NN\!\left(A^\top A\right) &\iff A^\top A\vec{x} = \vec{0} \\
+&\implies \vec{x}^\top A^\top A\vec{x} = 0 \\
+&\implies (A\vec{x})^\top A\vec{x} = 0 \\
+&\implies \|A\vec{x}\|_2^2 = 0 \\
+&\implies A\vec{x} = \vec{0} \\
+&\implies \vec{x} \in \NN(A)
+\end{align}
+Where line 5 follows by multiplying both sides of $A^\top A\vec{x} = \vec{0}$ by $\vec{x}^\top$ and line 8 follows from the properties of norms.
+
+\item Given that matrix $A$ has a full column rank, what can you say about its null space? What does this imply about the null space and invertibility of the matrix $A^\top A$?
+
+\textbf{Solution:} $\NN(A) = \{\vec{0}\}$. From the previous parts, we have shown that $\NN(A) = \NN\!\left(A^\top A\right)$ then $\NN\!\left(A^\top A\right) = \{\vec{0}\}$ and thus $A^\top A$ is invertible.
+
+\end{enumerate}
+
+\newpage
+
+\section{Eigenvalues}
+
+Let $A \in \RR^{n \times n}$ have the eigendecomposition $P\Lambda P^{-1}$ where $\Lambda \in \RR^{n \times n}$ is a diagonal matrix with entries consisting of the eigenvalues $\lambda_1, \lambda_2, \ldots, \lambda_n$ and $P \in \RR^{n \times n}$ is an invertible matrix. Note that this is equivalent to stating that $A$ is diagonalizable via the transformation,
+\begin{equation}
+P^{-1}AP = \Lambda. \tag{10}
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that $A^m = P\Lambda^m P^{-1}$, for integer $m \geq 1$.
+
+\textbf{Solution:}
+\begin{align}
+A^m &= (P\Lambda P^{-1})(P\Lambda P^{-1})\cdots(P\Lambda P^{-1}) \quad m \text{ times} \tag{11} \\
+&= P\Lambda(P^{-1}P)\Lambda(P^{-1}P)\cdots\Lambda(P^{-1}P)\Lambda P^{-1} \tag{12} \\
+&= P\Lambda^m P^{-1}. \tag{13}
+\end{align}
+The last equality follows from the repeated application of the identity $P^{-1}P = I$.
+
+\item Show that determinant of $A$ is the product of its eigenvalues, i.e.
+\begin{equation}
+\det(A) = \prod_{i=1}^{n} \lambda_i. \tag{14}
+\end{equation}
+
+\textit{HINT: We have the identity} $\det(XY) = \det(X)\det(Y)$.
+
+\textbf{Solution:} Write down eigendecomposition of $A$ and use properties of determinant given in the hint.
+\begin{align}
+\det(A) &= \det\!\left(P\Lambda P^{-1}\right) \tag{15} \\
+&= \det(P)\det(\Lambda)\det\!\left(P^{-1}\right) \tag{16} \\
+&= \det\!\left(PP^{-1}\right)\det(\Lambda) \tag{17} \\
+&= \det(\Lambda) \tag{18} \\
+&= \prod_{i=1}^{n} \lambda_i \tag{19}
+\end{align}
+
+\end{enumerate}
+
+\vfill
+\noindent\textcopyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+
+\end{document}

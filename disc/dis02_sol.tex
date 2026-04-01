@@ -1,0 +1,224 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Discussion 2}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+    {\large\bfseries EECS 127/227AT \hfill Optimization Models in Engineering \hfill UC Berkeley}\\[4pt]
+    {\large\bfseries Discussion 2 \hfill \hfill Spring 2026}
+\end{center}
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\section{Least Squares and Gram-Schmidt}
+
+Consider the least squares problem
+\begin{equation}
+    \vec{x}^\star = \underset{\vec{x} \in \RR^n}{\arg\min} \left\| A\vec{x} - \vec{b} \right\|_2^2
+\end{equation}
+where $A \in \RR^{m \times n}$, $\vec{b} \in \RR^m$ and assume $A$ is full column rank. One way to solve this least-squares problem is to use Gram-Schmidt Orthonormalization (GSO). Using GSO, the matrix $A$ can be written as,
+\begin{equation}
+    A = QR = \begin{bmatrix} Q_1 & Q_2 \end{bmatrix} \begin{bmatrix} R_1 \\ 0 \end{bmatrix}
+\end{equation}
+where $Q$ is an orthonormal matrix and $R$ is an upper-triangular matrix. The columns of $Q_1$ form an orthonormal basis for the range space $\Range(A)$ and columns of $Q_2$ form an orthonormal basis for the range space $\Range(A)^\perp$. Moreover, $R_1$ is upper triangular and invertible.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the squared norm of the residual is given by
+    \begin{equation}
+        \|\vec{r}\|_2^2 := \left\| \vec{b} - A\vec{x} \right\|_2^2 = \left\| Q_1^\top \vec{b} - R_1 \vec{x} \right\|_2^2 + \left\| Q_2^\top \vec{b} \right\|_2^2.
+    \end{equation}
+
+    \textbf{Solution:} We have,
+    \begin{align}
+        \|\vec{r}\|_2^2 &:= \left\| \vec{b} - A\vec{x} \right\|_2^2 \\
+        &= \left\| \vec{b} - Q \begin{bmatrix} R_1 \\ 0 \end{bmatrix} \vec{x} \right\|_2^2.
+    \end{align}
+    Since multiplying by an orthonormal matrix does not change the $\ell_2$-norm of a vector we can multiply by $Q^\top$ to get,
+    \begin{align}
+        \|\vec{r}\|_2^2 &= \left\| Q^\top \left( \vec{b} - Q \begin{bmatrix} R_1 \\ 0 \end{bmatrix} \vec{x} \right) \right\|_2^2 \\
+        &= \left\| \begin{bmatrix} Q_1^\top \vec{b} \\ Q_2^\top \vec{b} \end{bmatrix} - \begin{bmatrix} R_1 \vec{x} \\ 0 \end{bmatrix} \right\|_2^2 \\
+        &= \left\| \begin{bmatrix} Q_1^\top \vec{b} - R_1 \vec{x} \\ Q_2^\top \vec{b} \end{bmatrix} \right\|_2^2 \\
+        &= \left\| Q_1^\top \vec{b} - R_1 \vec{x} \right\|_2^2 + \left\| Q_2^\top \vec{b} \right\|_2^2.
+    \end{align}
+
+    \item Find $\vec{x}^\star$ such that the squared norm of the residual in Equation (3) is minimized. Your expression for $\vec{x}^\star$ should only use some or all of the following terms: $Q_1$, $Q_2$, $R_1$, $\vec{b}$.
+
+    \textbf{Solution:} We have,
+    \begin{equation}
+        \|\vec{r}\|_2^2 = \left\| Q_1^\top \vec{b} - R_1 \vec{x} \right\|_2^2 + \left\| Q_2^\top \vec{b} \right\|_2^2.
+    \end{equation}
+    Since we have no control over the term $\left\| Q_2^\top \vec{b} \right\|_2^2$ (i.e., no matter how we change $\vec{x}$, that term stays constant because it doesn't involve $\vec{x}$ at all), it is irrelevant from the perspective of the optimization, and so the optimal $\vec{x}^\star$ is one which minimizes $\left\| Q_1^\top \vec{b} - R_1 \vec{x} \right\|_2^2$. This expression is minimized when $Q_1^\top \vec{b} = R_1 \vec{x}$, and using the fact that $R_1$ is invertible we have $\vec{x}^\star = R_1^{-1} Q_1^\top \vec{b}$.
+
+    \item Check if the expression for $\vec{x}^\star$ obtained in the previous part is equivalent to the one obtained by the formula,
+    $\vec{x}^\star = (A^\top A)^{-1} A^\top \vec{b}$.
+
+    \textbf{Solution:} We have $A = QR = Q_1 R_1$ (block multiplication for matrices). Substituting,
+    \begin{align}
+        \vec{x}^\star &= (R_1^\top R_1)^{-1} R_1^\top Q_1^\top \vec{b} \\
+        &= R_1^{-1} (R_1^\top)^{-1} R_1^\top Q_1^\top \vec{b} \\
+        &= R_1^{-1} Q_1^\top \vec{b}.
+    \end{align}
+    This is the same as we got in the previous part.
+\end{enumerate}
+
+\newpage
+
+\section{Eigenvalues}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Let $A \in \RR^{n \times n}$ be a matrix with eigenvalues and corresponding eigenvectors $\lambda_1, \ldots, \lambda_n$ and $\vec{v}_1, \ldots, \vec{v}_n$ respectively. Now consider $B = A + cI_n$ where $c \in \RR$ and $I_n$ is the $n \times n$ identity matrix. What are the eigenvalues and eigenvectors of $B$ in terms of $c$ and $\lambda_i$, $\vec{v}_i$ for $i = 1, \ldots, n$?
+
+    \textbf{Solution:} Suppose $\lambda$, $\vec{v}$ is an eigenpair of $A$. Then
+    \begin{align}
+        B\vec{v} &= (A + cI)\vec{v} \\
+        &= A\vec{v} + cI\vec{v} \\
+        &= \lambda\vec{v} + c\vec{v} \\
+        &= (\lambda + c)\vec{v}.
+    \end{align}
+    That is, $A + cI$ has the same eigenvectors as $A$, and the eigenvalues are just shifted by $c$.
+
+    \item Let $Q$ be an orthonormal matrix, i.e., $Q^\top Q = I$ of size $n \times n$. Let $\lambda \in \RR$ be a scalar, $\vec{v} \in \RR^n$ be a vector, and $A \in \RR^{n \times n}$ be a matrix. Prove that if we have
+    \begin{equation}
+        A\vec{v} = \lambda \vec{v},
+    \end{equation}
+    i.e., $\vec{v}$, $\lambda$ is an eigenpair of $A$, then we have
+    \begin{equation}
+        (QAQ^\top)(Q\vec{v}) = \lambda(Q\vec{v}).
+    \end{equation}
+
+    \textbf{Solution:} As $A\vec{v} = \lambda\vec{v}$ and $Q^\top Q = I$, we have
+    \begin{equation}
+        AQ^\top Q\vec{v} = \lambda\vec{v}.
+    \end{equation}
+    Multiplying both sides with $Q$ we get
+    \begin{equation}
+        (QAQ^\top)(Q\vec{v}) = \lambda(Q\vec{v})
+    \end{equation}
+    as desired.
+
+    \item Let $A$ be a $d \times n$ matrix. Prove that the non-zero eigenvalues of $AA^\top$ are the same as the non-zero eigenvalues of $A^\top A$.
+
+    \textbf{Solution:} Say $\lambda \neq 0$, $\vec{v}$ is an eigenpair of $A^\top A$ which is a $n \times n$ matrix. Hence,
+    \begin{equation}
+        (A^\top A)\vec{v} = \lambda\vec{v}
+    \end{equation}
+    Multiply both sides with $A$, to get,
+    \begin{align}
+        A(A^\top A)\vec{v} &= A(\lambda\vec{v}) \\
+        (AA^\top)A\vec{v} &= \lambda A\vec{v}
+    \end{align}
+    As $\lambda \neq 0$ and $\vec{v} \neq \vec{0}_n$, we have $\lambda\vec{v} \neq \vec{0}_n$ and so, $(A^\top A)\vec{v} \neq \vec{0}_n$. Thus $A^\top(A\vec{v}) \neq \vec{0}_n$, which implies that $A\vec{v} \neq \vec{0}_d$. Therefore, $A\vec{v}$ is an eigenvector of $AA^\top$ corresponding to $\lambda$. Similarly, we can show that every non-zero eigenvalue of $AA^\top$ is an eigenvalue of $A^\top A$ and we are done.
+
+    \item Given a matrix $A = \begin{bmatrix} 2 & 2 \\ 2 & 2 \end{bmatrix}$ find its eigenvalues and eigenvectors without using the characteristic polynomial.
+
+    \textit{HINT: Use the fact that eigenvectors with eigenvalue $0$ span the null space. Also notice that the eigenvectors of a symmetric matrix corresponding to different eigenvalues are orthogonal to each other.}
+
+    \textbf{Solution:} First notice that the matrix is of rank 1 because both columns are the same. Hence, one of the eigenvalues has to be $\lambda_2 = 0$. Its eigenvector is just the basis of the null space which is
+    \begin{equation}
+        \vec{v}_2 = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ -\frac{1}{\sqrt{2}} \end{bmatrix}.
+    \end{equation}
+    Here are two methods to compute the second eigenpair:
+
+    \textbf{Approach 1:}
+
+    We can first observe that the matrix is symmetric and hence the set of its eigenvectors form an orthonormal basis. We know three things:
+    \begin{enumerate}[label=\roman*.]
+        \item We know the value of $\vec{v}_2$.
+        \item We know that the whole space is $\RR^2$.
+        \item We know that $\vec{v}_1$ is orthogonal to $\vec{v}_2$.
+    \end{enumerate}
+    From these three facts, we can look for vectors orthogonal to $\vec{v}_2$ in $\RR^2$. This can be done in many ways (graphically or via Gram-Schmidt or similar), and in the end we get
+    \begin{equation}
+        \vec{v}_1 = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix}.
+    \end{equation}
+    Now by brute-force computation, we see $A\vec{v}_1 = 4\vec{v}_1$ and hence $\lambda_1 = 4$.
+
+    \textbf{Approach 2:}
+
+    Another way to compute $\lambda_1$, $\vec{v}_1$, once we have computed $\lambda_2$, $\vec{v}_2$ is via the definition of the Frobenius norm. We know that for any symmetric matrix, $\|A\|_F^2 = \sum_{i=1}^{n} \lambda_i^2$. That is, the squared Frobenius norm is the sum of its eigenvalues. But another definition of $\|A\|_F^2 = \sum_{i=1}^{n} \sum_{j=1}^{n} A_{i,j}^2$. That is, the squared Frobenius norm is the sum of squares of all the entries of the matrix. Using the first definition, $\|A\|_F^2 = \lambda_1^2 + \lambda_2^2 = \lambda_1^2$. Using the second definition, $\|A\|_F^2 = 16$. So $\lambda_1^2 \in \{-4, 4\}$. Finally, we can show that $A$ is positive semidefinite by showing that $\vec{x}^\top A\vec{x} \geq 0$ for all $\vec{x}$. Thus all its eigenvalues are non-negative. So $\lambda_1 = 4$. The eigenvector can be computed as a basis vector of the null space of $A - 4I$.
+
+    The reason to not use the characteric polynomial method for certain matrices is that computing determinants can be expensive in general. But when we have matrices with more structure, we can simplify the problem.
+\end{enumerate}
+
+\newpage
+
+\section{Symmetric Matrices}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that any symmetric matrix $A \in \RR^{n \times n}$ is positive semidefinite if and only if there exists a symmetric matrix $C \in \RR^{n \times n}$ such that $A = C^\top C$.
+
+    \textbf{Solution:} Forward direction:
+    \begin{equation}
+        \vec{x}^\top C^\top C\vec{x} = \|C\vec{x}\|_2^2 \geq 0
+    \end{equation}
+    and hence $C^\top C$ is PSD. Reverse direction: If $A$ is PSD, then $A = UDU^\top$ by the spectral theorem with all the diagonal elements of $D$ non-negative. Let $D^{1/2}$ be the square root of $D$ (in this case just the square root of all the diagonal elements) and set $C = UD^{1/2}U^\top$. Observe that $C$ is symmetric. Note that there are other non-symmetric $C$ which also satisfy $C^\top C = A$. For example, $C = D^{1/2}U^\top$.
+
+    \item Draw the region
+    \[
+        \left\{ \vec{x} \in \RR^2 \;\middle|\; \vec{x}^\top \begin{bmatrix} 4 & 0 \\ 0 & 1 \end{bmatrix} \vec{x} \leq 1 \right\}.
+    \]
+
+    \textbf{Solution:} Simplifying we get
+    \begin{equation}
+        4x_1^2 + x_2^2 \leq 1.
+    \end{equation}
+    The corresponding region is an ellipse with minor axis $1$ and major-axis $2$ (i.e., semi-minor axis $\frac{1}{2}$ along $x_1$ and semi-major axis $1$ along $x_2$).
+
+    \item Draw the region
+    \[
+        \left\{ \vec{x} \in \RR^2 \;\middle|\; \vec{x}^\top \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} \vec{x} \leq 1 \right\}.
+    \]
+
+    \textbf{Solution:} Call the given matrix as $A$. The eigenvalues of $A$ can be found by solving,
+    \begin{align}
+        \det(A - \lambda I) &= 0 \\
+        \implies (1 - \lambda)^2 - 1 &= 0 \\
+        \implies \lambda = 0, &\text{ or } \lambda = 2.
+    \end{align}
+    The eigenvector associated with eigenvalue $0$, say $\vec{v}_1$, is $\left[\frac{1}{\sqrt{2}},\, \frac{1}{\sqrt{2}}\right]^\top$. The eigenvector associated with eigenvalue $2$, say $\vec{v}_2$, is $\left[\frac{1}{\sqrt{2}},\, -\frac{1}{\sqrt{2}}\right]$. Observe that $\vec{v}_1, \vec{v}_2$ are orthonormal vectors, and any $\vec{x} \in \RR^2$ can be written as $\vec{x} = a\vec{v}_1 + b\vec{v}_2$, for $a, b \in \RR$. Then,
+    \begin{align}
+        \vec{x}^\top A\vec{x} &= (a\vec{v}_1 + b\vec{v}_2)^\top A(a\vec{v}_1 + b\vec{v}_2) \\
+        &= a^2 \vec{v}_1^\top A\vec{v}_1 + b^2 \vec{v}_2^\top A\vec{v}_2 + ab\vec{v}_1^\top A\vec{v}_2 + ba\vec{v}_2^\top A\vec{v}_1 \\
+        &= 2b^2.
+    \end{align}
+    Thus we have the condition $|b| \leq \frac{1}{\sqrt{2}}$. Note that $a$ is a free parameter and can take any value in $\RR$. Thus the region is a strip parallel to the line $y = x$ of width $\sqrt{2}$. Note that the strip is not bounded and any $\vec{x} = a\vec{v}_1$ satisfies the condition for all $a \in \RR$.
+
+    \item Why is the region in part (b) bounded, whereas the region in part (c) is unbounded?
+
+    \textbf{Solution:} This is because $A$ in part (b) is positive definite while the $A$ in part (c) is positive semi-definite and has a non-trivial nullspace. Suppose $\vec{v}$ is a unit vector in the nullspace of $A$. Then $\vec{x} = t\vec{v}$ will satisfy the equation for all $t \in \RR$, however large.
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright\ UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.}
+
+\end{document}

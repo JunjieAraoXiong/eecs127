@@ -1,0 +1,641 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 5}
+\fancyhead[R]{\small 2026-02-20 14:05:08-08:00}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\argmax}{argmax}
+\DeclareMathOperator{\proj}{proj}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{lcr}
+\textbf{EECS 127/227AT} & Optimization Models in Engineering & \textbf{UC Berkeley} \quad \textbf{Spring 2026}
+\end{tabular}
+
+\medskip
+{\Large \textbf{Homework 5}}
+\end{center}
+
+\section{Properties of the Frobenius Norm}
+
+The Frobenius norm of a matrix $P$ is defined as
+\begin{equation}
+\|P\|_F = \sqrt{\langle P,\, P \rangle} = \sqrt{\sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} P_{ij}^2},
+\end{equation}
+where for two matrices $P, Q \in \RR^{m \times n}$, the canonical inner product defined over this space is $\langle P,\, Q \rangle := \trace\!\left(P^\top Q\right) = \sum_{i,j} P_{ij} Q_{ij}$. The previous definition of the inner product is equivalent to interpreting the matrices $P$ and $Q$ as vectors of length $mn$ and taking the vector inner product of the respective $mn$-dimensional vectors. The Cauchy--Schwarz inequality for the inner product follows in a straightforward way from the Cauchy--Schwarz inequality for vectors:
+\begin{equation}
+\langle P,\, Q \rangle = \sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} P_{ij} Q_{ij}
+\le \left(\sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} P_{ij}^2\right)^{1/2}
+\left(\sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} Q_{ij}^2\right)^{1/2}
+= \|P\|_F \, \|Q\|_F.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that the Frobenius norm satisfies all three properties of a norm.
+
+\textit{HINT: The easiest way to do this problem is to \textbf{not} look at the individual components $P_{ij}$, but instead use the inner product formulation $\|P\|_F = \sqrt{\langle P,\, P \rangle}$.}
+
+\textbf{Solution:}
+\begin{enumerate}[label=\roman*.]
+\item $\|P\|_F = 0 \iff P = 0$: $P = 0 \iff \langle P,\, P \rangle = 0 \iff \|P\|_F = 0$.
+
+\item For every $\alpha \in \RR$, $\|\alpha P\|_F = |\alpha| \, \|P\|_F$:
+\[
+\|\alpha P\|_F = \sqrt{\langle \alpha P,\, \alpha P \rangle} = \sqrt{\alpha^2 \langle P,\, P \rangle} = |\alpha| \sqrt{\langle P,\, P \rangle} = |\alpha| \, \|P\|_F.
+\]
+
+\item $\|P + Q\|_F \le \|P\|_F + \|Q\|_F$ for all $P, Q \in \RR^{m \times n}$:
+
+Equivalently, we can show
+\begin{align}
+\|P + Q\|_F^2 &= \langle P + Q,\, P + Q \rangle \\
+&= \langle P,\, P \rangle + 2\langle P,\, Q \rangle + \langle Q,\, Q \rangle \\
+&= \|P\|_F^2 + \|Q\|_F^2 + 2\langle P,\, Q \rangle \\
+&\le \|P\|_F^2 + \|Q\|_F^2 + 2\|P\|_F \, \|Q\|_F \qquad \text{Cauchy--Schwarz} \\
+&= (\|P\|_F + \|Q\|_F)^2.
+\end{align}
+\end{enumerate}
+
+\item Write the Frobenius norm squared in terms of singular values.
+
+\textit{HINT: The cyclic property of traces might be helpful: $\trace(PQR) = \trace(RPQ) = \trace(QRP)$.}
+
+\textbf{Solution:}
+\begin{align}
+\|P\|_F^2 &= \langle P,\, P \rangle \\
+&= \trace\!\left(P^\top P\right) \\
+&= \trace\!\left((U\Sigma V^\top)^\top U\Sigma V^\top\right) \\
+&= \trace\!\left(V\Sigma^\top U^\top U\Sigma V^\top\right) \qquad U^\top U = I \\
+&= \trace\!\left(V\Sigma^\top \Sigma V^\top\right) \\
+&= \trace\!\left(V^\top V\Sigma^\top \Sigma\right) \qquad \text{Rotation property of trace} \\
+&= \trace\!\left(\Sigma^\top \Sigma\right) \\
+&= \sum_i \sigma_i^2
+\end{align}
+
+\item Express the Frobenius norm squared in terms of the $\ell_2$-norm of the columns of $P$ with $\vec{p}_i$ denoting column $i$. Concretely, prove $\|P\|_F^2 = \sum_{i=1}^{n} \|\vec{p}_i\|_2^2$ where $\vec{p}_i$ are the columns of $P$.
+
+\textbf{Solution:}
+\begin{equation}
+\|P\|_F^2 = \langle P,\, P \rangle = \trace\!\left(P^\top P\right)
+\end{equation}
+\begin{equation}
+P^\top P = \begin{bmatrix} \vec{p}_1^\top \\ \vec{p}_2^\top \\ \vdots \\ \vec{p}_n^\top \end{bmatrix}
+\begin{bmatrix} \vec{p}_1 & \vec{p}_2 & \cdots & \vec{p}_n \end{bmatrix}
+= \begin{bmatrix}
+\vec{p}_1^\top \vec{p}_1 & \vec{p}_1^\top \vec{p}_2 & \cdots & \vec{p}_1^\top \vec{p}_n \\
+\vec{p}_2^\top \vec{p}_1 & \vec{p}_2^\top \vec{p}_2 & \cdots & \vec{p}_2^\top \vec{p}_n \\
+\vdots & \vdots & \ddots & \vdots \\
+\vec{p}_n^\top \vec{p}_1 & \vec{p}_n^\top \vec{p}_2 & \cdots & \vec{p}_n^\top \vec{p}_n
+\end{bmatrix}
+\end{equation}
+\begin{equation}
+\trace\!\left(P^\top P\right) = \sum_i \vec{p}_i^\top \vec{p}_i = \sum_i \|\vec{p}_i\|_2^2
+\end{equation}
+\end{enumerate}
+
+\newpage
+
+\section{FTLA, SVD, Pseudoinverse, and Least-Squares}
+
+Let $A \in \RR^{m \times n}$ be a matrix, and let $\vec{y} \in \RR^m$. Let $r \doteq \rank(A)$, and let
+\begin{equation}
+A = U\Sigma V^\top = \begin{bmatrix} U_r & U_{m-r} \end{bmatrix}
+\begin{bmatrix} \Sigma_r & 0_{r \times (n-r)} \\ 0_{(m-r) \times r} & 0_{(m-r) \times (n-r)} \end{bmatrix}
+\begin{bmatrix} V_r^\top \\ V_{n-r}^\top \end{bmatrix}
+= U_r \Sigma_r V_r^\top = \sum_{i=1}^{r} \sigma_i \vec{u}_i \vec{v}_i^\top
+\end{equation}
+be an SVD of $A$. In this problem, we will prove some properties about the SVD, and then apply them to derive a unique solution to an optimization problem which generalizes minimum-norm and least-squares.
+
+\begin{enumerate}[label=(\alph*)]
+\item Prove that $\Range(A) = \Range(U_r)$ and that $\Range\!\left(A^\top\right) = \Range(V_r)$.
+
+\textbf{Solution:} There are many correct ways to show this, and any correct solution merits full credit. The following is only one such correct solution.
+
+Let $\vec{y} \in \Range(A)$. Then there exists $\vec{x} \in \RR^n$ such that $\vec{y} = A\vec{x}$. We have that
+\begin{align}
+\vec{y} &= A\vec{x} \\
+&= U_r \Sigma_r V_r^\top \vec{x} \\
+&= U_r (\Sigma_r V_r^\top \vec{x})
+\end{align}
+so $\vec{y} \in \Range(U_r)$. Thus $\Range(A) \subseteq \Range(U_r)$.
+
+Now let $\vec{y} \in \Range(U_r)$. Then there exists $\vec{z} \in \RR^r$ such that $\vec{y} = U_r \vec{z}$. Define $\vec{z} \doteq V_r \Sigma_r^{-1} \vec{z}$. Then $\vec{z} = \Sigma_r V_r^\top \vec{z}$, and so
+\begin{align}
+\vec{y} &= U_r \vec{z} \\
+&= U_r \Sigma_r V_r^\top \vec{z} \\
+&= A\vec{z}.
+\end{align}
+Thus $\vec{y} \in \Range(A)$, so $\Range(U_r) \subseteq \Range(A)$. Thus $\Range(A) = \Range(U_r)$. $\Range\!\left(A^\top\right) = \Range(V_r)$ is proved similarly.
+
+\item Use the fundamental theorem of linear algebra to prove that $\NN(A) = \Range(V_{n-r})$ and $\NN\!\left(A^\top\right) = \Range(U_{m-r})$.
+
+\textbf{Solution:} There are many correct ways to show this, and any correct solution merits full credit. The following is only one such correct solution.
+
+We know that the columns of $V$ form an orthonormal basis for $\RR^n$, and that $\Range(V_r) = \Range\!\left(A^\top\right)$. Because the columns of $V = \begin{bmatrix} V_r & V_{n-r} \end{bmatrix}$ are orthonormal, the columns of $V_r$ are orthogonal to the columns of $V_{n-r}$. Since together they span $\RR^n$, their individual spans are orthogonal complements; in particular, we have $\Range(V_r)^\perp = \Range(V_{n-r})$. Finally, by FTLA we have
+\begin{equation}
+\Range(V_{n-r}) = \Range(V_r)^\perp = \Range\!\left(A^\top\right)^\perp = \NN(A).
+\end{equation}
+The solution for $\Range(U_{m-r}) = \NN\!\left(A^\top\right)$ follows from taking transposes, just like the previous part.
+\end{enumerate}
+
+Now, we will use the SVD to derive the unique solution to the \textit{least-norm least-squares} problem. That is, we want to use the SVD to find the unique vector in $\RR^n$ which solves the least-squares problem with minimum norm. More formally, we wish to solve the least-norm least-squares problem:
+\begin{equation}
+\min_{\vec{x} \in S} \|\vec{x}\|_2^2 \qquad \text{where} \qquad S \doteq \argmin_{\vec{x} \in \RR^n} \|A\vec{x} - \vec{y}\|_2^2.
+\end{equation}
+In words, we want to find the minimum-norm vector $\vec{x}$ in the set of all least-squares solutions $S$.\footnote{Here, the $\argmin$ is a set -- that is, it is the set of minimizers of the least-squares objective. A simpler example of this notation is that if $f(x) \doteq 0$ for all $x \in \RR$, then $\argmin_{x \in \RR} f(x) = \RR$. More information about this notation is contained in section 1.3 of the \href{https://eecs127.github.io/}{course reader}.} This problem generalizes both the traditional least-squares and minimum-norm problems.
+
+To solve the least-norm least-squares problem, we will use the SVD to define a concept called the \textit{pseudoinverse}. The matrix $A^\dagger \in \RR^{n \times m}$ is called a \textit{pseudoinverse} (sometimes a \textit{Moore--Penrose pseudoinverse}) of $A$, where
+\begin{equation}
+A^\dagger = V\Sigma^\dagger U^\top = \begin{bmatrix} V_r & V_{n-r} \end{bmatrix}
+\begin{bmatrix} \Sigma_r^{-1} & 0_{r \times (m-r)} \\ 0_{(n-r) \times r} & 0_{(n-r) \times (m-r)} \end{bmatrix}
+\begin{bmatrix} U_r^\top \\ U_{m-r}^\top \end{bmatrix}
+= V_r \Sigma_r^{-1} U_r^\top = \sum_{i=1}^{r} \frac{1}{\sigma_i} \vec{v}_i \vec{u}_i^\top.
+\end{equation}
+In this problem, we will show that $A^\dagger \vec{y}$ is the unique solution to the least-norm least-squares problem (27).
+
+\textit{NOTE:} In this problem, we do \textit{not} assume that $A$ has full column rank or full row rank --- in fact, $A$ could even be the matrix of all zeros --- so the least-squares solution we learn in class does not apply.
+
+\begin{enumerate}[label=(\alph*), start=3]
+\item Show that $\vec{x} \in S$ if and only if $A^\top A \vec{x} = A^\top \vec{y}$ (these are the so-called \textit{normal equations}, which you may remember from our discussion on least-squares).
+
+\textbf{Solution:} There are many correct ways to show this, and any correct solution merits full credit. The following is a small selection of correct solutions.
+
+We have $\vec{x} \in S$ if and only if $A\vec{x}$ is the closest point in $\Range(A)$ to $\vec{y}$, or in other words $A\vec{x} = \proj_{\Range(A)}(\vec{y})$. This holds if and only if $\vec{y} - A\vec{x}$ is orthogonal to $\Range(A)$, or in other words $A^\top(\vec{y} - A\vec{x}) = \vec{0}$, which is equivalent to $A^\top A \vec{x} = A^\top \vec{y}$.
+
+\item Show that $S = \{A^\dagger \vec{y} + \vec{z} \mid \vec{z} \in \NN(A)\}$.
+
+\textit{HINT: First, show that $A^\dagger \vec{y} \in S$. Then show that for any two $\vec{x}_1, \vec{x}_2 \in S$, that $\vec{x}_1 - \vec{x}_2 \in \NN(A)$. Argue that this implies the conclusion.}
+
+\textbf{Solution:} There are many correct ways to show this, and any correct solution merits full credit. The following is only one such correct solution.
+
+As the hint suggests, we argue in two parts.
+
+First, we claim that $A^\dagger \vec{y} \in S$. Indeed, we plug in
+\begin{align}
+A^\top A A^\dagger \vec{y} &= (U_r \Sigma_r V_r^\top)^\top (U_r \Sigma_r V_r^\top)(V_r \Sigma_r^{-1} U_r^\top) \vec{y} \\
+&= V_r \Sigma_r^\top U_r^\top U_r \Sigma_r V_r^\top V_r \Sigma_r^{-1} U_r^\top \vec{y} \\
+&= V_r \Sigma_r^\top \Sigma_r \Sigma_r^{-1} U_r^\top \vec{y} \\
+&= V_r \Sigma_r^2 \Sigma_r^{-1} U_r^\top \vec{y} \\
+&= V_r \Sigma_r U_r^\top \vec{y} \\
+&= (U_r \Sigma_r V_r^\top)^\top \vec{y} \\
+&= A^\top \vec{y}.
+\end{align}
+Thus $A^\dagger \vec{y}$ fulfills the normal equations, so $A^\dagger \vec{y} \in S$.
+
+Now we claim that for any $\vec{x}_1, \vec{x}_2 \in S$, that $\vec{x}_1 - \vec{x}_2 \in \NN(A)$. There are many different solutions for this; we present three here.
+\begin{enumerate}[label=\roman*.]
+\item One solution is to again use the fact that for any $\vec{x} \in S$ we have $A\vec{x} = \proj_{\Range(A)}(\vec{y})$. Thus
+\begin{equation}
+A(\vec{x}_1 - \vec{x}_2) = A\vec{x}_1 - A\vec{x}_2 = \proj_{\Range(A)}(\vec{y}) - \proj_{\Range(A)}(\vec{y}) = \vec{0}.
+\end{equation}
+Thus $\vec{x}_1 - \vec{x}_2 \in \NN(A)$.
+
+\item Another solution is to use the orthogonality principle: namely, the residual of a projection onto a subspace is orthogonal to any vector in the subspace. In our case, this manifests as the following assertion: for any $\vec{v} \in \Range(A)$ we have $(\vec{y} - \proj_{\Range(A)}(\vec{y}))^\top \vec{v} = 0$.
+
+Since $\vec{x}_1, \vec{x}_2 \in S$, we have $A\vec{x}_1 = A\vec{x}_2 = \proj_{\Range(A)}(\vec{y})$, and in particular
+\begin{equation}
+\|\vec{y} - A\vec{x}_1\|_2^2 = \|\vec{y} - A\vec{x}_2\|_2^2.
+\end{equation}
+But we can write
+\begin{align}
+\|\vec{y} - A\vec{x}_2\|_2^2 &= \|(\vec{y} - A\vec{x}_1) + A(\vec{x}_1 - \vec{x}_2)\|_2^2 \\
+&= \|\vec{y} - A\vec{x}_1\|_2^2 + 2\underbrace{(\vec{y} - A\vec{x}_1)^\top}_{\textstyle = \vec{y} - \proj_{\Range(A)}(\vec{y})} \underbrace{(A(\vec{x}_1 - \vec{x}_2))}_{\textstyle \in \Range(A)} + \|A(\vec{x}_1 - \vec{x}_2)\|_2^2 \\
+&= \|\vec{y} - A\vec{x}_1\|_2^2 + \|A(\vec{x}_1 - \vec{x}_2)\|_2^2.
+\end{align}
+Thus we have
+\begin{equation}
+\|\vec{y} - A\vec{x}_1\|_2^2 = \|\vec{y} - A\vec{x}_2\|_2^2 = \|\vec{y} - A\vec{x}_1\|_2^2 + \|A(\vec{x}_1 - \vec{x}_2)\|_2^2,
+\end{equation}
+so $\|A(\vec{x}_1 - \vec{x}_2)\|_2^2 = 0$, which is true if and only if $A(\vec{x}_1 - \vec{x}_2) = \vec{0}$, i.e., $\vec{x}_1 - \vec{x}_2 \in \NN(A)$.
+
+\item A third solution is to note that $\NN(A) = \NN\!\left(A^\top A\right)$, so we show that $\vec{x}_1 - \vec{x}_2 \in \NN\!\left(A^\top A\right)$. We have
+\begin{align}
+A^\top A(\vec{x}_1 - \vec{x}_2) &= A^\top A \vec{x}_1 - A^\top A \vec{x}_2 \\
+&= A^\top \vec{y} - A^\top \vec{y} \\
+&= \vec{0}.
+\end{align}
+Thus $\vec{x}_1 - \vec{x}_2 \in \NN\!\left(A^\top A\right) = \NN(A)$.
+\end{enumerate}
+
+Now, since $A^\dagger \vec{y} \in S$, we know that $\vec{z} = A^\dagger \vec{y} - \vec{x} \in \NN(A)$ for any $\vec{x} \in S$. Thus, this $\vec{x}$ can be written as $A^\dagger \vec{y} - \vec{z}$ for some $\vec{z} \in \NN(A)$, and $\vec{z} \in \NN(A)$ if and only if $-\vec{z} \in \NN(A)$. Thus, any $\vec{x} \in S$ can be written as $\vec{x} = A^\dagger \vec{y} + \vec{z}$ for some $\vec{z} \in \NN(A)$, so $S \subseteq \{A^\dagger \vec{y} + \vec{z} \mid \vec{z} \in \NN(A)\}$.
+
+To show the other direction, i.e., $S \supseteq \{A^\dagger \vec{y} + \vec{z} \mid \vec{z} \in \NN(A)\}$, note that for any $\vec{z} \in \NN(A)$ we can show that
+\begin{align}
+A^\top A(A^\dagger \vec{y} + \vec{z}) &= A^\top A A^\dagger \vec{y} + A^\top A \vec{z} \\
+&= A^\top \vec{y} + \vec{0} \\
+&= A^\top \vec{y},
+\end{align}
+so that $A^\dagger \vec{y} + \vec{z} \in S$. Thus $S = \{A^\dagger \vec{y} + \vec{z} \mid \vec{z} \in \NN(A)\}$ as desired.
+
+\item Now show that $\{A^\dagger \vec{y}\} = \argmin_{\vec{x} \in S} \|\vec{x}\|_2^2$.
+
+\textit{HINT: Pick any $\vec{z} \in \NN(A)$. Show that $A^\dagger \vec{y}$ is orthogonal to $\vec{z}$. Then show that $\left\|A^\dagger \vec{y}\right\|_2^2 \le \left\|A^\dagger \vec{y} + \vec{z}\right\|_2^2$, with equality if and only if $\vec{z} = \vec{0}$. Argue that this implies the conclusion.}
+
+\textbf{Solution:} There are many correct ways to show this, and any correct solution merits full credit. The following is only one such correct solution.
+
+Since $\vec{z} \in \NN(A)$, and $\Range(V_{n-r}) = \NN(A)$, we can write $\vec{z} = V_{n-r} \vec{w}$ for some $\vec{w} \in \RR^{n-r}$. Then
+\begin{align}
+\vec{z}^\top A^\dagger \vec{y} &= (V_{n-r} \vec{w})^\top A^\dagger \vec{y} \\
+&= \vec{w}^\top V_{n-r}^\top A^\dagger \vec{y} \\
+&= \vec{w}^\top \underbrace{V_{n-r}^\top V_r}_{=0} \Sigma_r^{-1} U_r^\top \vec{y} \\
+&= \vec{w}^\top \cdot 0 \cdot \Sigma_r^{-1} U_r^\top \vec{y} \\
+&= 0.
+\end{align}
+
+Now, expanding the right-hand side of the inequality, we have
+\begin{align}
+\left\|A^\dagger \vec{y} + \vec{z}\right\|_2^2 &= \left\|A^\dagger \vec{y}\right\|_2^2 + \|\vec{z}\|_2^2 + 2\vec{z}^\top A^\dagger \vec{y} \\
+&= \left\|A^\dagger \vec{y}\right\|_2^2 + \|\vec{z}\|_2^2 \\
+&\ge \left\|A^\dagger \vec{y}\right\|_2^2,
+\end{align}
+with equality if and only if $\vec{z} = \vec{0}$, as desired.
+\end{enumerate}
+
+\newpage
+
+\section{Singular Values and Condition Number}
+
+\begin{enumerate}[label=(\alph*)]
+\item Let $A \in \RR^{m \times n}$ be a matrix. Show that
+\begin{equation}
+\max_{\vec{v}:\|\vec{v}\|_2 \le 1} \|A\vec{v}\|_2 = \sigma_{\max}\{A\},
+\end{equation}
+where $\sigma_{\max}\{A\}$ is the largest singular value of $A$.
+
+\textbf{Solution:} Let $A$ have the singular value decomposition $A = U\Sigma V^\top$. For any $\vec{x} \in \RR^m$,
+\begin{equation}
+\|A\vec{x}\|_2^2 = \vec{x}^\top A^\top A \vec{x} = \vec{x}^\top V\Sigma^\top U^\top U\Sigma V^\top \vec{x} = \|\Sigma V^\top \vec{x}\|_2^2.
+\end{equation}
+Note also that
+\begin{equation}
+\{\vec{z} : \|\vec{z}\|_2 \le 1\} = \{\vec{z} : \|V\vec{z}\|_2 \le 1\} = \{V^\top \vec{z} : \|\vec{z}\|_2 \le 1\}
+\end{equation}
+because $V$ is an orthonormal matrix.
+
+Then we can write
+\begin{align}
+\max_{\vec{v}:\|\vec{v}\|_2 \le 1} \|A\vec{v}\|_2 &= \max_{\vec{v}:\|\vec{v}\|_2 \le 1} \|\Sigma V^\top \vec{v}\|_2 \\
+&= \max_{\vec{v}:\|\vec{v}\|_2 \le 1} \|\Sigma \vec{v}\|_2 \\
+&= \max_{\vec{v}:\|\vec{v}\|_2 \le 1} \sqrt{\sum_{i=1}^{n} \sigma_i^2 v_i^2} \\
+&\le \max_{\vec{v}:\|\vec{v}\|_2 \le 1} \sqrt{\sigma_{\max}\{A\}^2 \sum_{i=1}^{n} v_i^2} \\
+&= \max_{\vec{v}:\|\vec{v}\|_2 \le 1} \sigma_{\max}\{A\} \sqrt{\sum_{i=1}^{n} v_i^2} \\
+&= \max_{\vec{v}:\|\vec{v}\|_2 \le 1} \sigma_{\max}\{A\} \, \|\vec{v}\|_2 \\
+&= \sigma_{\max}\{A\}.
+\end{align}
+
+\item Let $A \in \RR^{n \times n}$ be an invertible matrix, let $\vec{y} \in \RR^n$ be a vector, and let $\Delta\vec{y} \in \RR^n$ be a vector (conceptually, we think of it as having small norm). Let $\vec{x}$ and $\Delta\vec{x}$ be such that
+\begin{align}
+A\vec{x} &= \vec{y} \\
+A(\vec{x} + \Delta\vec{x}) &= \vec{y} + \Delta\vec{y}.
+\end{align}
+Show that
+\begin{equation}
+\frac{\|\Delta\vec{x}\|_2}{\|\vec{x}\|_2} \le \kappa(A) \cdot \frac{\|\Delta\vec{y}\|_2}{\|\vec{y}\|_2},
+\end{equation}
+where $\kappa(A) \doteq \dfrac{\sigma_{\max}\{A\}}{\sigma_{\min}\{A\}}$ is called the \textit{condition number} of the matrix $A$. It reflects how much the estimate can change with respect to the perturbations $\Delta\vec{y}$ in the measurement $\vec{y}$.
+
+\textbf{Solution:} We work with the first equation to get
+\begin{equation}
+\|\vec{y}\|_2 = \|A\vec{x}\|_2 \le \|A\|_2 \, \|\vec{x}\|_2 = \sigma_{\max}\{A\} \, \|\vec{x}\|_2.
+\end{equation}
+To get the $\|\vec{x}\|_2$ and $\|\vec{y}\|_2$ in the denominator as per the problem statement, we can divide both sides by $\|\vec{y}\|_2 \, \|\vec{x}\|_2$, obtaining
+\begin{equation}
+\frac{1}{\|\vec{x}\|_2} \le \sigma_{\max}\{A\} \cdot \frac{1}{\|\vec{y}\|_2}.
+\end{equation}
+
+Now we turn to the second equation. We have
+\begin{equation}
+\vec{y} + \Delta\vec{y} = A(\vec{x} + \Delta\vec{x}) = A\vec{x} + A\Delta\vec{x} = \vec{y} + A\Delta\vec{x} \implies \Delta\vec{y} = A\Delta\vec{x}.
+\end{equation}
+
+We need to involve $\sigma_{\min}\{A\}$ somehow in the resulting norm. But our operator norm inequality just gives us access to $\sigma_{\max}$ of some matrix. The key idea here is that $\sigma_{\min}\{A\} = \frac{1}{\sigma_{\max}\{A^{-1}\}}$. Thus, we should manipulate the equation to involve $A^{-1}$ and then use the operator norm inequality.
+
+In particular, we have
+\begin{equation}
+\Delta\vec{x} = A^{-1} \Delta\vec{y}.
+\end{equation}
+Thus, we have
+\begin{equation}
+\|\Delta\vec{x}\|_2 = \|A^{-1} \Delta\vec{y}\|_2 \le \|A^{-1}\|_2 \, \|\Delta\vec{y}\|_2 = \sigma_{\max}\{A^{-1}\} \, \|\Delta\vec{y}\|_2 = \frac{1}{\sigma_{\min}\{A\}} \, \|\Delta\vec{y}\|_2.
+\end{equation}
+
+This gives us the two inequalities
+\begin{align}
+\frac{1}{\|\vec{x}\|_2} &\le \sigma_{\max}\{A\} \cdot \frac{1}{\|\vec{y}\|_2} \\
+\|\Delta\vec{x}\|_2 &\le \frac{1}{\sigma_{\min}\{A\}} \cdot \|\Delta\vec{y}\|_2.
+\end{align}
+
+Multiplying these inequalities together, we get
+\begin{equation}
+\frac{\|\Delta\vec{x}\|_2}{\|\vec{x}\|_2} \le \frac{\sigma_{\max}\{A\}}{\sigma_{\min}\{A\}} \cdot \frac{\|\Delta\vec{y}\|_2}{\|\vec{y}\|_2}.
+\end{equation}
+\end{enumerate}
+
+\newpage
+
+\section{PCA and low-rank compression}
+
+We have a data matrix $X = \begin{bmatrix} \vec{x}_1^\top \\ \vec{x}_2^\top \\ \vdots \\ \vec{x}_n^\top \end{bmatrix}$ of size $n \times d$ containing $n$ data points\footnote{Data matrices are sometimes represented as above, and sometimes as the transpose of the matrix here. Make sure you always check this, and recall that based on the definition of the data matrix, the definition of the covariance matrix also changes.}, $\vec{x}_1, \vec{x}_2, \ldots, \vec{x}_n$, with $\vec{x}_i \in \RR^d$. Note that $\vec{x}_i^\top$ is the $i$th row of $X$. Assume that the data matrix is centered, i.e.\ each column of $X$ is zero mean. In this problem, we will show equivalence between the following three problems:
+
+\begin{description}
+\item[$(P_1)$] Finding a line going through the origin that maximizes the variance of the scalar projections of the points on the line. Formally $P_1$ solves the problem:
+\begin{equation}
+\argmax_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \vec{u}^\top C \vec{u}
+\end{equation}
+with $C = \dfrac{1}{n} \displaystyle\sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top$ denoting the covariance matrix associated with the centered data.
+
+\item[$(P_2)$] Finding a line going through the origin that minimizes the sum of squares of the $\ell^2$ distances from the points to their vector projections. Formally $P_2$ solves the minimization problem:
+\begin{equation}
+\argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \sum_{i=1}^{n} \min_{v_i \in \RR} \|\vec{x}_i - v_i \vec{u}\|_2^2.
+\end{equation}
+Note that the vector projection of $\vec{x}$ on $\vec{u}$ is given by $v^\star \vec{u}$, where
+\begin{equation}
+v^\star = \argmin_{v \in \RR} \|\vec{x} - v\vec{u}\|_2^2,
+\end{equation}
+and we will show that $v^\star = \langle \vec{x},\, \vec{u} \rangle$ in part (a).
+
+\item[$(P_3)$] Finding a rank-one approximation to the data matrix. Formally $P_3$ solves the minimization problem:
+\begin{equation}
+\argmin_{Y : \rank(Y) \le 1} \|X - Y\|_F.
+\end{equation}
+\end{description}
+
+Note that loosely speaking, two problems are said to be ``equivalent'' if the solution of one can be ``easily'' translated to the solution of the other. Some form of ``easy'' translations include adding/subtracting a constant or some quantity depending on the data points.
+
+Note the significance of these results. $P_1$ is finding the first principal component of $X$, the direction that maximizes variance of scalar projections. $P_2$ says that this direction also minimizes the distances between the points to their vector projections along this direction. If we view the distances as errors in approximating the points by their projections along a line, then the error is minimized by choosing the line in the same direction as the first principal component. Finally $P_3$ tells us that finding a rank one matrix to best approximate the data matrix (in terms of error computed using Frobenius norm) is equivalent to finding the first principal component as well!
+
+\begin{enumerate}[label=(\alph*)]
+\item Consider the line $\mathcal{L} = \{\vec{x}_0 + a\vec{u} : a \in \RR\}$, with $\vec{x}_0 \in \RR^d$, $\vec{u}^\top \vec{u} = 1$. Recall that the vector projection of a point $\vec{x} \in \RR^d$ on to the line $\mathcal{L}$ is given by $\vec{z} = \vec{x}_0 + a^\star \vec{u}$, where $a^\star$ is given by:
+\begin{equation}
+a^\star = \argmin_a \|\vec{x}_0 + a\vec{u} - \vec{x}\|_2.
+\end{equation}
+Show that $a^\star = (\vec{x} - \vec{x}_0)^\top \vec{u}$. Use this to show that the square of the distance between $x$ and its vector projection on $\mathcal{L}$ is given by:
+\begin{equation}
+\|\vec{x} - \vec{z}\|_2^2 = \|\vec{x} - \vec{x}_0\|_2^2 - ((\vec{x} - \vec{x}_0)^\top \vec{u})^2.
+\end{equation}
+
+\textbf{Solution:} The projection of point $\vec{x}$ on $\mathcal{L}$ corresponds to the following problem:
+\begin{equation}
+a^\star = \min_a \|\vec{x}_0 + a\vec{u} - \vec{x}\|_2.
+\end{equation}
+The squared objective writes
+\begin{equation}
+\|\vec{x}_0 + a\vec{u} - \vec{x}\|_2^2 = a^2 - 2a(\vec{x} - \vec{x}_0)^\top \vec{u} + \|\vec{x} - \vec{x}_0\|_2^2.
+\end{equation}
+By taking the derivative of the above expression with respect to $a$ and setting it to 0, we obtain the optimal value of $a$ as
+\begin{equation}
+a^\star = (\vec{x} - \vec{x}_0)^\top \vec{u}.
+\end{equation}
+
+The square of the distance between $\vec{x}$ and its vector projection on $\mathcal{L}$ ($\vec{z}$) is given by $\|\vec{z} - \vec{x}\|_2^2$. We have shown that $\vec{z} = \vec{x}_0 + a^\star \vec{u} = \vec{x}_0 + [(\vec{x} - \vec{x}_0)^\top \vec{u}]\vec{u}$. At optimum, the squared objective function, which equals the minimum squared distance $\|\vec{z} - \vec{x}\|_2^2$, takes the desired value:
+\begin{equation}
+\left\|\vec{x}_0 + [(\vec{x} - \vec{x}_0)^\top \vec{u}]\vec{u} - \vec{x}\right\|_2^2 = \|\vec{x} - \vec{x}_0\|_2^2 - ((\vec{x} - \vec{x}_0)^\top \vec{u})^2.
+\end{equation}
+
+\item Show that $P_2$ is equivalent to $P_1$.
+
+\textit{HINT: Start with $P_2$ and using the result from part (a) show that it is equivalent to $P_1$.}
+
+\textbf{Solution:} From part (a), we have the following decomposition of $P_2$:
+\begin{align}
+\argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \sum_{i=1}^{n} \min_{v_i \in \RR} \|\vec{x}_i - v_i u\|_2^2
+&= \argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \sum_{i=1}^{n} \left[\|\vec{x}_i\|_2^2 - (\vec{x}_i^\top \vec{u})^2\right] \\
+&= \argmax_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \sum_{i=1}^{n} \vec{u}^\top \vec{x}_i \vec{x}_i^\top \vec{u} \\
+&= \argmax_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \vec{u}^\top C \vec{u}.
+\end{align}
+From the above equation, we see that a solution for $P_1$ constitutes a solution for $P_2$ and vice-versa.
+
+\item Show that every matrix $Y \in \RR^{n \times d}$ with rank at most 1, can be expressed as $Y = \vec{v}\vec{u}^\top$ for some $\vec{v} \in \RR^n$, $\vec{u} \in \RR^d$ and $\|\vec{u}\|_2 = 1$.
+
+\textbf{Solution:} First, consider the case where $Y$ is rank-0. If $Y$ is rank 0, all of its singular values must be 0 and hence, $Y$ must be the 0 matrix. Therefore, we can express $Y = \vec{v}\vec{u}^\top$ by setting $\vec{v} = 0$ and $\vec{u}$ being any arbitrary unit-length vector.
+
+Now let $Y$ be a rank 1 matrix. Then its has the following SVD: $Y = \sigma \vec{w}\vec{u}^\top$ where $\sigma \neq 0$. It follows that $Y = \vec{v}\vec{u}^\top$ for $\vec{v} = \sigma \vec{w}$.
+
+\item Show that $P_3$ is equivalent to $P_2$.
+
+\textit{HINT: Use the result from part (c) to show that $P_3$ is equivalent to:}
+\begin{equation}
+\argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1, \vec{v} \in \RR^n} \left\|X - \vec{v}\vec{u}^\top\right\|_F^2
+\end{equation}
+\textit{Prove that this is equivalent to $P_2$.}
+
+\textbf{Solution:} From the previous part, we have that the set of matrices, $Y$, with rank at most 1 is equivalent to the set $\{\vec{v}\vec{u}^\top : \|\vec{u}\| = 1, \vec{u} \in \RR^d, \vec{v} \in \RR^n\}$. Therefore, we may equivalently reformulate $P_3$ as:
+\begin{equation}
+\argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1, \vec{v} \in \RR^n} \left\|X - \vec{v}\vec{u}^\top\right\|_F^2.
+\end{equation}
+
+$X$ is a matrix with rows $\vec{x}_i^\top$, and $\vec{v}\vec{u}^\top$ is a matrix with rows $v_i \vec{u}^\top$. We expand the Frobenius norm in the objective in the above equation as
+\begin{equation}
+\left\|X - \vec{v}\vec{u}^\top\right\|_F^2 = \sum_{i=1}^{n} \|\vec{x}_i - v_i \vec{u}\|_2^2,
+\end{equation}
+i.e., express the matrix norm as a sum of vector norms, which follows from the definition of the Frobenius norm.
+
+With this reformulation, we see that any solution $(\vec{u}^\star, \vec{v}^\star)$ must satisfy
+\begin{equation}
+\vec{v}^\star = \argmin_{\vec{v}} \sum_{i=1}^{n} \|\vec{x}_i - v_i \vec{u}\|_2^2, \quad \vec{u}^\star = \argmin_{\vec{u}} \sum_{i=1}^{n} \|\vec{x}_i - v_i^\star \vec{u}\|_2^2,
+\end{equation}
+i.e., we can minimize it over $\vec{u}$, $\vec{v}$ sequentially. We separate the minimization over $\vec{u}$ and $\vec{v}$ to get
+\begin{equation}
+\vec{u}^\star = \argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \min_{\vec{v} \in \RR^n} \sum_{i=1}^{n} \|\vec{x}_i - v_i \vec{u}\|_2^2.
+\end{equation}
+
+We now have a minimization of a sum of squares of vector norms $\|\vec{x}_i - v_i \vec{u}\|_2^2$, each of which depends only on a single element of $\vec{v}$, i.e., $v_i$.
+
+Note: The objective of an optimization problem $\min_{x,y} f(x,y)$ is said to be \textit{separable} when the objective can be written as a sum of two functions --- one which depends on $x$, and one on $y$, i.e.,
+\begin{equation}
+\min_{x,y} f(x,y) = \min_{x,y} [g(x) + h(y)].
+\end{equation}
+If the objective is separable, we can solve the problem \textit{separately} across the two variables, and
+\begin{equation}
+(x^\star, y^\star) = \argmin_{x,y} f(x,y) = (\argmin_x g(x), \argmin_y h(y)).
+\end{equation}
+
+We can split the minimization problem in (88) over each individual $v_i$. We have
+\begin{equation}
+\vec{u}^\star = \argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \sum_{i=1}^{n} \min_{v_i \in \RR} \|\vec{x}_i - v_i \vec{u}\|_2^2.
+\end{equation}
+Therefore, $\vec{u}^\star$ is also a solution to $P_2$.
+\end{enumerate}
+
+\newpage
+
+\section{Operator Norms}
+
+For a matrix $A \in \RR^{m \times n}$, the \textit{induced norm} or \textit{operator norm} $\|A\|_p$ is defined as
+\begin{equation}
+\|A\|_p \doteq \max_{\vec{x} \neq \vec{0}} \frac{\|A\vec{x}\|_p}{\|\vec{x}\|_p}.
+\end{equation}
+In this problem, we provide a characterization of the induced norm for certain values of $p$. Let $a_{ij}$ denote the $(i,j)$-th entry of $A$. Prove the following:
+
+\begin{enumerate}[label=(\alph*)]
+\item $\|A\|_2 = \sigma_{\max}\{A\}$, the maximum singular value of $A$. \textit{HINT: Consider connecting $\|A\|_2^2$ to a particular Rayleigh coefficient.}
+
+\textbf{Solution: Approach 1: Rayleigh Coefficient}
+
+We have
+\begin{align}
+\|A\|_2^2 &= \left(\max_{\vec{x} \neq \vec{0}} \frac{\|A\vec{x}\|_2}{\|\vec{x}\|_2}\right)^2 \\
+&= \max_{\vec{x} \neq \vec{0}} \frac{\|A\vec{x}\|_2^2}{\|\vec{x}\|_2^2} \\
+&= \max_{\vec{x} \neq \vec{0}} \frac{(A\vec{x})^\top(A\vec{x})}{\vec{x}^\top \vec{x}} \\
+&= \max_{\vec{x} \neq \vec{0}} \frac{\vec{x}^\top A^\top A \vec{x}}{\vec{x}^\top \vec{x}} \\
+&= \lambda_{\max}\{A^\top A\} \\
+&= \sigma_{\max}\{A\}^2.
+\end{align}
+Taking square roots gives the solution.
+
+\textbf{Approach 2: SVD}
+
+Write $A = U\Sigma V^\top$. Then
+\begin{align}
+\|A\|_2 &= \max_{\vec{x} \neq \vec{0}} \frac{\|A\vec{x}\|_2}{\|\vec{x}\|_2} \\
+&= \max_{\vec{x} \neq \vec{0}} \frac{\|U\Sigma V^\top \vec{x}\|_2}{\|\vec{x}\|_2}.
+\end{align}
+Here we use the fact that multiplying by the square orthonormal matrix $U$ does not change the norm, so we have
+\begin{equation}
+\|A\|_2 = \max_{\vec{x} \neq \vec{0}} \frac{\|\Sigma V^\top \vec{x}\|_2}{\|\vec{x}\|_2}.
+\end{equation}
+Now we do the change of basis $\vec{z} = V^\top \vec{x}$, i.e., $\vec{x} = V\vec{z}$. Thus, we have
+\begin{equation}
+\|A\|_2 = \max_{\substack{\vec{x} \neq \vec{0} \\ \vec{z} = V^\top \vec{x}}} \frac{\|\Sigma \vec{z}\|_2}{\|V\vec{z}\|_2}.
+\end{equation}
+Since $V$ is square orthonormal, multiplying by it does not change the norm, so we have
+\begin{equation}
+\|A\|_2 = \max_{\substack{\vec{x} \neq \vec{0} \\ \vec{z} = V^\top \vec{x}}} \frac{\|\Sigma \vec{z}\|_2}{\|\vec{z}\|_2}.
+\end{equation}
+Finally, we make the crucial realization that since $V$ is square orthonormal, it is invertible. Since we can always get $\vec{x}$ from $\vec{z}$ and $\vec{z}$ from $\vec{x}$, it is sufficient to optimize directly over $\vec{z}$. Thus,
+\begin{equation}
+\|A\|_2 = \max_{\vec{z} \neq \vec{0}} \frac{\|\Sigma \vec{z}\|_2}{\|\vec{z}\|_2}.
+\end{equation}
+
+Finally, we evaluate this maximum, or rather its square (and take square roots afterwards). Suppose without loss of generality that $\sigma_1\{A\} \ge \sigma_2\{A\} \ge \cdots$. We have
+\begin{align}
+\frac{\|\Sigma \vec{z}\|_2^2}{\|\vec{z}\|_2^2} &= \frac{\vec{z}^\top \Sigma^\top \Sigma \vec{z}}{\vec{z}^\top \vec{z}} \\
+&= \frac{\sum_i \sigma_i\{A\}^2 z_i^2}{\sum_i z_i^2} \\
+&= \sum_i \sigma_i\{A\}^2 \cdot \frac{z_i^2}{\sum_j z_j^2}.
+\end{align}
+
+This is maximized when $z_1^2 = 1$ and all other entries are 0, so $\vec{z} = \pm \vec{e}_1$. In this case we have that
+\begin{equation}
+\frac{\|\Sigma \vec{z}\|_2^2}{\|\vec{z}\|_2^2} = \sigma_1\{A\}^2 = \sigma_{\max}\{A\}^2.
+\end{equation}
+Thus we have
+\begin{equation}
+\|A\|_2 = \max_{\vec{z} \neq \vec{0}} \frac{\|\Sigma \vec{z}\|_2}{\|\vec{z}\|_2} = \sigma_{\max}\{A\}
+\end{equation}
+as claimed.
+
+\item $\|A\|_1$ is the maximum absolute column sum of $A$,
+\begin{equation}
+\|A\|_1 = \max_{1 \le j \le n} \sum_{i=1}^{m} |a_{ij}|.
+\end{equation}
+\textit{HINT: Write $A\vec{x}$ as a linear combination of the columns of $A$ to obtain $\|A\vec{x}\|_1 = \|\sum_{i=1}^{n} x_i \cdot \vec{a}_i\|_1$, where $\vec{a}_i$ denotes the $i$-th column of $A$. Then apply triangle inequality to terms within the sum.}
+
+\textbf{Solution:} We denote the columns of $A$ to be $\begin{bmatrix} \vec{a}_1 & \cdots & \vec{a}_n \end{bmatrix}$. Then, for any $x \in \RR^n$, we have that
+\begin{align}
+\|A\vec{x}\|_1 &= \left\|\sum_{i=1}^{n} x_i \cdot \vec{a}_i\right\|_1 \le \sum_{i=1}^{n} \|x_i \cdot \vec{a}_i\|_1 & \text{(Triangle Inequality)} \\
+&= \sum_{i=1}^{n} |x_i| \cdot \|\vec{a}_i\|_1 & (|x_i| \text{ can come out of norm}) \\
+&\le \left(\sum_{i=1}^{n} |x_i|\right) \cdot \max_i \|\vec{a}_i\|_1 & (\|\vec{a}_j\|_1 \le \max_i \|\vec{a}_i\|_1, \ \forall j) \\
+&= \|\vec{x}\|_1 \cdot \max_i \|\vec{a}_i\|_1.
+\end{align}
+
+We see that $\|A\|_1 = \max_{\vec{x} \neq \vec{0}} \frac{\|A\vec{x}\|_1}{\|\vec{x}\|_1} \le \max_i \|\vec{a}_i\|_1$.
+
+Next we show that we can achieve this upper bound by choosing $\vec{x} = \vec{e}_i$ where $i$ is the index for the column of $A$ such that $\vec{a}_i$ has the maximum column sum, and this vector gives $\frac{\|A\vec{x}\|_1}{\|\vec{x}\|_1} = \max_i \|\vec{a}_i\|_1$. Therefore, we obtain $\|A\|_1$ as the maximum absolute column sum of $A$.
+
+\item \textbf{(OPTIONAL)} $\|A\|_\infty$ is the maximum absolute row sum of $A$,
+\begin{equation}
+\|A\|_\infty = \max_{1 \le i \le m} \sum_{j=1}^{n} |a_{ij}|.
+\end{equation}
+\textit{HINT: First write $\|A\vec{x}\|_\infty = \max_i \left|\sum_{j=1}^{n} a_{ij} x_j\right|$. Then apply triangle inequality and use the fact that $|x_j| \le \max_i |x_i|$, $\forall j$.}
+
+\textbf{Solution:} We have,
+\begin{align}
+\|A\vec{x}\|_\infty &= \max_i \left|\sum_{j=1}^{n} a_{ij} x_j\right| \\
+&\le \max_i \sum_{j=1}^{n} |a_{ij} x_j| & \text{(Triangle Inequality)} \\
+&\le \max_i \left[\max_j |x_j| \left(\sum_{j=1}^{n} |a_{ij}|\right)\right] & (|x_j| \le \max_j |x_j|, \ \forall j) \\
+&= \left(\max_i \sum_{j=1}^{n} |a_{ij}|\right) \|\vec{x}\|_\infty.
+\end{align}
+
+Thus, we have
+\begin{equation}
+\|A\|_\infty = \max_{\vec{x} \neq \vec{0}} \frac{\|A\vec{x}\|_\infty}{\|\vec{x}\|_\infty} \le \max_i \sum_{j=1}^{n} |a_{ij}|.
+\end{equation}
+
+Assume that the index of the maximum absolute row sum is $m$. We can construct a vector $\vec{x}$ such that $x_j = 1$ if $a_{mj} \ge 0$, and $x_j = -1$ if $a_{mj} < 0$. This leads to
+\begin{equation}
+\|A\vec{x}\|_\infty = \max_i \left|\sum_{j=1}^{n} a_{ij} x_j\right| \ge \left|\sum_{j=1}^{n} a_{mj} x_j\right| = \sum_{j=1}^{n} |a_{mj}|.
+\end{equation}
+Since $\|\vec{x}\|_\infty = 1$, the resulting $\frac{\|A\vec{x}\|_\infty}{\|\vec{x}\|_\infty} = \max_{1 \le i \le m} \sum_{j=1}^{n} |a_{ij}|$ as desired.
+
+This shows that $\|A\|_\infty = $ maximum absolute row sum.
+\end{enumerate}
+
+\newpage
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE:} If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\begin{center}
+\small \copyright\ UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+\end{center}
+
+\end{document}

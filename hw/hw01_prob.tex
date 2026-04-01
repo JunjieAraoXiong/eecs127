@@ -1,0 +1,207 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 01}
+\fancyhead[R]{\small 2026-01-22 14:22:14-08:00}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\spn}{span}
+\DeclareMathOperator{\argmin}{argmin}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{lccc}
+\textbf{EECS 127/227AT} & Optimization Models in Engineering & UC Berkeley & Spring 2026 \\
+\textbf{Homework 01} & & &
+\end{tabular}
+\end{center}
+\noindent\rule{\textwidth}{2pt}
+
+\vspace{1em}
+
+\begin{center}
+{\Large \textbf{This homework is due at 11 PM on January 30, 2026.}}
+\end{center}
+
+\noindent\textbf{Submission Format:} Your homework submission should consist of a single PDF file that contains all of your answers (any handwritten answers should be scanned).
+
+\section{Course Setup}
+
+Please complete the following steps to get access to all course resources.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Visit the course website at \url{http://eecs127.github.io/} and familiarize yourself with the syllabus.
+    \item Verify that you can access the class Ed site at \url{https://edstem.org/us/courses/93760/discussion}.
+    \item Verify that you can access the class Gradescope site at \url{https://www.gradescope.com/courses/1228786}.
+\end{enumerate}
+
+\newpage
+
+\section{What Prerequisites Have You Taken?}
+
+The prerequisites for this course are
+\begin{itemize}
+    \item MATH 54 (Linear Algebra \& Differential Equations),
+    \item CS 70 (Discrete Mathematics \& Probability Theory), and
+    \item MATH 53 (Multivariable Calculus).
+\end{itemize}
+
+Please fill out the following Google form: \url{https://forms.gle/gLgvN769ZxoDNzn59} to tell us which of these courses, or their equivalents, you have taken. If you are unsure of course material overlap, please refer to the MATH 54, CS 70 websites (\url{http://www.sp22.eecs70.org/}, \url{https://lin-lin.github.io/MATH54/}), and the MATH 53 textbook (\textit{Multivariable Calculus} by James Stewart). \textbf{For the response to this question, write the secret word revealed at the end of the form.}
+
+The course material this semester will rely on knowledge from these prerequisite courses. If you feel shaky on this material, please use the first week to reacquaint yourself with it. We expect you to handle this review on your own; we will not prioritize questions about prerequisite material in office hours.
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Orthogonality}
+
+Let $\vec{x}, \vec{y} \in \RR^n$ be two linearly independent unit-norm vectors; that is, $\|\vec{x}\|_2 = \|\vec{y}\|_2 = 1$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the vectors $\vec{u} = \vec{x} - \vec{y}$ and $\vec{v} = \vec{x} + \vec{y}$ are orthogonal.
+    \item Find an orthonormal basis for $\spn(\vec{x}, \vec{y})$, the subspace spanned by $\vec{x}$ and $\vec{y}$.
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Least Squares}
+
+The Michaelis-Menten model for enzyme kinetics relates the rate $y$ of an enzymatic reaction to the concentration $x$ of a substrate, as follows:
+\begin{equation}
+    y = \frac{\beta_1 x}{\beta_2 + x},
+\end{equation}
+for constants $\beta_1, \beta_2 > 0$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the model can be expressed as a linear relation between the values $1/y = y^{-1}$ and $1/x = x^{-1}$. Specifically, give an equation of the form $y^{-1} = w_1 + w_2 x^{-1}$, specifying the values of $w_1$ and $w_2$ in terms of $\beta_1$ and $\beta_2$.
+
+    \item In general, reaction parameters $\beta_1$ and $\beta_2$ (and, thus, $w_1$ and $w_2$) are not known a priori and must be fit from data --- for example, using least squares. Suppose you collect $m$ measurements $(x_i, y_i)$, $i = 1, \ldots, m$ over the course of a reaction. Formulate the least squares problem
+    \begin{equation}
+        \vec{w}^\star = \argmin_{\vec{w}} \|X\vec{w} - \vec{y}\|_2^2,
+    \end{equation}
+    where $\vec{w}^\star = \begin{bmatrix} w_1^\star & w_2^\star \end{bmatrix}^\top$, and you must specify $X \in \RR^{m \times 2}$ and $\vec{y} \in \RR^m$. Specifically, your solution should include explicit expressions for $X$ and $\vec{y}$ as a function of $(x_i, y_i)$ values and a final expression for $\vec{w}^\star$ in terms of $X$ and $\vec{y}$, which should contain only matrix multiplications, transposes, and inverses. Assume without loss of generality that $x_1 \neq x_2$.
+
+    \item Assume that we have used the above procedure to calculate values for $w_1^\star$ and $w_2^\star$, and we now want to estimate $\widehat{\vec{\beta}} = \begin{bmatrix} \hat{\beta}_1 & \hat{\beta}_2 \end{bmatrix}^\top$. Write an expression for $\widehat{\vec{\beta}}$ in terms of $w_1^\star$ and $w_2^\star$.
+\end{enumerate}
+
+\vspace{1em}
+\noindent\textit{NOTE}: This problem was taken (with some edits) from the textbook \textit{Optimization Models} by Calafiore and El Ghaoui.
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Subspaces and Dimensions}
+
+Consider the set $\mathcal{S}$ of points $(x_1, x_2, x_3) \in \RR^3$ such that
+\begin{equation}
+    x_1 + 2x_2 + 3x_3 = 0, \quad 3x_1 + 2x_2 + x_3 = 0.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Find a $2 \times 3$ matrix $A$ for which $\mathcal{S}$ is exactly the null space of $A$.
+    \item Determine the dimension of $\mathcal{S}$ and find a basis for it.
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Vector Spaces and Rank}
+
+The \textit{rank} of a $m \times n$ matrix $A$, $\rank(A)$, is the dimension of its \textit{range}, also called span, and denoted $\Range(A) := \{A\vec{x} : \vec{x} \in \RR^n\}$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Assume that $A \in \RR^{m \times n}$ takes the form $A = \vec{u}\vec{v}^\top$, with $\vec{u} \in \RR^m$, $\vec{v} \in \RR^n$, and $\vec{u}, \vec{v} \neq \vec{0}$. (Note that a matrix of this form is known as a \textit{dyad}.) Find the rank of $A$.
+
+    \textit{HINT: Consider the quantity $A\vec{x}$ for arbitrary $\vec{x}$, i.e., what happens when you multiply any vector by matrix $A$.}
+
+    \item Show that for arbitrary $A, B \in \RR^{m \times n}$,
+    \begin{equation}
+        \rank(A + B) \leq \rank(A) + \rank(B),
+    \end{equation}
+    i.e., the rank of the sum of two matrices is less than or equal to the sum of their ranks.
+
+    \textit{HINT: First, show that $\Range(A + B) \subseteq \Range(A) + \Range(B)$, meaning that any vector in the range of $A + B$ can be expressed as the sum of two vectors, each in the range of $A$ and $B$, respectively. Remember that for any matrix $A$, $\Range(A)$ is a subspace, and for any two subspaces $S_1$ and $S_2$, $\dim(S_1 + S_2) \leq \dim(S_1) + \dim(S_2)$.\footnote{This fact can be proved by taking a basis of $S_1$ and extending it to a basis of $S_2$ (during which we can only add \textit{at most} $\dim(S_2)$ basis vectors). This extended basis must now also be a basis of $S_1 + S_2$. Thus, $\dim(S_1 + S_2) \leq \dim(S_1) + \dim(S_2)$.} (Note that the sum of vector spaces $S_1 + S_2$ is not equivalent to $S_1 \cup S_2$, but is defined as $S_1 + S_2 := \{\vec{s}_1 + \vec{s}_2 | \vec{s}_1 \in S_1, \vec{s}_2 \in S_2\}$.)}
+
+    \item Consider an $m \times n$ matrix $A$ that takes the form $A = UV^\top$, with $U \in \RR^{m \times k}$, $V \in \RR^{n \times k}$. Show that the rank of $A$ is less than or equal to $k$. \textit{HINT: Use parts 6(a) and 6(b), and remember that this decomposition can also be written as the} dyadic expansion
+    \begin{equation}
+        A = UV^\top = \begin{bmatrix} \vec{u}_1 & \ldots & \vec{u}_k \end{bmatrix} \begin{bmatrix} \vec{v}_1^\top \\ \vdots \\ \vec{v}_k^\top \end{bmatrix} = \sum_{i=1}^{k} \vec{u}_i \vec{v}_i^\top,
+    \end{equation}
+    \textit{for} $U = \begin{bmatrix} \vec{u}_1 & \ldots & \vec{u}_k \end{bmatrix}$ \textit{and} $V = \begin{bmatrix} \vec{v}_1 & \ldots & \vec{v}_k \end{bmatrix}$.
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE}: If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\end{document}

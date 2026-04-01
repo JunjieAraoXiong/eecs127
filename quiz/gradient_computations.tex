@@ -1,0 +1,109 @@
+\documentclass[9pt]{article}
+
+% Packages
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+\usepackage{mathtools}
+\usepackage{multicol}
+
+% Dark axiom box style
+\newtcolorbox{axiombox}{
+  colback=black!85!white,
+  coltext=white,
+  colframe=black!90!white,
+  boxrule=0pt,
+  arc=4pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+}
+
+\begin{document}
+
+% Title
+\begin{center}
+  {\LARGE \textbf{Gradient Computations}} \\[6pt]
+  {\normalsize EECS 127} \\[10pt]
+\end{center}
+
+\vspace{4pt}
+
+% Problem Statement
+\begin{axiombox}
+\textbf{Problem.} \; Compute the gradient $\nabla g(\mathbf{x})$ for each of the following functions, where $A \in \mathbb{R}^{m \times n}$, $\mathbf{b} \in \mathbb{R}^m$, and $\mathbf{x} \in \mathbb{R}^n$.
+
+\begin{enumerate}[label=(\alph*), itemsep=3pt]
+  \item $g_1(\mathbf{x}) = \mathbf{x}^T A \mathbf{x}$, where $A \in \mathbb{R}^{n \times n}$.
+  \item $g_6(\mathbf{x}) = e^{\|\mathbf{x}\|_2^2}$.
+  \item $g_7(\mathbf{x}) = e^{\|A\mathbf{x} - \mathbf{b}\|_2^2}$.
+\end{enumerate}
+\end{axiombox}
+
+\vspace{8pt}
+
+\begin{multicols}{2}
+
+%% ---- Part (a) ---- %%
+\section*{Part (a): $\nabla g_1(\mathbf{x})$}
+
+We want $\nabla_{\mathbf{x}}(\mathbf{x}^T A \mathbf{x})$.
+
+Expand the scalar $\mathbf{x}^T A \mathbf{x}$ in index notation:
+\[
+  g_1(\mathbf{x}) = \sum_{i,j} x_i \, A_{ij} \, x_j.
+\]
+
+Differentiating with respect to $x_k$:
+\[
+  \frac{\partial g_1}{\partial x_k}
+  = \sum_j A_{kj}\, x_j + \sum_i x_i\, A_{ik}.
+\]
+
+In vector form, the first sum gives the $k$-th entry of $A\mathbf{x}$ and the second gives the $k$-th entry of $A^T \mathbf{x}$. Therefore:
+\[
+  \boxed{\nabla g_1(\mathbf{x}) = (A + A^T)\,\mathbf{x}.}
+\]
+
+\textbf{Note:} If $A$ is symmetric ($A = A^T$), this simplifies to $2A\mathbf{x}$.
+
+\columnbreak
+
+%% ---- Part (b) ---- %%
+\section*{Part (b): $\nabla g_6(\mathbf{x})$}
+
+Write $g_6(\mathbf{x}) = e^{h(\mathbf{x})}$ where $h(\mathbf{x}) = \|\mathbf{x}\|_2^2 = \mathbf{x}^T \mathbf{x}$.
+
+By the chain rule for scalar compositions:
+\[
+  \nabla g_6 = e^{h(\mathbf{x})} \cdot \nabla h(\mathbf{x}).
+\]
+
+Since $\nabla(\mathbf{x}^T \mathbf{x}) = 2\mathbf{x}$:
+\[
+  \boxed{\nabla g_6(\mathbf{x}) = 2\,e^{\|\mathbf{x}\|_2^2}\,\mathbf{x}.}
+\]
+
+\vspace{8pt}
+
+%% ---- Part (c) ---- %%
+\section*{Part (c): $\nabla g_7(\mathbf{x})$}
+
+Write $g_7(\mathbf{x}) = e^{h(\mathbf{x})}$ where $h(\mathbf{x}) = \|A\mathbf{x} - \mathbf{b}\|_2^2$.
+
+First compute $\nabla h$. Let $\mathbf{r} = A\mathbf{x} - \mathbf{b}$, so $h = \mathbf{r}^T \mathbf{r}$. By the chain rule:
+\[
+  \nabla_{\mathbf{x}} h
+  = \frac{\partial \mathbf{r}}{\partial \mathbf{x}}^T \nabla_{\mathbf{r}}(\mathbf{r}^T\mathbf{r})
+  = A^T (2\mathbf{r})
+  = 2A^T(A\mathbf{x} - \mathbf{b}).
+\]
+
+Applying the outer chain rule:
+\[
+  \boxed{\nabla g_7(\mathbf{x}) = 2\,e^{\|A\mathbf{x}-\mathbf{b}\|_2^2}\,A^T(A\mathbf{x}-\mathbf{b}).}
+\]
+
+\end{multicols}
+
+\end{document}

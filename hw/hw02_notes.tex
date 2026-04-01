@@ -1,0 +1,325 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 2}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\spn}{span}
+\newcommand{\vv}[1]{\vec{#1}}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{lcr}
+\textbf{EECS 127/227AT} & Optimization Models in Engineering & UC Berkeley \quad Spring 2026 \\
+\textbf{Homework 2 --- Solutions} & & \\
+\end{tabular}
+\end{center}
+
+\section{Proof of the Fundamental Theorem of Linear Algebra}
+
+In this question, we will prove the fundamental theorem of linear algebra. For any $A \in \RR^{m \times n}$, let $\NN(A)$, $\Range(A)$, and $\rank(A)$ denote the null space, range and rank of $A$ respectively. For any subspace, $\mathcal{S}$ with dimension, $\dim(\mathcal{S})$, let $\mathcal{S}^\perp$ denote its the subspace orthogonal to $\mathcal{S}$. The fundamental theorem of linear algebra states that,
+\begin{equation}
+\NN(A) \oplus \Range\!\left(A^\top\right) = \RR^n.
+\end{equation}
+
+The proof technique we employ will first show that,
+\begin{equation}
+\NN(A) = \Range\!\left(A^\top\right)^\perp.
+\end{equation}
+
+Then we will prove that we can find orthonormal vectors $\vv{e}_1, \vv{e}_2, \ldots \vv{e}_n$ such that $\NN(A) = \spn(\vv{e}_1, \vv{e}_2, \ldots, \vv{e}_\ell)$ and $\Range\!\left(A^\top\right) = \spn(\vv{e}_{\ell+1}, \vv{e}_{\ell+2}, \ldots, \vv{e}_n)$. As a corollary we get the rank-nullity theorem:
+\begin{equation}
+\dim(\NN(A)) + \rank(A) = n.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item First, show that $\NN(A) \subseteq \Range\!\left(A^\top\right)^\perp$.
+
+\textit{HINT: Consider $\vv{u}$ in $\NN(A)$, $\vv{v} \in \Range\!\left(A^\top\right)$ and show that $\vv{u}^\top \vv{v} = 0$.}
+
+\textbf{Solution:} Take a vector $\vv{u}$ from the nullspace: $A\vv{u} = 0$, $\vv{u} \neq 0$, and a vector $\vv{w}$ from the rowspace: $A^\top \vv{v} = \vv{w}$. Now we can show orthogonality:
+\begin{equation}
+\langle \vv{w}, \vv{u} \rangle = \left\langle A^\top \vv{v},\; \vv{u} \right\rangle = \vv{v}^\top A \vv{u} = \vv{v}^\top \vv{0} = 0
+\end{equation}
+Therefore, $\vv{u} \in \Range\!\left(A^\top\right)^\perp$. Since this holds for every $u$ in $\NN(A)$ we have $\NN(A) \subseteq \Range\!\left(A^\top\right)^\perp$. Note that this is not an equality since we only proved that every vector in the nullspace is orthogonal, not that these vectors are the \textbf{only} orthogonal ones.
+
+\item Now show that: $\Range\!\left(A^\top\right)^\perp \subseteq \NN(A)$.
+
+\textit{HINT: Show that any vector $\vv{v}$ that is orthogonal to all vectors in the range of $A^\top$ satisfies $A\vv{v} = 0$. To do this, consider $\vv{v} \in R(A^\top)^\perp$ and what it implies for $\vv{v}^\top A^\top$.}
+
+\textbf{Solution:} Consider $\vv{v} \in \Range\!\left(A^\top\right)^\perp$ and $\vv{u} \in \Range\!\left(A^\top\right)$. They are related by $\langle \vv{v}, \vv{u} \rangle = \vv{v}^\top \vv{u} = 0$. Each column of $A^\top$ is in $\Range\!\left(A^\top\right)$. So we have $\vv{v}^\top \vv{u} = 0$ if $\vv{u}$ is a column of $A^\top$. This implies $\vv{v}^\top A^\top = \vv{0}^\top$. Taking transposes gives $(A\vv{v})^\top = \vv{0}^\top$ which implies that $A\vv{v} = \vv{0}$ and so $\vv{v} \in \NN(A)$. Since this holds for any $\vv{v} \in \Range\!\left(A^\top\right)^\perp$ we have $\Range\!\left(A^\top\right)^\perp \subseteq \NN(A)$.
+
+\item Note that we could apply the orthogonal decomposition theorem (theorem 19 in the course reader) at this point to complete the proof. However, instead we'll work through how to re-derive that result directly. Let $\dim(\NN(A)) = \ell$ and let $\vv{e}_1, \ldots, \vv{e}_\ell$ be an orthonormal basis for $\NN(A)$. Consider an extension of the basis to an orthonormal basis, $\vv{e}_1, \ldots, \vv{e}_n$ for $\RR^n$. We will prove that $\vv{e}_{\ell+1}, \ldots, \vv{e}_n$ form a basis for $\Range\!\left(A^\top\right)$ and as a consequence, the dimension of $\Range\!\left(A^\top\right)$ is $n - \ell$.
+
+\begin{enumerate}[label=\roman*.]
+\item Show that $\Range\!\left(A^\top\right)$ lies in the span of $\vv{e}_{\ell+1}, \ldots, \vv{e}_n$.
+
+\textit{HINT: Express any vector $\vv{u} \in \Range\!\left(A^\top\right)$ as $\vv{u} = \sum_{i=1}^{n} \alpha_i \vv{e}_i$. What are the values of $\alpha_i$?}
+
+\textbf{Solution:} We can obtain the coefficient attached to the basis vector $\vv{e}_i$ by finding the scalar projection (dot product) of $\vv{u}$ onto $\vv{e}_i$. Therefore, by projecting a vector onto an orthonormal one, we see that $\alpha_i = 0$. Now, take any $\vv{u} \in \Range\!\left(A^\top\right)$. We can express it as a linear combination of $A$'s basis vectors:
+\begin{equation}
+\vv{u} = \sum_{i=1}^{n} \alpha_i \vv{e}_i.
+\end{equation}
+But we also know from parts (a) and (b) that $u$ is orthogonal to any vectors in the nullspace, which are spanned by/include the first $\ell$ basis vectors:
+\begin{equation}
+\vv{u}^\top \vv{e}_i = 0
+\end{equation}
+for all $i \in \{1, 2, \ldots, \ell\}$. Therefore, $\vv{u}^\top \vv{e}_i = \alpha_i = 0$ for all $i \in \{1, 2, \ldots, \ell\}$ and subsequently
+\begin{equation}
+\vv{u} = \sum_{i=\ell+1}^{n} \alpha_i \vv{e}_i.
+\end{equation}
+Therefore, any vector $\vv{u} \in \Range\!\left(A^\top\right)$ can be spanned by $\vv{e}_{\ell+1}, \ldots, \vv{e}_n$, making $\Range\!\left(A^\top\right)$ a subset of the span of $\vv{e}_{\ell+1}, \ldots, \vv{e}_n$.
+
+\item From part (i) we know that $\Range\!\left(A^\top\right) \subseteq \spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)$, but we want something stronger. Show that in fact $\Range\!\left(A^\top\right) = \spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)$.
+
+\textit{HINT: First, prove $\dim\!\left(\Range\!\left(A^\top\right)\right) = \dim(\spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)) = n - \ell$ by contradiction. Assume $\dim\!\left(\Range\!\left(A^\top\right)\right) = k < n - \ell$, show that a vector $\vv{u} \in \spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)$ and $\vv{u} \notin \Range\!\left(A^\top\right)$ cannot exist.}
+
+\textit{Specifically, let $\vv{f}_1, \vv{f}_2, \ldots, \vv{f}_k$ be an orthonormal basis for $\Range\!\left(A^\top\right)$, we can find non-zero $\vv{u}_\perp = \vv{u} - \sum_{i=1}^{k} (\vv{f}_i^\top \vv{u}) \vv{f}_i$ that is orthogonal to $\Range\!\left(A^\top\right)$. Does $\vv{u}_\perp$ lie in $\NN(A)$? Does $\vv{u}_\perp$ also lie in $\spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)$? Does this lead to a contradiction? Think of $n - \ell = 3$ and $k = 2$ for visualization.}
+
+\textit{HINT: Second, you can use without proof the fact that for two subspaces, $\mathcal{S}_1$ and $\mathcal{S}_2$, if $\mathcal{S}_1 \subseteq \mathcal{S}_2$ and $\dim(\mathcal{S}_1) = \dim(\mathcal{S}_2)$ then $\mathcal{S}_1 = \mathcal{S}_2$.}
+
+\textbf{Solution:} Assume the contrary and let $\vv{f}_1, \ldots, \vv{f}_k$ be an orthonormal basis for $\Range\!\left(A^\top\right)$. Then, there exists $\vv{u}$ in the span of $\vv{e}_{\ell+1}, \ldots, \vv{e}_n$ such that $\vv{u} \notin \Range\!\left(A^\top\right)$. From this, we get $\vv{u}_\perp = \vv{u} - \sum_{i=1}^{k} (\vv{f}_i^\top \vv{u}) \vv{f}_i$ is non-zero and orthogonal to $\Range\!\left(A^\top\right)$. Visually, you can think of the range of $A^\top$ as the $x, y$ plane, and $\vv{u}$ extends into 3D space outside this plane. From there, we can define a $\vv{u}_\perp$ that is perpendicular to the $x, y$ plane simply by using Gram-Schmidt on the basis vectors, for example. Thus, $\vv{u}_\perp \in \Range\!\left(A^\top\right)^\perp = \NN(A)$. However, we also have $\vv{u}_\perp \in \spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)$ which is a contradiction as $\NN(A)$ and $\spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)$ are orthogonal to each other. Therefore, the dimension of $\Range\!\left(A^\top\right)$ is at least $n - \ell$ and is exactly $n - \ell$ as it is contained in an $n - \ell$ dimensional space. Since, we have $\Range\!\left(A^\top\right) \subseteq \spn(\vv{e}_{\ell+1} \ldots \vv{e}_n)$, and $\dim\!\left(\Range\!\left(A^\top\right)\right) = \dim(\spn(\vv{e}_{\ell+1} \ldots \vv{e}_n)) = n - \ell$, we can conclude that $\Range\!\left(A^\top\right) = \spn(\vv{e}_{\ell+1}, \ldots, \vv{e}_n)$.
+\end{enumerate}
+
+\item Using part (c) argue why $\NN(A) \oplus \Range\!\left(A^\top\right) = \RR^n$ and why the rank nullity theorem holds.
+
+\textbf{Solution:} We have found a basis $\vv{e}_1, \vv{e}_2, \ldots, \vv{e}_n$ such that the first $\ell$ vectors $\vv{e}_1, \vv{e}_2, \ldots, \vv{e}_\ell$ form a basis for $\NN(A)$ and the last $n - \ell$ vectors form a basis for $\Range\!\left(A^\top\right)$. Thus the claim $\NN(A) \oplus \Range\!\left(A^\top\right) = \RR^n$ follows. Also,
+\begin{align}
+\dim(\NN(A)) + \rank(A) &= \dim(\NN(A)) + \rank\!\left(A^\top\right) \\
+&= \dim(\NN(A)) + \dim\!\left(\Range\!\left(A^\top\right)\right) \\
+&= \ell + n - \ell = n.
+\end{align}
+\end{enumerate}
+
+\section{Eigenvalues of Symmetric Matrices}
+
+Let $A \in \mathbb{S}^n$ (i.e., the set of $n \times n$ real symmetric matrices) with eigenvalues $\lambda_i$. Prove that all of the eigenvalues of $A$ are real (i.e.\ that $\lambda_i \in \RR$ for each $i$).
+
+\textit{HINT: Consider the quantity $(Av)^*v$ for eigenvector $v$ where $*$ denotes the conjugate transpose. Note that this is the Hermitian inner product between $Av$ and $v$.}
+
+\textit{NOTE: This exercise is part of the proof of the spectral theorem.}
+
+\textbf{Solution:} Let $(v \in \CC^n, \lambda \in \CC)$ be an eigen-pair of the matrix $A$. Consider the quantity $(Av)^*v$. We have that
+\[
+(Av)^* v = v^* A^* v = v^* A v = \lambda v^* v
+\]
+where the second equality uses the fact that $A$ is symmetric and real and the third that $v$ is an eigenvector of $A$ with eigenvalue $\lambda$.
+
+Similarly, we can apply the fact that $Av = \lambda v$ before expanding the inner product to get
+\[
+(Av)^* v = (\lambda v)^* v = \overline{\lambda} v^* v
+\]
+where $\overline{\lambda}$ notates the complex conjugate of $\lambda$. As a result,
+\[
+\lambda v^* v = \overline{\lambda} v^* v
+\]
+Since $v$ is a non-zero vector, $v^* v = \|v\|_2^2 > 0$, so we can re-arrange our equality to see that
+\[
+\lambda = \overline{\lambda}
+\]
+The only numbers which are equal to their own complex conjugate are the real numbers, so this tells us that $\lambda \in \RR$ as desired.
+
+\section{Distinct Eigenvalues, Orthogonal Eigenspaces}
+
+Let $A \in \mathbb{S}^n$ (i.e.\ the set of $n \times n$ real symmetric matrices) and $(\lambda_1, \vv{u}_1), (\lambda_2, \vv{u}_2)$, $\lambda_1 \neq \lambda_2$ be distinct eigen-pairs of $A$. Show that $\vv{u}_1^\top \vv{u}_2 = 0$, i.e., eigenspaces corresponding to distinct eigenvalues are mutually orthogonal.
+
+\textit{HINT: First try to prove that $\lambda_1 \vv{u}_1^\top \vv{u}_2 = \lambda_2 \vv{u}_1^\top \vv{u}_2$, then show that this implies $\vv{u}_1^\top \vv{u}_2 = 0$.}
+
+\textit{NOTE: This exercise is part of the proof of the spectral theorem.}
+
+\textbf{Solution:} We have
+\begin{align}
+\lambda_1 \vv{u}_1^\top \vv{u}_2 &= (\lambda_1 \vv{u}_1)^\top \vv{u}_2 \\
+&= (A\vv{u}_1)^\top \vv{u}_2 \\
+&= \vv{u}_1^\top A^\top \vv{u}_2 \\
+&= \vv{u}_1^\top A \vv{u}_2 \\
+&= \vv{u}_1^\top (\lambda_2 \vv{u}_2) \\
+&= \lambda_2 \vv{u}_1^\top \vv{u}_2.
+\end{align}
+Thus we have
+\begin{equation}
+\lambda_1 (\vv{u}_1^\top \vv{u}_2) = \lambda_2 (\vv{u}_1^\top \vv{u}_2) \implies (\lambda_1 - \lambda_2)(\vv{u}_1^\top \vv{u}_2) = 0.
+\end{equation}
+Since $\lambda_1 \neq \lambda_2$, we have $\lambda_1 - \lambda_2 \neq 0$, so we must have $\vv{u}_1^\top \vv{u}_2 = 0$.
+
+Thus, $\vv{u}_1^\top \vv{u}_2 = 0$ for any $\vv{u}_1, \vv{u}_2$ corresponding to different eigenvalues. Stated differently, unique eigenvalues correspond to orthogonal eigenvectors.
+
+This, in combination with the fact that the geometric multiplicity and algebraic multiplicity of a symmetric matrix are equal, allows us to construct an orthonormal set of eigenvectors. First, find all the distinct eigenvalues and their respective eigenvectors. Then, for all eigenvalues with algebraic multiplicity $> 1$, we know that the respective eigenspace is spanned by $k$ linearly independent eigenvectors. Utilizing Gram-Schmidt, we can construct an orthonormal set of eigenvectors from this basis for this eigenspace. Putting the eigenvectors from these two cases together, we have constructed the $U$ matrix of the decomposition.
+
+\section{Gram Schmidt}
+
+Any set of $n$ linearly independent vectors in $\RR^n$ could be used as a basis for $\RR^n$. However, certain bases could be more suitable for certain operations than others. For example, an orthonormal basis could facilitate solving linear equations.
+
+\begin{enumerate}[label=(\alph*)]
+\item Given a matrix $A \in \RR^{n \times n}$, it could be represented as a multiplication of two matrices
+\begin{equation}
+A = QR,
+\end{equation}
+where $Q \in \RR^{n \times n}$ is an orthonormal matrix and $R \in \RR^{n \times n}$ is an upper-triangular matrix. For the matrix $A$, describe how Gram-Schmidt process could be used to find the $Q$ and $R$ matrices, and apply this to
+\begin{equation}
+A = \begin{bmatrix} 3 & -3 & 1 \\ 4 & -4 & -7 \\ 0 & 3 & 3 \end{bmatrix}
+\end{equation}
+to find an orthonormal matrix $Q$ and an upper-triangular matrix $R$.
+
+\textbf{Solution:} Let $\vv{a}_i$ and $\vv{q}_i$ denote the columns of $A$ and $Q$, respectively. Using Gram-Schmidt, we obtain an orthonormal basis $\vv{q}_i$ for the column space of $A$.
+\begin{align}
+\vv{p}_1 &= \vv{a}_1, \quad \vv{q}_1 = \frac{\vv{p}_1}{\|\vv{p}_1\|_2} \\
+\vv{p}_2 &= \vv{a}_2 - (\vv{a}_2^\top \vv{q}_1)\vv{q}_1, \quad \vv{q}_2 = \frac{\vv{p}_2}{\|\vv{p}_2\|_2} \\
+\vv{p}_3 &= \vv{a}_3 - (\vv{a}_3^\top \vv{q}_1)\vv{q}_1 - (\vv{a}_3^\top \vv{q}_2)\vv{q}_2, \quad \vv{q}_3 = \frac{\vv{p}_3}{\|\vv{p}_3\|_2} \\
+&\;\;\vdots \notag
+\end{align}
+Rearranging terms, we have
+\begin{align}
+\vv{a}_1 &= r_{11}\vv{q}_1 \\
+\vv{a}_i &= r_{i1}\vv{q}_1 + \cdots + r_{ii}\vv{q}_i, \quad i = 2, \ldots, n,
+\end{align}
+where each $\vv{q}_i$ has unit norm, and $r_{ij}\vv{q}_j$ denotes the projection of $\vv{a}_i$ onto the vector $\vv{q}_j$ for $j \neq i$. Stacking $\vv{a}_i$ horizontally into $A$ and rewriting in matrix notation, we obtain $A = QR$. For the given matrix, we have
+\begin{equation}
+A = \begin{bmatrix} 0.6 & 0 & 0.8 \\ 0.8 & 0 & -0.6 \\ 0 & 1 & 0 \end{bmatrix} \begin{bmatrix} 5 & -5 & -5 \\ 0 & 3 & 3 \\ 0 & 0 & 5 \end{bmatrix}.
+\end{equation}
+Note that an equivalent factorization is $A = (-Q)(-R)$.
+
+\item Given an invertible matrix $A \in \RR^{n \times n}$ and an observation vector $\vv{b} \in \RR^n$, the solution to the equality
+\begin{equation}
+A\vv{x} = \vv{b}
+\end{equation}
+is given as $\vv{x} = A^{-1}\vv{b}$. For the matrix $A = QR$ from part 4(a), assume that we want to solve
+\begin{equation}
+A\vv{x} = \begin{bmatrix} 8 \\ -6 \\ 3 \end{bmatrix}.
+\end{equation}
+By using the fact that $Q$ is an orthonormal matrix, find $\vv{v}$ such that
+\begin{equation}
+R\vv{x} = \vv{v}.
+\end{equation}
+Then, given the upper-triangular matrix $R$ in part 4(a) and $\vv{v}$, find the elements of $\vv{x}$ sequentially.
+
+\textbf{Solution:} We note that $Q^{-1} = Q^\top$.
+\begin{align}
+A\vv{x} &= \vv{b} \\
+QR\vv{x} &= \vv{b} \\
+Q^\top QR\vv{x} &= R\vv{x} = Q^\top \vv{b}.
+\end{align}
+Thus
+\begin{equation}
+\vv{v} = Q^\top \vv{b} = \begin{bmatrix} 0 \\ 3 \\ 10 \end{bmatrix}.
+\end{equation}
+Given $R$ and $\vv{v}$, we can find $\vv{x}$ by back-substitution:
+\begin{equation}
+\begin{bmatrix} 5 & -5 & -5 \\ 0 & 3 & 3 \\ 0 & 0 & 5 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 0 \\ 3 \\ 10 \end{bmatrix} \implies x_3 = 2 \implies x_2 = -1 \implies x_1 = 1 \implies \vv{x} = \begin{bmatrix} 1 \\ -1 \\ 2 \end{bmatrix}.
+\end{equation}
+
+\item Given an invertible matrix $B \in \RR^{n \times n}$ and an observation vector $\vv{c} \in \RR^n$, find the computational cost of finding the solution $\vv{z}$ to the equation $B\vv{z} = \vv{c}$ by using the $QR$ decomposition of $B$. Assume that $Q$ and $R$ matrices are available, and adding, multiplying, and dividing scalars take one unit of ``computation''.
+
+As an example, computing the inner product $\vv{a}^\top \vv{b}$ is said to be $O(n)$, since we have $n$ scalar multiplication for each $a_i b_i$. Similarly, matrix vector multiplication is $O(n^2)$, since matrix vector multiplication can be viewed as computing $n$ inner products. The computational cost for inverting a matrix in $\RR^n$ is $O(n^3)$, and consequently, the cost grows rapidly as the set of equations grows in size. This is why the expression $A^{-1}\vv{b}$ is usually not computed by directly inverting the matrix $A$. Instead, the $QR$ decomposition of $A$ is exploited to decrease the computational cost.
+
+\textbf{Solution:} We count the number of operations in back substitution. Solving the initial equation
+\begin{equation}
+r_{nn} x_n = \bar{b}_n
+\end{equation}
+takes 1 multiplication. Solving each subsequent equation takes one more multiplication and one more addition than the previous. In total, we have $1 + 3 + 5 + \cdots$ of operations, which is on the order of $O(n^2)$. Thus, matrix-vector multiplication and back substitution are both $O(n^2)$. Given the $QR$ decomposition of $A$, we can solve $A\vv{x} = \vv{b}$ in $O(n^2)$ times.
+\end{enumerate}
+
+\section{Determinants}
+
+Consider a unit box $\mathcal{B}$ in $\RR^2$ --- i.e., the square with corners $\begin{bmatrix} 0 \\ 0 \end{bmatrix}$, $\begin{bmatrix} 0 \\ 1 \end{bmatrix}$, $\begin{bmatrix} 1 \\ 0 \end{bmatrix}$, and $\begin{bmatrix} 1 \\ 1 \end{bmatrix}$. Define $A(\mathcal{B})$ as the parallelogram generated by applying matrix $A$ to every point in $\mathcal{B}$.
+
+\begin{enumerate}[label=(\alph*)]
+\item For $A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$, calculate the location of each corner of $A(\mathcal{B})$.
+
+\textbf{Solution:} Directly applying matrix $A$ to each corner point, we have
+\[
+A \begin{bmatrix} 0 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 0 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}.
+\]
+\[
+A \begin{bmatrix} 0 \\ 1 \end{bmatrix} = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix} = \begin{bmatrix} 2 \\ 4 \end{bmatrix}.
+\]
+\[
+A \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 3 \end{bmatrix}.
+\]
+\[
+A \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 3 \\ 7 \end{bmatrix}.
+\]
+
+\item Write the area of $A(\mathcal{B})$ as a function of $\det(A)$.
+
+\textit{HINT: How are the basis vectors $\begin{bmatrix} 0 \\ 1 \end{bmatrix}$ and $\begin{bmatrix} 1 \\ 0 \end{bmatrix}$ transformed by the matrix multiplication?}
+
+\textbf{Solution:} The area of the parallelogram $A(\mathcal{B})$ can be computed geometrically from its corner points and is equal to $|\det(A)|$. A full explanation of this relation can be found in Calafiore \& El Ghaoui section 3.3.2.
+
+\item Calculate the area of $A(\mathcal{B})$ for each of the following values of $A$.
+\begin{enumerate}[label=\roman*.]
+\item $A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$
+\item $A = \begin{bmatrix} 2 & 1 \\ 4 & 3 \end{bmatrix}$
+\item $A = \begin{bmatrix} 1 & 2 \\ 2 & 4 \end{bmatrix}$
+\item $A = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$
+\end{enumerate}
+
+\textbf{Solution:} We use the result from part 5(b) and use the determinant of $A$ to calculate the area.
+\begin{enumerate}[label=\roman*.]
+\item $\det(A) = \det\!\left(\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}\right) = -2 \implies \text{area}[A(\mathcal{B})] = |\det(A)| = 2$.
+\item $\det(A) = \det\!\left(\begin{bmatrix} 2 & 1 \\ 4 & 3 \end{bmatrix}\right) = 2 \implies \text{area}[A(\mathcal{B})] = |\det(A)| = 2$.
+\item $\det(A) = \det\!\left(\begin{bmatrix} 1 & 2 \\ 2 & 4 \end{bmatrix}\right) = 0 \implies \text{area}[A(\mathcal{B})] = |\det(A)| = 0$ (Singular matrix!).
+\item $\det(A) = \det\!\left(\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}\right) = 1 \implies \text{area}[A(\mathcal{B})] = |\det(A)| = 1$ (Rotation matrix!).
+\end{enumerate}
+\end{enumerate}
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE: If you didn't work with anyone, you can put ``none'' as your answer.}
+
+\end{document}

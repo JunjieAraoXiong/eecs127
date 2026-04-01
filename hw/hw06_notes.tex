@@ -1,0 +1,422 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 6}
+\fancyhead[R]{\small Spring 2026 -- Solutions}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\begin{document}
+
+\begin{center}
+    {\large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[1ex]
+    {\LARGE\bfseries Homework 6 -- Solutions}
+\end{center}
+
+\section{Best Approximations}
+
+We start by recalling the Eckart-Young Theorem: Consider any square matrix $C \in \RR^{n \times n}$ and assume that we can write its full singular value decomposition as $C = U\Sigma V^\top$ where $\Sigma$ is the $n \times n$ diagonal matrix with distinct diagonal entries $\sigma_1 > \sigma_2 > \cdots > \sigma_n > 0$. Then, for $0 \le k \le n$, the Eckart-Young Theorem for Frobenius norm states that
+\[
+    C_k = U_k \Sigma_k V_k^\top = \argmin_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|C - B\|_F
+\]
+where $U_k \in \RR^{n \times k}$ is the matrix consisting of the first $k$ columns of $U$, $V_k \in \RR^{n \times k}$ is the matrix consisting of the first $k$ columns of $V$, and $\Sigma_k$ is the $k \times k$ diagonal matrix with the top-$k$ singular values $\sigma_1 > \cdots > \sigma_k$ as its diagonal entries.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Now, consider any square matrix $C \in \RR^{n \times n}$ and let $C_k \in \RR^{n \times n}$ denote its best rank-$k$ approximation in the Frobenius norm. Then, for any orthonormal matrix $W \in \RR^{n \times n}$, show that
+    \[
+        W C_k W^\top = \argmin_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|WCW^\top - B\|_F.
+    \]
+
+    \textbf{Solution:} Using the fact that the Frobenius norm is invariant under orthogonal transformations, we have $\|B - WCW^\top\|_F = \|W^\top BW - C\|_F$. Therefore, we can write
+    \[
+        \min_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|B - WCW^\top\|_F = \min_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|W^\top BW - C\|_F.
+    \]
+
+    Next, we show that $\{W^\top BW : B \in \RR^{n \times n}, \rank(B) \le k\} = \{Z \in \RR^{n \times n} : \rank(Z) \le k\}$. For any $B \in \RR^{n \times n}$ such that $\rank(B) \le k$, $Z = W^\top BW$ satisfies $\rank(Z) \le k$. On the other hand, for any $Z \in \RR^{n \times n}$ such that $\rank(Z) \le k$, there exists $B = WZW^\top$ that satisfies $\rank(B) \le k$ and $W^\top BW = W^\top WZW^\top W = Z$ because $W$ is an orthonormal matrix. Therefore,
+    \[
+        \min_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|W^\top BW - C\|_F = \min_{\substack{Z \in \RR^{n \times n} \\ \rank(Z) \le k}} \|Z - C\|_F = \|C_k - C\|_F.
+    \]
+
+    Lastly, noting that $\|WC_kW^\top - WCW^\top\|_F = \|W(C_k - C)W^\top\|_F = \|C_k - C\|_F$, we can write
+    \[
+        \|WC_kW^\top - WCW^\top\|_F = \min_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|B - WCW^\top\|_F.
+    \]
+    Since $\rank(WC_kW^\top) \le k$, we conclude that $WC_kW^\top$ is a minimizer of the given optimization problem.
+\end{enumerate}
+
+For the remainder of this problem, we consider a square matrix $A \in \RR^{n \times n}$ and assume $A$ has full rank. Using Gram-Schmidt Orthonormalization (GSO), we can write the matrix $A$ as
+\begin{equation}
+    A = QR
+\end{equation}
+where $Q \in \RR^{n \times n}$ is an orthonormal matrix and $R \in \RR^{n \times n}$ is an upper triangular matrix.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item Find the best rank-$n$ approximation to $AA^\top$ in the Frobenius norm. \emph{Justify your answer.}
+
+    \textbf{Solution:} $AA^\top$ is the best rank-$n$ approximation since it already has rank $n$.
+
+    \item Recall that $A \in \RR^{n \times n}$ is a square matrix with full rank, and we can write the matrix $A$ as
+    \begin{equation}
+        A = QR
+    \end{equation}
+    where $Q \in \RR^{n \times n}$ is an orthonormal matrix and $R \in \RR^{n \times n}$ is an upper triangular matrix.
+
+    Assume that $R = \diag(r_1, r_2, \ldots, r_n) \in \RR^{n \times n}$ is a diagonal matrix with
+    \[
+        |r_1| > |r_2| > \cdots > |r_n|,
+    \]
+    and all $r_1, r_2, \ldots, r_n$ are real numbers. Let $k < n$. Then, show that the best rank-$k$ approximation to $AA^\top$ in the Frobenius norm is $QSQ^\top$, where $S$ is a diagonal matrix defined as
+    \[
+        S = \diag(r_1^2, \ldots, r_k^2, 0, \ldots, 0) \in \RR^{n \times n}.
+    \]
+
+    \textbf{Solution:} We can write $AA^\top = QRR^\top Q^\top$. Note that $Q$ is an orthonormal matrix and $RR^\top = \diag(r_1^2, r_2^2, \ldots, r_n^2)$ is a diagonal matrix. Therefore, $AA^\top = QRR^\top Q^\top$ forms an SVD for $AA^\top$. Then, the result follows by the Eckart-Young Theorem.
+
+    \item Recall that $A \in \RR^{n \times n}$ is a square matrix with full rank, and we can write the matrix $A$ as
+    \begin{equation}
+        A = QR
+    \end{equation}
+    where $Q \in \RR^{n \times n}$ is an orthonormal matrix and $R \in \RR^{n \times n}$ is an upper triangular matrix.
+
+    Now, we no longer assume that $R$ is diagonal. Let $k < n$ and assume that the best rank-$k$ approximation to $RR^\top \in \RR^{n \times n}$ in the Frobenius norm is given by $G \in \RR^{n \times n}$. Then, using the result of part (a), show that the best rank-$k$ approximation to $AA^\top$ in the Frobenius norm is given by $QGQ^\top$.
+
+    \textbf{Solution:} We can write $AA^\top = QRR^\top Q^\top$. We use part (a) with $W = Q$ and $C = RR^\top$. As a result,
+    \[
+        QGQ^\top = \argmin_{\substack{B \in \RR^{n \times n} \\ \rank(B) \le k}} \|B - QRR^\top Q^\top\|_F.
+    \]
+    Therefore, the best rank-$k$ approximation to $AA^\top$ in the Frobenius norm is given by $QGQ^\top$.
+\end{enumerate}
+
+\section{Convexity Potpourri}
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Non-negative weighted sum.}
+
+    Show that the non-negative weighted sum of convex functions is convex: i.e.\ if $f_1, \ldots, f_n$ are $n$ convex functions from $\RR^n$ to $\RR$ and $w_1, \ldots, w_n \in \RR_+$ are $n$ positive scalars, then the function:
+    \begin{equation}
+        f = \sum_{i=1}^{n} w_i f_i
+    \end{equation}
+    is convex. To make the question easier, you can assume that the functions $f_1, \ldots, f_n$ are twice-differentiable.
+
+    \textbf{Solution:} Check convexity by using the second order condition. First, the weighted sum of twice-differentiable functions is also twice-differentiable:
+    \begin{align}
+        \nabla^2 f &= \nabla^2 \left(\sum_{i=1}^{n} w_i f_i\right) \\
+        &= \sum_{i=1}^{n} w_i \nabla^2 f_i \qquad \text{(linearity of } \nabla^2\text{)}
+    \end{align}
+    Next we check that $\nabla^2 f$ is PSD.
+    \begin{align}
+        \forall \vec{y}, \forall \vec{x} \quad \vec{y}^\top (\nabla^2 f(\vec{x})) \vec{y} &= \vec{y}^\top \left(\sum_{i=1}^{n} w_i \nabla^2 f_i(\vec{x})\right) \vec{y} \\
+        &= \sum_{i=1}^{n} w_i \vec{y}^\top (\nabla^2 f_i(\vec{x})) \vec{y} \\
+        &\ge 0 \qquad (\vec{y}^\top (\nabla^2 f_i(\vec{x})) \vec{y} \ge 0, \text{ because } f_i \text{ is convex})
+    \end{align}
+    So $\forall \vec{x}$, $\nabla^2 f(\vec{x})$ is PSD, so $f$ is convex.
+\end{enumerate}
+
+A set $C$ is convex if and only if the line segment between any two points in $C$ lies in $C$:
+\begin{equation}
+    C \text{ is convex} \iff \forall \vec{x}_1, \vec{x}_2 \in C, \; \forall \theta \in [0,1], \; \theta \vec{x}_1 + (1-\theta)\vec{x}_2 \in C
+\end{equation}
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item Prove the convexity of a hyperplane, $\mathcal{L} = \{\vec{x} \mid \vec{a}^\top \vec{x} = b\}$.
+
+    \textbf{Solution:} $\forall \vec{x}_1, \vec{x}_2 \in H$, $\forall \theta \in [0,1]$:
+    \begin{align}
+        \vec{a}^\top(\theta \vec{x}_1 + (1-\theta)\vec{x}_2) &= \theta(\vec{a}^\top \vec{x}_1) + (1-\theta)(\vec{a}^\top \vec{x}_2) \\
+        &= \theta b + (1-\theta)b \\
+        &= b.
+    \end{align}
+    So, $\theta \vec{x}_1 + (1-\theta)\vec{x}_2 \in H$ and $H$ is convex.
+
+    Other proof: a hyperplane is the intersection of two half-spaces, therefore it is convex.
+
+    \item Prove the convexity of a halfspace, $\mathcal{H} = \{\vec{x} \mid \vec{a}^\top \vec{x} \le b\}$.
+
+    \textbf{Solution:} $\forall \vec{x}_1, \vec{x}_2 \in H$, $\forall \theta \in [0,1]$:
+    \begin{align}
+        \vec{a}^\top(\theta \vec{x}_1 + (1-\theta)\vec{x}_2) &= \theta(\vec{a}^\top \vec{x}_1) + (1-\theta)(\vec{a}^\top \vec{x}_2) \\
+        &\le \theta b + (1-\theta)b \\
+        &= b.
+    \end{align}
+    So, $\theta \vec{x}_1 + (1-\theta)\vec{x}_2 \in H$ and $H$ is convex.
+
+    \item A function $f : \RR^n \to \RR^m$ is affine if it is the sum of a linear function and a constant,
+    \begin{equation}
+        f(\vec{x}) = A\vec{x} + \vec{b},
+    \end{equation}
+    for $A \in \RR^{m \times n}$ and $\vec{b} \in \RR^m$.
+
+    Prove that if $S \subseteq \RR^n$ is convex, then the image of $S$ under an affine function $f$,
+    \begin{equation}
+        f(S) = \{f(\vec{x}) \mid \vec{x} \in S\},
+    \end{equation}
+    is convex.
+
+    \textbf{Solution:} Let $\vec{y}_1, \vec{y}_2 \in f(S)$. This implies there exist $\vec{x}_1, \vec{x}_2 \in S$ such that $\vec{y}_1 = A\vec{x}_1 + \vec{b}$ and $\vec{y}_2 = A\vec{x}_2 + \vec{b}$. We want to show that $\lambda \vec{y}_1 + (1-\lambda)\vec{y}_2 \in f(S)$ for $0 \le \lambda \le 1$.
+
+    Since $S$ is convex we have $\lambda \vec{x}_1 + (1-\lambda)\vec{x}_2 \in S$. Further $A(\lambda \vec{x}_1 + (1-\lambda)\vec{x}_2) + \vec{b} = \lambda \vec{y}_1 + (1-\lambda)\vec{y}_2$. This shows that $\lambda \vec{y}_1 + (1-\lambda)\vec{y}_2 \in f(S)$.
+\end{enumerate}
+
+\section{Perspective function}
+
+Let $f : \RR^n \to \RR$ be a differentiable convex function, with domain the entire space $\RR^n$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that we can represent $f$ as a pointwise maximum of affine functions, specifically
+    \begin{equation}
+        \forall\, x \in \RR^n \;:\; f(x) = \max_{(a,b) \in \mathcal{A}} a^T x + b,
+    \end{equation}
+    where $\mathcal{A} \subseteq \RR^{n+1}$ is to be determined.
+
+    \emph{Hint:} For every $x, y \in \RR^n$: $f(x) \ge f(y) + (x - y)^T \nabla f(y)$.
+
+    \textbf{Solution:} Let $x \in \RR^n$. We have
+    \[
+        \forall\, y \in \RR^n \;:\; f(x) \ge f(y) + (x - y)^T \nabla f(y).
+    \]
+    Maximizing over $y$:
+    \[
+        f(x) \ge \max_y \; f(y) + (x - y)^T \nabla f(y).
+    \]
+    Choosing $y = x$ in the expression inside the maximum results in $f(x)$. Hence, the maximum over $y$ is larger than $f(x)$, which leads to the equality:
+    \[
+        f(x) = \max_y \; f(y) + (x - y)^T \nabla f(y).
+    \]
+    We thus choose
+    \[
+        \mathcal{A} = \left\{(a, b) \in \RR^n \times \RR \;:\; a = \nabla f(y), \; b = f(y) - y^T \nabla f(y), \; y \in \RR^n\right\}.
+    \]
+
+    \item We define the \emph{perspective} of $f$ as the function $g : \RR^n \times \RR \to \RR$ with values
+    \[
+        g(x, t) = \begin{cases} tf(x/t) & \text{if } t > 0, \\ +\infty & \text{otherwise.} \end{cases}
+    \]
+    Prove that $g$ is convex.
+
+    \emph{Hint:} Use (19).
+
+    \textbf{Solution:} The domain of $g$ is $\RR^n \times \RR_{++}$, so it is convex. When $t > 0$:
+    \[
+        g(x, t) = t \max_{(a,b) \in \mathcal{A}} a^T(x/t) + b = \max_{(a,b) \in \mathcal{A}} a^T x + tb.
+    \]
+    We observe that $g$ is the point-wise maximum of linear functions of $(x, t)$, hence it is convex.
+
+    \item Show that the function $h : \RR^n \to \RR$ with values
+    \[
+        h(x) = \begin{cases} \dfrac{(a^T x + b)^2}{c^T x + d} & \text{if } c^T x + d > 0, \\[6pt] +\infty & \text{otherwise,} \end{cases}
+    \]
+    is convex.
+
+    \emph{Hint:} Consider the perspective function of $f(z) = z^2$ on $\RR$.
+
+    \textbf{Solution:} The function is the composition of the affine map
+    \[
+        x \to (z, t) = (a^T x + b, \; c^T x + d)
+    \]
+    with the function $(z, t) \to z^2/t$ on $\RR \times \RR_{++}$. The latter turns out to be the perspective of the function $f$ with values $f(z) = z^2$ on $\RR$. Since $f$ can be represented as a pointwise maximum of affine functions, we obtain that its perspective is convex.
+\end{enumerate}
+
+\section{Convexity of Sets}
+
+Determine if each set $C$ given below is convex. Prove that each set is convex or provide an example to show that it is not convex. You may use any techniques used in class or discussion to demonstrate or disprove convexity.
+
+\begin{enumerate}[label=(\alph*)]
+    \item $C = \{\vec{x} \in \RR^2 \mid x_1 x_2 \ge 0\}$, where $\vec{x} = \begin{bmatrix} x_1 & x_2 \end{bmatrix}^\top$.
+
+    \textbf{Solution:} $C$ \textbf{is not convex.} For a formal proof, consider points $\vec{z}_1 = \begin{bmatrix} 0 & 1 \end{bmatrix}^\top$ and $\vec{z}_2 = \begin{bmatrix} -1 & 0 \end{bmatrix}^\top$. We have $\vec{z}_1 \in C$ and $\vec{z}_2 \in C$. Then $\vec{z}_3 = \frac{\vec{z}_1 + \vec{z}_2}{2} = \begin{bmatrix} -0.5 & 0.5 \end{bmatrix}^\top \notin C$ since $(-0.5) \cdot 0.5 < 0$.
+
+    \item $C = \{X \in \mathbb{S}^n \mid \lambda_{\min}(X) \ge 2\}$, where $\mathbb{S}^n$ is the set of symmetric matrices in $\RR^{n \times n}$ and $\lambda_{\min}(X)$ is the minimum eigenvalue of $X$.
+
+    \textbf{Solution:} $C$ \textbf{is convex.} Consider $X_1, X_2 \in C$. The minimum eigenvalue of $X$ is given by
+    \begin{equation}
+        \lambda_{\min}(X) = \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} \vec{z}^\top X \vec{z}.
+    \end{equation}
+    Thus we have
+    \begin{align}
+        \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} \vec{z}^\top X_1 \vec{z} &\ge 2 \quad \text{and} \\
+        \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} \vec{z}^\top X_2 \vec{z} &\ge 2.
+    \end{align}
+    $C$ is convex if for any scalar $\theta \in [0,1]$, we have $X_\theta \doteq \theta X_1 + (1-\theta)X_2 \in C$. Plugging in the above, we have
+    \begin{align}
+        \lambda_{\min}(X_\theta) &= \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} \vec{z}^\top X_\theta \vec{z} \\
+        &= \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} \vec{z}^\top (\theta X_1 + (1-\theta)X_2) \vec{z} \\
+        &= \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} \left[\theta \vec{z}^\top X_1 \vec{z} + (1-\theta) \vec{z}^\top X_2 \vec{z}\right] \\
+        &\ge \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} \theta \vec{z}^\top X_1 \vec{z} + \min_{\vec{z} \in \RR^n : \|\vec{z}\|_2 = 1} (1-\theta) \vec{z}^\top X_2 \vec{z} \\
+        &\ge \theta \cdot 2 + (1-\theta) \cdot 2 \\
+        &= 2.
+    \end{align}
+    Thus, $X_\theta \in C$, and therefore $C$ is convex.
+
+    \item Let $\mathcal{H}(\vec{w})$ denote the hyperplane with normal direction $\vec{w} \in \RR^n$, i.e.,
+    \begin{equation}
+        \mathcal{H}(\vec{w}) = \{\vec{x} \in \RR^n \mid \vec{x}^\top \vec{w} = 0\}.
+    \end{equation}
+    Let $P : \RR^n \to \RR^n$ be given by
+    \begin{equation}
+        P(\vec{x}) = \argmin_{\vec{y} \in \mathcal{H}(\vec{w})} \|\vec{y} - \vec{x}\|_2.
+    \end{equation}
+    Let
+    \begin{equation}
+        C = \{P(\vec{x}) \mid \vec{x} \in \mathcal{B}\}
+    \end{equation}
+    where $\mathcal{B} = \{\vec{x} \in \RR^n \mid \|\vec{x}\|_2 \le 1\}$.
+
+    \textbf{Solution:} $C$ \textbf{is convex.} Let $Q \in \RR^{n \times (n-1)}$ denote the matrix with columns forming a basis for $\mathcal{H}(\vec{w})$. Then the optimization problem for $P(\vec{x})$ can be written as
+    \begin{equation}
+        P(\vec{x}) = Q \left[\argmin_{\vec{v} \in \RR^{n-1}} \|Q\vec{v} - \vec{x}\|_2^2\right]
+    \end{equation}
+    and has the closed form solution $P(\vec{x}) = Q(Q^\top Q)^{-1}Q^\top \vec{x} = L\vec{x}$ for $L \doteq Q(Q^\top Q)^{-1}Q^\top$. Note that $P(\vec{x})$ is linear in $\vec{x}$.
+
+    \textbf{Method 1:}
+
+    $\mathcal{B}$ is a convex set and $P$ is an affine operator. Affine transformations of convex sets are convex, so we conclude directly that $C$ is convex.
+
+    \textbf{Method 2:}
+
+    Let $\vec{z}_1, \vec{z}_2 \in C$. This means there exist $\vec{x}_1, \vec{x}_2 \in \mathcal{B}$ such that $\vec{z}_1 = L\vec{x}_1$ and $\vec{z}_2 = L\vec{x}_2$. For $\theta \in [0,1]$, we consider $\vec{x}_\theta \doteq \theta \vec{x}_1 + (1-\theta)\vec{x}_2$. Because $\mathcal{B}$ is convex (since norm balls are convex), we have $\vec{x}_\theta \in \mathcal{B}$. Then,
+    \begin{align}
+        \vec{z}_\theta &\doteq \theta \vec{z}_1 + (1-\theta)\vec{z}_2 \\
+        &= \theta L \vec{x}_1 + (1-\theta) L \vec{x}_2 \\
+        &= L(\theta \vec{x}_1 + (1-\theta)\vec{x}_2) \\
+        &= L \vec{x}_\theta \\
+        &= P(\vec{x}_\theta).
+    \end{align}
+    Thus, $\vec{z}_\theta \in C$, so $C$ is convex by the definition of convexity.
+\end{enumerate}
+
+\section{PSD Matrices}
+
+In this problem, we will analyze properties of positive semidefinite (PSD) matrices. A \emph{symmetric} matrix $M \in \RR^{n \times n}$ is a PSD matrix if $\vec{x}^\top M \vec{x} \ge 0$ for all $\vec{x} \in \RR^n$, and we denote that as $M \succeq 0$ or $M \in \mathbb{S}^n_+$.
+
+Assume $A \in \RR^{n \times n}$ is a symmetric matrix.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that $A \succeq 0$ if and only if all eigenvalues of $A$ are non-negative.
+
+    \textbf{Solution:} $\Longrightarrow$:
+    \begin{enumerate}[label=\roman*.]
+        \item Solution 1: We can plug in the Spectral Decomposition here:
+        \begin{equation}
+            \vec{x}^\top A \vec{x} = \vec{x}^\top U \Sigma U^\top \vec{x} = \vec{v}^\top \Sigma \vec{v} \ge 0,
+        \end{equation}
+        where $\vec{v} := U^\top \vec{x}$ is a rotated version of $\vec{x}$ since $U$ is orthonormal. Now, we just need to convert that final quadratic into any eigenvalue of $A$, and we can do that by choosing a $\vec{v}$ that pulls out whichever eigenvalue we want (e.g.\ if we want the first eigenvalue, we can choose the first unit vector). To be thorough, we can then realize that the set of $\vec{x}$'s such that $U^\top \vec{x} = \vec{e}_i$ for any unit vector, will pull out the $i$th eigenvalue, thus satisfying definition 2.
+
+        \item Solution 2: We can just use the definition of an eigenvalue:
+        \begin{equation}
+            \vec{x}^\top A \vec{x} = \vec{x} \lambda \vec{x} = \lambda \vec{x}^\top \vec{x} = \lambda \|\vec{x}\|_2^2
+        \end{equation}
+        Since norms/anything squared is always non-negative, in order for $\lambda \|\vec{x}\|_2^2 \ge 0$, $\lambda$ must be non-negative.
+    \end{enumerate}
+
+    $\Longleftarrow$: Using the Spectral Decomposition again, we arrive at the equation $\vec{v}^\top \Sigma \vec{v}$, which we can expand further:
+    \begin{equation}
+        \vec{v}^\top \Sigma \vec{v} = \sum_i \lambda_i v_i^2 \ge 0,
+    \end{equation}
+    where the last inequality came from the fact that anything squared is non-negative and all eigenvalues are non-negative by assumption of the problem.
+
+    \item Show that if $A \succeq 0$ then all diagonal entries of $A$ are non-negative, $A_{ii} \ge 0$.
+
+    \textbf{Solution:} The quadratic form $\vec{x}^\top A \vec{x} \ge 0$ applies for all vectors $\vec{x}$. Therefore, let's choose a vector that will pull out $A_{ii}$: the $i$th unit vector. $A\vec{e}_i$ pulls out the $i$th column $\vec{a}_i$, followed by $\vec{e}_i^\top \vec{a}_i$, which will pull out the $i$th element of the $i$th column. Therefore, $\vec{e}_i^\top A \vec{e}_i = A_{ii} \ge 0$.
+\end{enumerate}
+
+Now we will show that $A \in \mathbb{S}^n_+$ (i.e., $A \in \RR^{n \times n}$ and $A \succeq 0$) if and only if there exists $P \in \mathbb{S}^n_+$ such that $A = P^\top P = P^2$. Such a matrix $P$ is known as a \emph{PSD square root} of $A$.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item First, show that if $A \in \mathbb{S}^n_+$, then there exists $P \in \mathbb{S}^n_+$ such that $A = P^2$.
+
+    \textbf{Solution:} Since $A$ is symmetric positive semidefinite, $A$ has non-negative eigenvalues. Thus, we can diagonalize $A$ as $A = U\Sigma U^\top$, where the diagonal matrix of eigenvalues $\Sigma$ has all non-negative entries on the diagonal. Then, we are able to define a matrix $A^{1/2} = U\Sigma^{1/2}U^\top$, where $\Sigma^{1/2}$ is a diagonal matrix with the square roots of $A$'s eigenvalues. Note that $A^{1/2}$ is PSD since its eigenvalues are still non-negative. Thus, with $P = A^{1/2}$, we can show the following:
+    \begin{equation}
+        P^\top P = (A^{1/2})^\top A^{1/2} = (U\Sigma^{1/2}U^\top)^\top U\Sigma^{1/2}U^\top = U\Sigma^{1/2}U^\top U\Sigma^{1/2}U^\top = U\Sigma^{1/2}\Sigma^{1/2}U^\top = U\Sigma U^\top = A.
+    \end{equation}
+
+    \item Now, show that for any matrix $Q \in \RR^{m \times n}$, if $A = Q^\top Q$ then $A \in \mathbb{S}^n_+$.
+
+    \emph{NOTE:} If we take $Q = P \in \mathbb{S}^n_+$, we have $A = P^2 \in \mathbb{S}^n_+$; this proves the other direction of the above ``if-and-only-if.''
+
+    \textbf{Solution:} We can plug in $A = Q^\top Q$ into the quadratic form as follows:
+    \begin{equation}
+        \vec{x}^\top A \vec{x} = \vec{x}^\top Q^\top Q \vec{x} = (Q\vec{x})^\top (Q\vec{x}) = \|Q\vec{x}\|_2^2 \ge 0.
+    \end{equation}
+\end{enumerate}
+
+We will use positive semidefinite matrices to construct the singular value decomposition (SVD). One can construct the SVD of a matrix $B \in \RR^{m \times n}$ in two ways, using either the matrices $BB^\top \in \RR^{m \times m}$ or $B^\top B \in \RR^{n \times n}$, and usually one chooses the method depending on which matrix is smaller. The following result shows that the singular values will be the same no matter what construction you use.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item Let $B \in \RR^{m \times n}$ be an arbitrary matrix (not necessarily PSD or even square). From the previous parts of this problem, $BB^\top$ and $B^\top B$ are PSD, thus having real non-negative eigenvalues. Prove that the non-zero eigenvalues of $BB^\top$ are the same as the non-zero eigenvalues of $B^\top B$.
+
+    \textbf{Solution:} Say $\lambda \ne 0$, $\vec{v}$ is an eigenpair of $B^\top B$ which is a $n \times n$ matrix. Hence,
+    \begin{equation}
+        (B^\top B)\vec{v} = \lambda \vec{v}
+    \end{equation}
+    Multiply both sides with $B$, to get,
+    \begin{align}
+        B(B^\top B)\vec{v} &= B(\lambda \vec{v}) \\
+        (BB^\top)B\vec{v} &= \lambda B\vec{v}
+    \end{align}
+    As $\lambda \ne 0$ and $\vec{v} \ne \vec{0}$, we have $\lambda \vec{v} \ne \vec{0}$ and so, $(B^\top B)\vec{v} \ne \vec{0}$. Thus $B^\top(B\vec{v}) \ne \vec{0}$, which implies that $B\vec{v} \ne \vec{0}$. Therefore, $B\vec{v}$ is an eigenvector of $BB^\top$ corresponding to $\lambda$. Similarly, we can show that every non-zero eigenvalue of $BB^\top$ is an eigenvalue of $B^\top B$ and we are done.
+\end{enumerate}
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\emph{NOTE:} If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\begin{center}
+    \small \copyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+\end{center}
+
+\end{document}

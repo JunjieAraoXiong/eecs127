@@ -1,0 +1,137 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Discussion 2}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+    {\large\bfseries EECS 127/227AT \hfill Optimization Models in Engineering \hfill UC Berkeley}\\[4pt]
+    {\large\bfseries Discussion 2 \hfill \hfill Spring 2026}
+\end{center}
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\section{Least Squares and Gram-Schmidt}
+
+Consider the least squares problem
+\begin{equation}
+    \vec{x}^\star = \underset{\vec{x} \in \RR^n}{\arg\min} \left\| A\vec{x} - \vec{b} \right\|_2^2
+\end{equation}
+where $A \in \RR^{m \times n}$, $\vec{b} \in \RR^m$ and assume $A$ is full column rank. One way to solve this least-squares problem is to use Gram-Schmidt Orthonormalization (GSO). Using GSO, the matrix $A$ can be written as,
+\begin{equation}
+    A = QR = \begin{bmatrix} Q_1 & Q_2 \end{bmatrix} \begin{bmatrix} R_1 \\ 0 \end{bmatrix}
+\end{equation}
+where $Q$ is an orthonormal matrix and $R$ is an upper-triangular matrix. The columns of $Q_1$ form an orthonormal basis for the range space $\Range(A)$ and columns of $Q_2$ form an orthonormal basis for the range space $\Range(A)^\perp$. Moreover, $R_1$ is upper triangular and invertible.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the squared norm of the residual is given by
+    \begin{equation}
+        \|\vec{r}\|_2^2 := \left\| \vec{b} - A\vec{x} \right\|_2^2 = \left\| Q_1^\top \vec{b} - R_1 \vec{x} \right\|_2^2 + \left\| Q_2^\top \vec{b} \right\|_2^2.
+    \end{equation}
+
+    \vspace{4cm}
+
+    \item Find $\vec{x}^\star$ such that the squared norm of the residual in Equation (3) is minimized. Your expression for $\vec{x}^\star$ should only use some or all of the following terms: $Q_1$, $Q_2$, $R_1$, $\vec{b}$.
+
+    \vspace{4cm}
+
+    \item Check if the expression for $\vec{x}^\star$ obtained in the previous part is equivalent to the one obtained by the formula,
+    $\vec{x}^\star = (A^\top A)^{-1} A^\top \vec{b}$.
+
+    \vspace{4cm}
+\end{enumerate}
+
+\newpage
+
+\section{Eigenvalues}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Let $A \in \RR^{n \times n}$ be a matrix with eigenvalues and corresponding eigenvectors $\lambda_1, \ldots, \lambda_n$ and $\vec{v}_1, \ldots, \vec{v}_n$ respectively. Now consider $B = A + cI_n$ where $c \in \RR$ and $I_n$ is the $n \times n$ identity matrix. What are the eigenvalues and eigenvectors of $B$ in terms of $c$ and $\lambda_i$, $\vec{v}_i$ for $i = 1, \ldots, n$?
+
+    \vspace{4cm}
+
+    \item Let $Q$ be an orthonormal matrix, i.e., $Q^\top Q = I$ of size $n \times n$. Let $\lambda \in \RR$ be a scalar, $\vec{v} \in \RR^n$ be a vector, and $A \in \RR^{n \times n}$ be a matrix. Prove that if we have
+    \begin{equation}
+        A\vec{v} = \lambda \vec{v},
+    \end{equation}
+    i.e., $\vec{v}$, $\lambda$ is an eigenpair of $A$, then we have
+    \begin{equation}
+        (QAQ^\top)(Q\vec{v}) = \lambda(Q\vec{v}).
+    \end{equation}
+
+    \vspace{4cm}
+
+    \item Let $A$ be a $d \times n$ matrix. Prove that the non-zero eigenvalues of $AA^\top$ are the same as the non-zero eigenvalues of $A^\top A$.
+
+    \vspace{4cm}
+
+    \item Given a matrix $A = \begin{bmatrix} 2 & 2 \\ 2 & 2 \end{bmatrix}$ find its eigenvalues and eigenvectors without using the characteristic polynomial.
+
+    \textit{HINT: Use the fact that eigenvectors with eigenvalue $0$ span the null space. Also notice that the eigenvectors of a symmetric matrix corresponding to different eigenvalues are orthogonal to each other.}
+
+    \vspace{3cm}
+
+    The reason to not use the characteric polynomial method for certain matrices is that computing determinants can be expensive in general. But when we have matrices with more structure, we can simplify the problem.
+\end{enumerate}
+
+\newpage
+
+\section{Symmetric Matrices}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that any symmetric matrix $A \in \RR^{n \times n}$ is positive semidefinite if and only if there exists a symmetric matrix $C \in \RR^{n \times n}$ such that $A = C^\top C$.
+
+    \vspace{4cm}
+
+    \item Draw the region
+    \[
+        \left\{ \vec{x} \in \RR^2 \;\middle|\; \vec{x}^\top \begin{bmatrix} 4 & 0 \\ 0 & 1 \end{bmatrix} \vec{x} \leq 1 \right\}.
+    \]
+
+    \vspace{4cm}
+
+    \item Draw the region
+    \[
+        \left\{ \vec{x} \in \RR^2 \;\middle|\; \vec{x}^\top \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} \vec{x} \leq 1 \right\}.
+    \]
+
+    \vspace{4cm}
+
+    \item Why is the region in part (b) bounded, whereas the region in part (c) is unbounded?
+
+    \vspace{4cm}
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright\ UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.}
+
+\end{document}

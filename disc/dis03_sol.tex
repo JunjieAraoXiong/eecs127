@@ -1,0 +1,236 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 3 -- Solutions}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries EECS 127/227AT \hfill Optimization Models in Engineering \hfill UC Berkeley \hfill Spring 2026}\\[6pt]
+{\LARGE\bfseries Discussion 3}
+\end{center}
+
+\section{SVD}
+
+Suppose we have a matrix $A \in \RR^{m \times n}$ with rank $r$. It turns out that its SVD has multiple forms, all of which can be useful depending on the problem we're working on.
+
+We define the \underline{compact SVD} as follows:
+\[
+\underbrace{A}_{m \times n} = \underbrace{U_r}_{m \times r} \underbrace{\Sigma_r}_{r \times r} \underbrace{V_r^\top}_{r \times n}.
+\]
+
+Here, $\Sigma_r \in \RR^{r \times r}$ is a diagonal matrix containing non-zero singular values of $A$.
+\[
+\Sigma_r = \begin{bmatrix} \sigma_1 & & \\ & \ddots & \\ & & \sigma_r \end{bmatrix},
+\]
+with $\sigma_1 \geq \sigma_2 \geq \ldots \geq \sigma_r$.
+
+Next, $U_r \in \RR^{m \times r}$ is given by,
+\[
+U_r = \begin{bmatrix} \vec{u}_1, \vec{u}_2, \ldots, \vec{u}_r \end{bmatrix},
+\]
+where $u_i$ is a left singular vector corresponding to non-zero singular value, $\sigma_i$, for $i = 1, 2, \ldots, r$. The columns of $U_r$ are orthonormal and together they span the columnspace of $A$.
+
+Finally, $V_r^\top \in \RR^{r \times n}$ is given by,
+\[
+V_r^\top = \begin{bmatrix} \vec{v}_1^\top \\ \vec{v}_2^\top \\ \vdots \\ \vec{v}_r^\top \end{bmatrix},
+\]
+where $\vec{v}_j$ is a right singular vector corresponding to non-zero singular value, $\sigma_j$ for $j = 1, 2, \ldots, r$. The rows of $V_r^\top$ are orthonormal and span the rowspace of $A$. Equivalently the columns of $V_r$ span the column space of $A^\top$.
+
+The matrix $A$ can be expressed as,
+\[
+A = \sigma_1 \vec{u}_1 \vec{v}_1^\top + \sigma_2 \vec{u}_2 \vec{v}_2^\top + \ldots + \sigma_r \vec{u}_r \vec{v}_r^\top.
+\]
+This is called the \underline{dyadic SVD}, since it's expressed as the sum of dyads (matrices of the form $uv^\top$). Assume now that $m \geq n$.
+
+Another type of SVD which might be more familiar is the \underline{full SVD} of $A$ which is defined as follows:
+\[
+\underbrace{A}_{m \times n} = \underbrace{U}_{m \times m} \underbrace{\Sigma}_{m \times n} \underbrace{V^\top}_{n \times n}.
+\]
+
+Here, $\Sigma \in \RR^{m \times n}$ has non-diagonal entries as zero. The diagonal entries of $\Sigma$ contain the singular values and we can write $\Sigma$ in terms of $\Sigma_r$ as,
+\[
+\Sigma = \begin{bmatrix} \Sigma_r & 0_{r \times (n-r)} \\ 0_{(m-r) \times r} & 0_{(m-r) \times (n-r)} \end{bmatrix}
+\]
+
+Next, $U \in \RR^{m \times m}$ is an orthonormal matrix. $U$ can be expressed in terms of $U_r$ as,
+\[
+U = \begin{bmatrix} \underbrace{U_r}_{m \times r} & \underbrace{\vec{u}_{r+1} \quad \ldots \quad \vec{u}_m}_{m \times (m-r)} \end{bmatrix}
+\]
+The columns $\vec{u}_{r+1}, \vec{u}_{r+2}, \ldots, \vec{u}_m$ are left singular vectors corresponding to singular value $0$, and together span the nullspace of $A^\top$.
+
+Finally, $V^\top$ is an orthonormal matrix and can be expressed in terms of $V_r^\top$ as,
+\[
+V^\top = \begin{bmatrix} V_r^\top \\ \vec{v}_{r+1}^\top \\ \vdots \\ \vec{v}_n^\top \end{bmatrix}
+\left.
+\begin{array}{l}
+\left.\vphantom{\begin{matrix} V_r^\top \end{matrix}}\right\} r \times n \\[6pt]
+\left.\vphantom{\begin{matrix} \vec{v}_{r+1}^\top \\ \vdots \\ \vec{v}_n^\top \end{matrix}}\right\} (n-r) \times n
+\end{array}
+\right.
+\]
+The rows $\vec{v}_{r+1}^\top, \vec{v}_{r+2}^\top, \ldots, \vec{v}_n^\top$ when transposed are the right singular vectors corresponding to singular value $0$, and together they span the nullspace of $A$.
+
+\begin{enumerate}[label=(\alph*)]
+\item For this problem assume that $m > n > r$. Label each of the following as True or False:
+
+\begin{enumerate}[label=(\alph*)]
+    \item $UU^\top = I$
+
+    \textbf{Solution:} True. $UU^\top = I_m$ because $U$ is an orthonormal matrix.
+
+    \item $U^\top U = I$
+
+    \textbf{Solution:} True. $U^\top U = I_m$ because $U$ is an orthonormal matrix.
+
+    \item $V^\top V = I$
+
+    \textbf{Solution:} True. $V^\top V = I_n$ because $V$ is an orthonormal matrix.
+
+    \item $VV^\top = I$
+
+    \textbf{Solution:} True. $VV^\top = I_n$ because $V$ is an orthonormal matrix.
+
+    \item $U_r^\top U_r = I$
+
+    \textbf{Solution:} True. $U_r^\top U_r = I_r$ because the columns of $U_r$ are orthonormal.
+
+    \item $U_r U_r^\top = I$
+
+    \textbf{Solution:} False. $U_r U_r^\top$ is a $m \times m$ matrix but has rank less than or equal to $r$ (since $U_r$ has rank $r$ and product of matrices has rank less than or equal to minimum of individual ranks).
+
+    \item $V_r V_r^\top = I$
+
+    \textbf{Solution:} False. $V_r V_r^\top$ is a $n \times n$ matrix but has rank less than or equal to $r$ (since $V_r$ has rank $r$ and product of matrices has rank less than or equal to minimum of individual ranks).
+
+    \item $V_r^\top V_r = I$
+
+    \textbf{Solution:} True. $V_r^\top V_r = I_r$ because the columns of $V_r$ are orthonormal.
+\end{enumerate}
+
+\item Find the compact SVD of $A$, given that it has the following full SVD:
+\[
+A = \begin{bmatrix} 0 & 1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} 2 & 0 \\ 0 & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}.
+\]
+
+\textbf{Solution:} The compact SVD of $A$ is given by:
+\[
+A = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} \begin{bmatrix} 2 \end{bmatrix} \begin{bmatrix} 1 & 0 \end{bmatrix}.
+\]
+
+\item Find the full SVD of $A$, given that it has the following compact SVD:
+\[
+A = \begin{bmatrix} \frac{1}{\sqrt{2}} & 0 \\[4pt] \frac{1}{\sqrt{2}} & 0 \\[4pt] 0 & 1 \end{bmatrix} \begin{bmatrix} 2 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}.
+\]
+
+\textbf{Solution:} Observe that in this case, the full SVD of $A$ has $\Sigma$ and $V^\top$ as those in the compact SVD but $U \in \RR^{3 \times 3}$. Thus we need to find a unit-norm column $\vec{u}_3$ orthogonal to columns of $U_r$. We can use a system of linear equations to solve this. That is we want $u_3 = [x,\ y,\ z]$ so we must have
+\begin{itemize}
+    \item $[1/\sqrt{2},\ 1/\sqrt{2},\ 0]^\top \vec{u}_3 = 0$
+    \item $[0,\ 0,\ 1]^\top \vec{u}_3 = 0$
+    \item $\|\vec{u}_3\|_2 = 1$
+\end{itemize}
+
+Check that $\vec{u}_3 = \begin{bmatrix} \frac{1}{\sqrt{2}} \\[4pt] -\frac{1}{\sqrt{2}} \\[4pt] 0 \end{bmatrix}$ satisfies our requirements.
+
+Thus the full SVD of $A$ is given by:
+\[
+A = \begin{bmatrix} \frac{1}{\sqrt{2}} & 0 & \frac{1}{\sqrt{2}} \\[4pt] \frac{1}{\sqrt{2}} & 0 & -\frac{1}{\sqrt{2}} \\[4pt] 0 & 1 & 0 \end{bmatrix} \begin{bmatrix} 2 & 0 \\ 0 & 1 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}.
+\]
+
+Alternatively we can use Gram-Schmidt procedure to find $\vec{u}_3$. This has the added advantage of being useful when we want to find the full SVD when more than one singular vector is missing.
+
+\end{enumerate}
+
+\section{PCA and Regression}
+
+\begin{enumerate}[label=(\alph*)]
+\item Given the following plot of data in $\RR^2$ (i.e., each dot is a data point in $\RR^2$) and candidate unit vectors $\vec{v}_1, \vec{v}_2, \vec{v}_3, \vec{v}_4 \in \RR^2$, \textbf{identify the candidate vectors which could be the first principal component and second principal component of the data (and specify which is which).}
+
+\begin{center}
+\emph{[Scatter plot with data points forming an elongated cloud tilted upper-right, with four candidate unit vectors $\vec{v}_1$ (pointing left), $\vec{v}_2$ (pointing upper-left), $\vec{v}_3$ (pointing upper-right along the data spread), and $\vec{v}_4$ (pointing down).]}
+\end{center}
+
+\textbf{Solution:} The vector $\vec{v}_3$ is the first principal component, since it aligns the most with the largest degree of variation in the data; alternatively, projecting onto it gives the minimum sum of squared errors, across all unit vectors. Then $\vec{v}_2$ is the second principal component since it is the only vector orthogonal to $\vec{v}_3$.
+
+\item Suppose we have data $\vec{x}_1, \ldots, \vec{x}_n \in \RR^d$, where $n > d$. We arrange these data points into a matrix, i.e.,
+\begin{equation}
+X = \begin{bmatrix} \vec{x}_1^\top \\ \vdots \\ \vec{x}_n^\top \end{bmatrix} \in \RR^{n \times d}.
+\end{equation}
+\emph{Assume that $X$ is centered, i.e., each column has mean zero:} $(1/n) \sum_{i=1}^{n} \vec{x}_i = \vec{0}_d$, \emph{where $\vec{0}_d$ is the zero vector in $\RR^d$.} Suppose that $X$ has compact SVD given by $X = U_d \Sigma_d V_d^\top$ where
+\begin{equation}
+U_d = \begin{bmatrix} \vec{u}_1, \ldots, \vec{u}_d \end{bmatrix} \in \RR^{n \times d}, \qquad V_d = \begin{bmatrix} \vec{v}_1, \ldots, \vec{v}_d \end{bmatrix} \in \RR^{d \times d}, \qquad \Sigma_d = \begin{bmatrix} \sigma_1 & & \\ & \ddots & \\ & & \sigma_d \end{bmatrix} \in \RR^{d \times d}
+\end{equation}
+where $\sigma_1 > \sigma_2 > \cdots > \sigma_d > 0$. \textbf{From this SVD, identify the top $k$ principal components of the data $\{\vec{x}_1, \ldots, \vec{x}_n\} \subseteq \RR^d$, where $k \leq d$.}
+
+\emph{HINT: Recall that the first principal component solves the optimization problem} $\displaystyle\argmax_{\vec{w} \in \RR^d :\, \|\vec{w}\|_2 = 1} \vec{w}^\top X^\top X \vec{w}$.
+
+\textbf{Solution:} Recall that the sample covariance is
+\begin{equation}
+\frac{1}{n} \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top = \frac{1}{n} X^\top X.
+\end{equation}
+
+The top $k$ principal components are the top $k$ eigenvectors of the sample covariance, given by
+\begin{equation}
+\frac{1}{n} X^\top X = V_r \left(\frac{\Sigma_r^2}{n}\right) V_r^\top.
+\end{equation}
+These principal components are then the first $k$ columns of $V_r$, namely $\vec{v}_1, \ldots, \vec{v}_k$.
+
+\end{enumerate}
+
+\section{Singular Values}
+
+\begin{enumerate}[label=(\alph*)]
+\item Suppose $A \in \RR^{3 \times 2}$ is a matrix such that $A^\top A$ is given by
+\begin{equation}
+A^\top A = \begin{bmatrix} 1/\sqrt{2} & -1/\sqrt{2} \\ 1/\sqrt{2} & 1/\sqrt{2} \end{bmatrix} \begin{bmatrix} 5 & 0 \\ 0 & 3 \end{bmatrix} \begin{bmatrix} 1/\sqrt{2} & 1/\sqrt{2} \\ -1/\sqrt{2} & 1/\sqrt{2} \end{bmatrix}.
+\end{equation}
+\textbf{What are the singular values of $A$?}
+
+\textbf{Solution:} The singular values are the square roots of the eigenvalues of $A^\top A$. The eigenvalues of $A^\top A$ are $5$ and $3$, since those are the diagonal entries of the diagonal matrix in the spectral decomposition. Therefore, the singular values of $A$ are $\sqrt{5}$ and $\sqrt{3}$.
+
+\item Suppose that $B \in \RR^{3 \times 2}$ has singular values $\sqrt{2}$ and $\sqrt{7}$. Let $C = \begin{bmatrix} B & -B & 3I_3 \end{bmatrix} \in \RR^{3 \times 7}$, where $I_3 \in \RR^{3 \times 3}$ is the $3 \times 3$ identity matrix. \textbf{What are the singular values of $C$?}
+
+\emph{HINT: Consider the matrix $CC^\top \in \RR^{3 \times 3}$.}
+
+\textbf{Solution:} First, observe that for an arbitrary matrix $A$, the nonzero eigenvalues of $A^\top A$ (corresponding to the squares of the nonzero singular values of $A$) are equal to the nonzero eigenvalues of $AA^\top$. This is easy to show using the SVD of $A$. We will use this result twice, once for $B$ and once for $C$.
+
+To find the singular values of $C$, we consider $CC^\top \in \RR^{3 \times 3}$. Note that we consider this matrix rather than $C^\top C \in \RR^{7 \times 7}$ because the former is smaller, and we get the following simplification:
+\begin{equation}
+CC^\top = \begin{bmatrix} B & -B & 3I \end{bmatrix} \begin{bmatrix} B^\top \\ -B^\top \\ 3I \end{bmatrix} = 2BB^\top + 9I.
+\end{equation}
+
+By the shift and scale properties of eigenvalues, the eigenvalues of $CC^\top$ are $9 + 2 \times$ the eigenvalues of $BB^\top$. Since the nonzero eigenvalues of $BB^\top$ are the squared nonzero singular values of $B$ (with the same geometric multiplicity), we know that the nonzero eigenvalues of $BB^\top$ are $2$ and $7$. In addition, since $BB^\top$ is a $3 \times 3$ matrix and is diagonalizable by the spectral theorem, i.e., the geometric multiplicities of its eigenvalues sum to $3$, it must also have $0$ as a third eigenvalue, with multiplicity $1$. Thus the eigenvalues of $CC^\top$ are $9$, $13$ and $23$. Thus the nonzero singular values of $C$ are $3$, $\sqrt{13}$, and $\sqrt{23}$.
+
+\end{enumerate}
+
+\end{document}

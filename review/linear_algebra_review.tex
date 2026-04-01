@@ -1,0 +1,1374 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+\usepackage{mathtools}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}[definition]{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{corollary}[definition]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+
+% Dark axiom box style
+\newtcolorbox{axiombox}{
+  colback=black!85!white,
+  coltext=white,
+  colframe=black!90!white,
+  boxrule=0pt,
+  arc=4pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+}
+
+% Result box style
+\newtcolorbox{resultbox}{
+  colback=black!70!white,
+  coltext=white,
+  colframe=black!75!white,
+  boxrule=0pt,
+  arc=4pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+}
+
+% Intuition box style
+\newtcolorbox{intuitionbox}[1][]{
+  colback=blue!5!white,
+  colframe=blue!40!black,
+  boxrule=0.8pt,
+  arc=4pt,
+  title={\textbf{Intuition}},
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  #1
+}
+
+% Worked example box style
+\newtcolorbox{workedexample}[1][]{
+  colback=green!3!white,
+  colframe=green!40!black,
+  boxrule=0.8pt,
+  arc=4pt,
+  title={\textbf{Worked Example}},
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  #1
+}
+
+% Operators
+\DeclareMathOperator{\spn}{span}
+\DeclareMathOperator{\proj}{proj}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\nullity}{nullity}
+\DeclareMathOperator{\Null}{\mathcal{N}}
+\DeclareMathOperator{\Col}{C}
+\DeclareMathOperator{\dimop}{dim}
+
+\begin{document}
+
+% Title
+\begin{center}
+  {\Huge \textbf{Linear Algebra Review}} \\[12pt]
+  {\Large EECS 127 Spring 2026} \\[24pt]
+  {\normalsize (adapted by Phoenix Wilson from Axler's \textit{Linear Algebra Done Right} and Olver's \textit{Applied Linear Algebra})}
+\end{center}
+
+\vspace{12pt}
+
+\tableofcontents
+\newpage
+
+%% ============================================================
+%% SECTION 1: VECTOR SPACES
+%% ============================================================
+\section{Vector Spaces}
+
+\subsection{Axioms}
+
+\begin{intuitionbox}
+A \textbf{field} is just a set of ``numbers'' where you can add, subtract, multiply, and divide (except by zero) and everything behaves the way you'd expect. The real numbers $\mathbb{R}$ and the complex numbers $\mathbb{C}$ are the fields you'll encounter most often.
+\end{intuitionbox}
+
+\begin{definition}[Field]
+A \textbf{field} is an algebraic structure $(F, +, \cdot)$ containing a set $F$ and binary operations $+ : F \times F \to F$ and $\cdot : F \times F \to F$.
+\end{definition}
+
+The notation $+: F \times F \to F$ means: ``addition takes two elements from $F$ and produces another element in $F$.'' This is called \textbf{closure}---the result of the operation stays inside the set.
+
+\begin{axiombox}
+\textbf{F1. Associativity.} $a + (b + c) = (a + b) + c$ \\[4pt]
+\textbf{F2. Commutativity.} $a + b = b + a$ \\[4pt]
+\textbf{F3. Identities.} $\exists 0 \in F : a + 0 = a \;\wedge\; \exists 1 \in F : a \cdot 1 = a$ \\[4pt]
+\textbf{F4. Additive Inverse.} $\exists!\, {-a} \in F : a + (-a) = 0$ \\[4pt]
+\textbf{F5. Multiplicative Inverse.} $\exists! a^{-1} \in F : a \cdot a^{-1} = 1 \quad a \neq 0$ \\[4pt]
+\textbf{F6. Distributivity.} $a \cdot (b + c) = a \cdot b + a \cdot c$
+\end{axiombox}
+
+\begin{remark}[Reading the notation]
+The symbol $\exists$ means ``there exists,'' $\exists!$ means ``there exists a unique,'' and $\wedge$ means ``and.'' So F3 says: ``There exists an element $0$ in $F$ such that adding it to any $a$ gives back $a$, \textit{and} there exists an element $1$ in $F$ such that multiplying any $a$ by it gives back $a$.''
+\end{remark}
+
+\begin{workedexample}[title=\textbf{Worked Example: Verifying $\mathbb{R}$ is a field}]
+Consider $\mathbb{R}$ with ordinary addition and multiplication:
+\begin{itemize}[nosep]
+  \item \textbf{F1:} $(2 + 3) + 4 = 5 + 4 = 9$ and $2 + (3 + 4) = 2 + 7 = 9$. \checkmark
+  \item \textbf{F2:} $2 + 3 = 5 = 3 + 2$. \checkmark
+  \item \textbf{F3:} $0$ is the additive identity ($5 + 0 = 5$); $1$ is the multiplicative identity ($5 \cdot 1 = 5$). \checkmark
+  \item \textbf{F4:} The additive inverse of $5$ is $-5$ since $5 + (-5) = 0$. \checkmark
+  \item \textbf{F5:} The multiplicative inverse of $5$ is $\frac{1}{5}$ since $5 \cdot \frac{1}{5} = 1$. \checkmark
+  \item \textbf{F6:} $2 \cdot (3 + 4) = 2 \cdot 7 = 14$ and $2 \cdot 3 + 2 \cdot 4 = 6 + 8 = 14$. \checkmark
+\end{itemize}
+Note: $\mathbb{Z}$ (the integers) is \textit{not} a field because F5 fails---for example, there is no integer $n$ such that $2 \cdot n = 1$.
+\end{workedexample}
+
+\textbf{Examples of fields:} $\mathbb{R}$ (real numbers), $\mathbb{C}$ (complex numbers).
+
+\bigskip
+
+\begin{intuitionbox}
+A \textbf{vector space} is a collection of objects (called ``vectors'') that you can add together and scale by numbers from a field. Think of arrows in 2D or 3D space: you can add arrows tip-to-tail, and you can stretch or shrink them. The axioms below just formalize these natural operations.
+\end{intuitionbox}
+
+\begin{definition}[Vector Space]
+A \textbf{vector space} over a field $F$ is an algebraic structure $(V, +, \cdot)$ containing a set $V$ and binary operations $+ : V \times V \to V$ and $\cdot : F \times V \to V$.
+\end{definition}
+
+Notice the difference from a field: addition is between two vectors ($V \times V \to V$), but scalar multiplication takes a \textit{scalar} from $F$ and a vector from $V$ ($F \times V \to V$).
+
+\begin{axiombox}
+\textbf{V1. Associativity.} $u + (v + w) = (u + v) + w$ and $\lambda(\mu v) = (\lambda \mu)v$ \\[4pt]
+\textbf{V2. Commutativity.} $u + v = v + u$ \\[4pt]
+\textbf{V3. Identities.} $\exists! 0 \in V : u + 0 = u \;\wedge\; \exists! 1 \in F : 1v = v$ \\[4pt]
+\textbf{V4. Additive Inverse.} $\exists!\, {-u} \in V : u + (-u) = 0$ \\[4pt]
+\textbf{V5. Distributivity.} $(\lambda + \mu)u = \lambda u + \mu u$ and $\lambda(u + v) = \lambda u + \lambda v$
+\end{axiombox}
+
+\begin{workedexample}[title=\textbf{Worked Example: $\mathbb{R}^2$ is a vector space}]
+Let $u = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$, $v = \begin{bmatrix} 3 \\ -1 \end{bmatrix}$, $w = \begin{bmatrix} 0 \\ 4 \end{bmatrix}$, and $\lambda = 2$, $\mu = 3$.
+
+\textbf{V1 (Associativity of addition):}
+\[
+u + (v + w) = \begin{bmatrix}1\\2\end{bmatrix} + \begin{bmatrix}3+0\\-1+4\end{bmatrix} = \begin{bmatrix}1\\2\end{bmatrix} + \begin{bmatrix}3\\3\end{bmatrix} = \begin{bmatrix}4\\5\end{bmatrix}
+\]
+\[
+(u + v) + w = \begin{bmatrix}1+3\\2-1\end{bmatrix} + \begin{bmatrix}0\\4\end{bmatrix} = \begin{bmatrix}4\\1\end{bmatrix} + \begin{bmatrix}0\\4\end{bmatrix} = \begin{bmatrix}4\\5\end{bmatrix} \quad \checkmark
+\]
+
+\textbf{V3 (Additive identity):} The zero vector is $0 = \begin{bmatrix}0\\0\end{bmatrix}$ since $u + 0 = \begin{bmatrix}1+0\\2+0\end{bmatrix} = \begin{bmatrix}1\\2\end{bmatrix} = u$. \checkmark
+
+\textbf{V4 (Additive inverse):} $-u = \begin{bmatrix}-1\\-2\end{bmatrix}$ since $u + (-u) = \begin{bmatrix}1-1\\2-2\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix}$. \checkmark
+
+\textbf{V5 (Distributivity):}
+$(\lambda + \mu)u = 5\begin{bmatrix}1\\2\end{bmatrix} = \begin{bmatrix}5\\10\end{bmatrix}$ and $\lambda u + \mu u = \begin{bmatrix}2\\4\end{bmatrix} + \begin{bmatrix}3\\6\end{bmatrix} = \begin{bmatrix}5\\10\end{bmatrix}$. \checkmark
+\end{workedexample}
+
+\textbf{Main Idea:} Matrix multiplication (addition and scalar multiplication of vectors) maps vector spaces to vector spaces.
+
+\textbf{Examples of vector spaces:} $\mathbb{C}^n$, $A^B$ (functions from a set $B$ to a vector space $A$), $\mathbb{R}^{m \times n}$ (why we can treat block matrices like vectors).
+
+\subsection{Subspaces}
+
+\begin{intuitionbox}
+A \textbf{subspace} is a ``smaller'' vector space that lives inside a bigger one. Think of a line through the origin inside $\mathbb{R}^2$, or a plane through the origin inside $\mathbb{R}^3$. The key idea: you only need to check three simple conditions instead of all the vector space axioms.
+\end{intuitionbox}
+
+\begin{definition}[Subspace]
+A \textbf{subspace} $U$ of a vector space $V$ is a vector space (with functionally the same operations and over the same field) whose ground set is a subset of $V$.
+\end{definition}
+
+\begin{axiombox}
+\textbf{S1. Additive Identity / Nonempty.} $\exists! 0 \in U$ or $U \neq \emptyset$ \\[4pt]
+\textbf{S2. Closure under Addition.} $+\!\big|_{U \times U} : U \times U \to U$ \\[4pt]
+\textbf{S3. Closure under Scalar Multiplication.} $\cdot\!\big|_{F \times U} : F \times U \to U$
+\end{axiombox}
+
+\begin{remark}[Why only three conditions?]
+\textbf{Why is this enough?} You get associativity, commutativity, distributivity, and multiplicative identity for free because $U$ inherits these properties from the parent space $V$---the operations are the same. Closure under scalar multiplication (S3) gives you the additive inverse (just multiply by $-1$) and, combined with nonemptiness (S1), also gives you the zero vector (multiply any $u \in U$ by $0$).
+\end{remark}
+
+\begin{workedexample}[title=\textbf{Worked Example: Is this a subspace?}]
+\textbf{Example 1:} Let $U = \left\{ \begin{bmatrix} x \\ 2x \end{bmatrix} : x \in \mathbb{R} \right\} \subseteq \mathbb{R}^2$. Is $U$ a subspace of $\mathbb{R}^2$?
+
+\begin{itemize}[nosep]
+  \item \textbf{S1:} Setting $x = 0$ gives $\begin{bmatrix}0\\0\end{bmatrix} \in U$. \checkmark
+  \item \textbf{S2:} Take $\begin{bmatrix}x\\2x\end{bmatrix}, \begin{bmatrix}y\\2y\end{bmatrix} \in U$. Then $\begin{bmatrix}x\\2x\end{bmatrix} + \begin{bmatrix}y\\2y\end{bmatrix} = \begin{bmatrix}x+y\\2(x+y)\end{bmatrix} \in U$. \checkmark
+  \item \textbf{S3:} Take $c \in \mathbb{R}$ and $\begin{bmatrix}x\\2x\end{bmatrix} \in U$. Then $c\begin{bmatrix}x\\2x\end{bmatrix} = \begin{bmatrix}cx\\2(cx)\end{bmatrix} \in U$. \checkmark
+\end{itemize}
+Yes, $U$ is a subspace! Geometrically, it's the line $y = 2x$ through the origin.
+
+\medskip
+\textbf{Example 2:} Let $W = \left\{ \begin{bmatrix} x \\ x + 1 \end{bmatrix} : x \in \mathbb{R} \right\} \subseteq \mathbb{R}^2$. Is $W$ a subspace?
+
+\textbf{S1:} Setting $x = 0$ gives $\begin{bmatrix}0\\1\end{bmatrix}$, not $\begin{bmatrix}0\\0\end{bmatrix}$. The zero vector is not in $W$. \textbf{Not a subspace!} (Geometrically, this is the line $y = x + 1$, which doesn't pass through the origin.)
+\end{workedexample}
+
+\textbf{Examples:} $u, v \in V$, $\spn(u,v) \leq V$; \quad $A \in \mathbb{R}^{m \times n}$, $\Col(A) \leq \mathbb{R}^m$.
+
+\subsection{Sums and Direct Sums}
+
+\begin{definition}[Sum of Subspaces]
+The \textbf{sum} of subspaces $U$ and $W$ is the subspace defined below:
+\[
+U + W := \{u + w \mid u \in U,\, w \in W\}
+\]
+\end{definition}
+
+\begin{intuitionbox}
+The sum $U + W$ collects every possible vector you can make by picking one vector from $U$ and one from $W$ and adding them. A \textbf{direct sum} is a special case where this decomposition is unique---every vector in $U + W$ can be split into its ``$U$ part'' and ``$W$ part'' in exactly one way.
+\end{intuitionbox}
+
+The sum is said to be a \textbf{direct sum} if each element in the resulting space can be written in exactly one way as the sum of elements from $U$ and $W$:
+\begin{align*}
+U + W = U \oplus W &\iff \forall v \in U + W,\; \exists! u \in U, w \in W : v = u + w \\
+&\iff \forall u \in U, w \in W,\; u + w = 0 \implies u = w = 0 \\
+&\iff U \cap W = \{0\}
+\end{align*}
+
+\begin{workedexample}[title=\textbf{Worked Example: Direct sum in $\mathbb{R}^3$}]
+Let $U = \spn\!\left(\begin{bmatrix}1\\0\\0\end{bmatrix}, \begin{bmatrix}0\\1\\0\end{bmatrix}\right)$ (the $xy$-plane) and $W = \spn\!\left(\begin{bmatrix}0\\0\\1\end{bmatrix}\right)$ (the $z$-axis).
+
+\textbf{Check:} $U \cap W = \{0\}$ because any vector in $U$ has the form $\begin{bmatrix}a\\b\\0\end{bmatrix}$ and any vector in $W$ has the form $\begin{bmatrix}0\\0\\c\end{bmatrix}$. The only vector in both is $\begin{bmatrix}0\\0\\0\end{bmatrix}$.
+
+Therefore $U \oplus W = \mathbb{R}^3$, and every vector in $\mathbb{R}^3$ can be uniquely decomposed:
+\[
+\begin{bmatrix}3\\-1\\7\end{bmatrix} = \underbrace{\begin{bmatrix}3\\-1\\0\end{bmatrix}}_{\in\, U} + \underbrace{\begin{bmatrix}0\\0\\7\end{bmatrix}}_{\in\, W}
+\]
+
+\textbf{Non-example:} If instead $W' = \spn\!\left(\begin{bmatrix}1\\1\\0\end{bmatrix}\right)$, then $U + W'$ is \textit{not} direct because $\begin{bmatrix}1\\1\\0\end{bmatrix} \in U \cap W'$ and $U \cap W' \neq \{0\}$.
+\end{workedexample}
+
+\subsection{Span}
+
+\begin{definition}[Span]
+The \textbf{span} of a list of vectors $v_1, \ldots, v_k \in V$ is the set of all possible linear combinations of those vectors and forms a subspace of $V$.
+\[
+\spn(v_1, \ldots, v_k) := \left\{\sum_{i=1}^{k} c_i v_i \;\middle|\; c_1, \ldots, c_k \in F\right\}
+\]
+\end{definition}
+
+\begin{intuitionbox}
+A \textbf{linear combination} is just a weighted sum: take each vector, multiply it by some scalar, and add them all up. The span is the set of \textit{all} vectors you can reach this way. Think of it as all the ``directions'' you can travel using the given vectors.
+\end{intuitionbox}
+
+This is the lowest dimensional subspace that contains these vectors.
+
+\begin{workedexample}[title=\textbf{Worked Example: Computing a span}]
+Let $v_1 = \begin{bmatrix}1\\0\end{bmatrix}$ and $v_2 = \begin{bmatrix}0\\1\end{bmatrix}$. Then:
+\[
+\spn(v_1, v_2) = \left\{c_1 \begin{bmatrix}1\\0\end{bmatrix} + c_2 \begin{bmatrix}0\\1\end{bmatrix} \;\middle|\; c_1, c_2 \in \mathbb{R}\right\} = \left\{\begin{bmatrix}c_1\\c_2\end{bmatrix} \;\middle|\; c_1, c_2 \in \mathbb{R}\right\} = \mathbb{R}^2
+\]
+Every 2D vector can be reached! For example, $\begin{bmatrix}3\\-2\end{bmatrix} = 3\begin{bmatrix}1\\0\end{bmatrix} + (-2)\begin{bmatrix}0\\1\end{bmatrix}$.
+
+\medskip
+Now consider a single vector $w = \begin{bmatrix}1\\2\end{bmatrix}$:
+\[
+\spn(w) = \left\{c\begin{bmatrix}1\\2\end{bmatrix} \;\middle|\; c \in \mathbb{R}\right\} = \left\{\begin{bmatrix}c\\2c\end{bmatrix} \;\middle|\; c \in \mathbb{R}\right\}
+\]
+This is the line $y = 2x$---a 1-dimensional subspace of $\mathbb{R}^2$.
+\end{workedexample}
+
+\subsection{Linear Independence}
+
+\begin{definition}[Linear Independence]
+A list of vectors $v_1, \ldots, v_k \in V$ is \textbf{linearly independent} if each vector in its span can be written as exactly one linear combination of $v_1, \ldots, v_k$.
+\[
+\forall v \in \spn(v_1, \ldots, v_k),\; \exists! c_1, \ldots, c_k \in F : v = \sum_{i=1}^{k} c_i v_i
+\]
+\end{definition}
+
+Or, equivalently, no vector in the list can be written as a linear combination of the others. The most commonly used equivalent characterization is:
+\[
+\forall c_1, \ldots, c_k \in F,\; \sum_{i=1}^{k} c_i v_i = 0 \implies c_1 = \cdots = c_k = 0
+\]
+
+\begin{intuitionbox}
+In plain English: vectors are linearly independent if none of them is ``redundant.'' Each vector points in a genuinely new direction that can't be reached by combining the others. If a vector \textit{is} a combination of the others, it's like having a duplicate ingredient---it doesn't let you make anything new.
+
+The test $\sum c_i v_i = 0 \implies $ all $c_i = 0$ says: ``the \textit{only} way to combine these vectors to get zero is the boring way---setting all coefficients to zero.''
+\end{intuitionbox}
+
+\begin{workedexample}[title=\textbf{Worked Example: Testing linear independence}]
+\textbf{Example 1:} Are $v_1 = \begin{bmatrix}1\\0\end{bmatrix}$, $v_2 = \begin{bmatrix}0\\1\end{bmatrix}$ linearly independent?
+
+We need to check: does $c_1 v_1 + c_2 v_2 = 0$ force $c_1 = c_2 = 0$?
+\[
+c_1\begin{bmatrix}1\\0\end{bmatrix} + c_2\begin{bmatrix}0\\1\end{bmatrix} = \begin{bmatrix}c_1\\c_2\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix} \implies c_1 = 0, \; c_2 = 0 \quad \checkmark
+\]
+\textbf{Yes}, they are linearly independent.
+
+\medskip
+\textbf{Example 2:} Are $v_1 = \begin{bmatrix}1\\2\end{bmatrix}$, $v_2 = \begin{bmatrix}2\\4\end{bmatrix}$ linearly independent?
+\[
+c_1\begin{bmatrix}1\\2\end{bmatrix} + c_2\begin{bmatrix}2\\4\end{bmatrix} = \begin{bmatrix}c_1 + 2c_2\\2c_1 + 4c_2\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix}
+\]
+Setting $c_1 = 2, c_2 = -1$ gives $\begin{bmatrix}2-2\\4-4\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix}$. We found a non-trivial solution!
+
+\textbf{No}, they are linearly dependent. Notice $v_2 = 2v_1$---$v_2$ is just a scaled version of $v_1$.
+\end{workedexample}
+
+\subsection{Bases}
+
+\begin{definition}[Basis]
+A list of vectors $v_1, \ldots, v_n \in V$ is a \textbf{basis} of $V$ if it is linearly independent and its span is equal to $V$.
+\end{definition}
+
+\begin{intuitionbox}
+A basis is a ``just right'' set of vectors:
+\begin{itemize}[nosep]
+  \item \textbf{Spanning} means you have \textit{enough} vectors to reach every point in the space.
+  \item \textbf{Linearly independent} means you don't have any \textit{extra} (redundant) vectors.
+\end{itemize}
+Together, these two properties mean every vector in the space can be written as a linear combination of the basis vectors in \underline{exactly one way}. The basis is like a coordinate system for the space.
+\end{intuitionbox}
+
+Intuitively, a basis represents a vector space's choice of coordinates, since any vector in that vector space has \underline{exactly one} representation with respect to a basis (linearly independent $\Rightarrow$ unique coefficients; spanning $\Rightarrow$ every vector reachable).
+
+The length of any basis of a vector space is the same. For this reason, we define the \textbf{dimension} of a vector space to be the length of any basis for it.
+
+\begin{workedexample}[title=\textbf{Worked Example: The standard basis of $\mathbb{R}^3$}]
+The standard basis of $\mathbb{R}^3$ is $\{e_1, e_2, e_3\}$ where:
+\[
+e_1 = \begin{bmatrix}1\\0\\0\end{bmatrix}, \quad e_2 = \begin{bmatrix}0\\1\\0\end{bmatrix}, \quad e_3 = \begin{bmatrix}0\\0\\1\end{bmatrix}
+\]
+
+\textbf{Spanning:} Any vector $\begin{bmatrix}a\\b\\c\end{bmatrix} = a\,e_1 + b\,e_2 + c\,e_3$. \checkmark
+
+\textbf{Linearly independent:} $c_1 e_1 + c_2 e_2 + c_3 e_3 = \begin{bmatrix}c_1\\c_2\\c_3\end{bmatrix} = \begin{bmatrix}0\\0\\0\end{bmatrix}$ forces $c_1 = c_2 = c_3 = 0$. \checkmark
+
+Since there are 3 basis vectors, $\dim \mathbb{R}^3 = 3$.
+
+\medskip
+\textbf{Non-standard basis:} $\left\{\begin{bmatrix}1\\1\\0\end{bmatrix}, \begin{bmatrix}0\\1\\1\end{bmatrix}, \begin{bmatrix}1\\0\\1\end{bmatrix}\right\}$ is also a basis for $\mathbb{R}^3$ (you can verify it's linearly independent and spanning). There are infinitely many bases---the dimension is always 3.
+\end{workedexample}
+
+\textbf{Examples:}
+\begin{itemize}[nosep]
+  \item $e_1, e_2$ is linearly independent and $\spn(e_1, e_2) = \mathbb{R}^2$, so $\dim \mathbb{R}^2 = 2$.
+  \item $A \in \mathbb{R}^{n \times n}$ has full rank---what is a basis for $\mathbb{R}^n$? (Answer: the columns of $A$!)
+\end{itemize}
+
+\newpage
+%% ============================================================
+%% SECTION 2: INNER PRODUCT SPACES
+%% ============================================================
+\section{Inner Product Spaces}
+
+\subsection{Inner Products}
+
+\begin{intuitionbox}
+An \textbf{inner product} is a way to measure ``how much'' two vectors point in the same direction. It generalizes the dot product you learned in earlier math courses. The inner product lets us define lengths (norms), angles, and perpendicularity (orthogonality).
+\end{intuitionbox}
+
+\begin{definition}[Inner Product Space]
+An \textbf{inner product space} is a vector space $V$ equipped with a binary function $\langle \cdot \mid \cdot \rangle : V \times V \to F$ known as an inner product.
+\end{definition}
+
+\begin{axiombox}
+\textbf{I1. Positivity} \hfill $\langle v \mid v \rangle \geq 0$ \\[4pt]
+\textbf{I2. Definiteness} \hfill $\langle v \mid v \rangle = 0 \iff v = 0$ \\[4pt]
+\textbf{I3. Linearity in 1st Arg.} \hfill $\langle au + bw \mid v \rangle = a\langle u \mid v \rangle + b\langle w \mid v \rangle$ \\[4pt]
+\textbf{I4. Conjugate Symmetry} \hfill $\langle u \mid v \rangle = \overline{\langle v \mid u \rangle}$
+\end{axiombox}
+
+\begin{remark}
+For \textbf{real} vector spaces ($F = \mathbb{R}$), conjugate symmetry simplifies to plain symmetry: $\langle u \mid v \rangle = \langle v \mid u \rangle$ (since complex conjugation does nothing to real numbers).
+\end{remark}
+
+In this class, we will almost exclusively work with the Euclidean inner product over real vector spaces (dot product).
+\[
+\langle u \mid v \rangle_{\text{euclidean}} := u^T v = \sum_{i=1}^{n} u_i v_i
+\]
+
+\begin{workedexample}[title=\textbf{Worked Example: Computing the dot product}]
+Let $u = \begin{bmatrix}1\\3\\-2\end{bmatrix}$, $v = \begin{bmatrix}4\\-1\\5\end{bmatrix}$. Then:
+\[
+\langle u \mid v \rangle = u^T v = (1)(4) + (3)(-1) + (-2)(5) = 4 - 3 - 10 = -9
+\]
+The negative value tells us the vectors point in ``somewhat opposite'' directions.
+
+Let's verify I1--I2 for $u$:
+\[
+\langle u \mid u \rangle = u^T u = 1^2 + 3^2 + (-2)^2 = 1 + 9 + 4 = 14 > 0 \quad \checkmark
+\]
+And $\langle u \mid u \rangle = 0$ only if $u = 0$. \checkmark
+\end{workedexample}
+
+\subsection{Norms}
+
+\begin{intuitionbox}
+A \textbf{norm} measures the ``length'' or ``size'' of a vector. When an inner product is available, the norm is simply the square root of the inner product of a vector with itself: $\|v\| = \sqrt{\langle v \mid v \rangle}$.
+\end{intuitionbox}
+
+An inner product induces a \textbf{norm} $\|\cdot\| : V \to F$.
+\[
+\|v\|^2 := \langle v \mid v \rangle \qquad \text{i.e., } \|v\| = \sqrt{\langle v \mid v \rangle}
+\]
+
+\begin{axiombox}
+\textbf{N1. Positivity} \hfill $\|v\| \geq 0$ \\[4pt]
+\textbf{N2. Definiteness} \hfill $\|v\| = 0 \iff v = 0$ \\[4pt]
+\textbf{N3. Homogeneity} \hfill $\|cv\| = |c| \cdot \|v\|$
+\end{axiombox}
+
+\begin{workedexample}[title=\textbf{Worked Example: Computing a norm}]
+For $u = \begin{bmatrix}3\\4\end{bmatrix}$:
+\[
+\|u\| = \sqrt{\langle u \mid u \rangle} = \sqrt{3^2 + 4^2} = \sqrt{9 + 16} = \sqrt{25} = 5
+\]
+This is the familiar Pythagorean theorem in 2D! The vector $\begin{bmatrix}3\\4\end{bmatrix}$ is 5 units long.
+
+\medskip
+\textbf{Verifying N3 (Homogeneity):} Let $c = -2$. Then $cv = \begin{bmatrix}-6\\-8\end{bmatrix}$ and:
+\[
+\|cv\| = \sqrt{(-6)^2 + (-8)^2} = \sqrt{36 + 64} = \sqrt{100} = 10 = |-2| \cdot 5 = |c| \cdot \|v\| \quad \checkmark
+\]
+\end{workedexample}
+
+\medskip
+\textbf{Important Results:}
+
+\begin{resultbox}
+\textbf{Pythagorean Theorem.} \\
+If $\langle u \mid v \rangle = 0$ (i.e., $u$ and $v$ are orthogonal), then $\|u + v\|^2 = \|u\|^2 + \|v\|^2$.
+\end{resultbox}
+
+\begin{remark}[Why does this work?]
+Expanding the left side step by step:
+\begin{align*}
+\|u + v\|^2 &= \langle u + v \mid u + v \rangle && \text{(definition of norm)} \\
+&= \langle u \mid u + v \rangle + \langle v \mid u + v \rangle && \text{(linearity, I3)} \\
+&= \langle u \mid u \rangle + \langle u \mid v \rangle + \langle v \mid u \rangle + \langle v \mid v \rangle && \text{(linearity again)} \\
+&= \|u\|^2 + \underbrace{\langle u \mid v \rangle}_{=\,0} + \underbrace{\langle v \mid u \rangle}_{=\,0} + \|v\|^2 && \text{(orthogonality)} \\
+&= \|u\|^2 + \|v\|^2
+\end{align*}
+\end{remark}
+
+\begin{resultbox}
+\textbf{Cauchy--Schwarz Inequality.} \\
+$|\langle u, v \rangle| \leq \|u\| \cdot \|v\|$ with equality iff $u \in \spn\, v$ or $v \in \spn\, u$.
+\end{resultbox}
+
+\begin{remark}
+In plain English: the inner product of two vectors is at most the product of their lengths. Equality happens only when the vectors are parallel (one is a scalar multiple of the other).
+\end{remark}
+
+\begin{resultbox}
+\textbf{Triangle Inequality.} \\
+$\|u + v\| \leq \|u\| + \|v\|$ with equality iff one is a non-negative multiple of the other.
+\end{resultbox}
+
+\begin{remark}
+This says the ``shortcut'' (going directly from start to end) is never longer than going via an intermediate point. In a triangle, any one side is at most the sum of the other two.
+\end{remark}
+
+\subsection{Orthonormal Bases}
+
+\begin{intuitionbox}
+An \textbf{orthonormal basis} is the ``nicest'' type of basis: every vector is perpendicular to every other vector (orthogonal), and every vector has length 1 (normal). Think of the standard $x$-, $y$-, $z$-axes in 3D. Orthonormal bases make computations much simpler because finding coordinates reduces to taking dot products.
+\end{intuitionbox}
+
+\begin{definition}[Orthonormal Basis]
+A basis $v_1, \ldots, v_n \in V$ is said to be an \textbf{orthonormal basis} of $V$ if each vector is orthogonal to one another and has unit norm.
+\[
+\langle v_i \mid v_j \rangle = \delta[i - j] = \begin{cases} 1 & i = j \\ 0 & i \neq j \end{cases}
+\]
+\end{definition}
+
+\begin{remark}
+The symbol $\delta[i-j]$ is the Kronecker delta. It equals 1 when $i = j$ (a vector dotted with itself gives its squared norm, which is 1 for unit vectors) and 0 when $i \neq j$ (different basis vectors are perpendicular).
+\end{remark}
+
+Orthonormal bases are nice to work in! Two key properties:
+
+\textbf{1. Parseval's identity} (computing norms):
+\[
+\|v\|^2 = \sum_{i=1}^{n} |\langle v \mid v_i \rangle|^2
+\]
+
+\textbf{2. Easy projection} (finding coordinates):
+\[
+\proj_{\spn(v_1, \ldots, v_k)} w = \sum_{i=1}^{k} \langle w \mid v_i \rangle v_i
+\]
+
+\begin{workedexample}[title=\textbf{Worked Example: Projection onto an orthonormal basis}]
+Let $v_1 = \begin{bmatrix}1\\0\end{bmatrix}$, $v_2 = \begin{bmatrix}0\\1\end{bmatrix}$ (the standard basis, which is orthonormal), and $w = \begin{bmatrix}3\\5\end{bmatrix}$.
+
+The projection of $w$ onto this basis is simply:
+\[
+\proj w = \langle w \mid v_1 \rangle v_1 + \langle w \mid v_2 \rangle v_2 = 3\begin{bmatrix}1\\0\end{bmatrix} + 5\begin{bmatrix}0\\1\end{bmatrix} = \begin{bmatrix}3\\5\end{bmatrix}
+\]
+The ``coordinates'' of $w$ in this basis are just the dot products $(3, 5)$.
+\end{workedexample}
+
+\subsection{Projection}
+
+\begin{intuitionbox}
+Imagine shining a flashlight straight down onto a table. The shadow of a 3D object on the table is its ``projection'' onto the 2D surface. Mathematically, the projection of a vector $v$ onto a subspace $U$ finds the closest point in $U$ to $v$. The key property: the error $v - \hat{v}$ is perpendicular to the subspace.
+\end{intuitionbox}
+
+\begin{definition}[Orthogonal Projection]
+The (orthogonal) \textbf{projection} of a vector $v \in V$ onto a subspace $U \leq V$ is the vector $\hat{v} \in U$ which makes the error orthogonal to all of $U$.
+\[
+\forall u \in U, \quad \langle u \mid v - \hat{v} \rangle = 0
+\]
+\end{definition}
+
+Given a basis $u_1, \ldots, u_k \in U$ of $U$, we can compute $\hat{v}$ by solving the following system of equations for the coefficients $c_1, \ldots, c_k$ (where $\hat{v} = \sum_{i=1}^k c_i u_i$):
+\[
+\left\langle u_j \;\middle|\; v - \sum_{i=1}^{k} c_i u_i \right\rangle = 0 \quad \text{for } j = 1, \ldots, k
+\]
+
+\begin{remark}
+This gives us $k$ equations (one for each basis vector $u_j$) in $k$ unknowns ($c_1, \ldots, c_k$). We only need to check orthogonality against the basis vectors, not every vector in $U$, because any $u \in U$ is a linear combination of the $u_j$'s.
+\end{remark}
+
+\begin{proposition}
+The projection $\hat{v}$ is not only unique, but also minimizes the norm of the error vector.
+\[
+\proj_U v := \hat{v} = \arg\min_{u \in U} \|v - u\|
+\]
+\end{proposition}
+
+\begin{proof}
+Let $\hat{v} \in U$ be the projection of $v$ onto $U$ and fix an arbitrary $u \in U$. We want to show $\|v - u\| \geq \|v - \hat{v}\|$.
+
+\textbf{Step 1:} Rewrite $v - u$ by adding and subtracting $\hat{v}$:
+\[
+v - u = (v - \hat{v}) + (\hat{v} - u)
+\]
+
+\textbf{Step 2:} Expand the squared norm using $\|a + b\|^2 = \|a\|^2 + \|b\|^2 + 2\langle a \mid b \rangle$:
+\[
+\|v - u\|^2 = \|(v - \hat{v}) + (\hat{v} - u)\|^2 = \|v - \hat{v}\|^2 + \|\hat{v} - u\|^2 + 2\langle v - \hat{v} \mid \hat{v} - u \rangle
+\]
+
+\textbf{Step 3:} The cross term vanishes. Since both $\hat{v} \in U$ and $u \in U$, closure gives $\hat{v} - u \in U$. By definition of projection, $v - \hat{v}$ is orthogonal to everything in $U$, so:
+\[
+\langle v - \hat{v} \mid \hat{v} - u \rangle = 0
+\]
+
+\textbf{Step 4:} Conclude:
+\[
+\|v - u\|^2 = \|v - \hat{v}\|^2 + \underbrace{\|\hat{v} - u\|^2}_{\geq\, 0} \geq \|v - \hat{v}\|^2 \qedhere
+\]
+\end{proof}
+
+\begin{workedexample}[title=\textbf{Worked Example: Projecting a 3D vector onto a line}]
+Project $v = \begin{bmatrix}3\\4\\0\end{bmatrix}$ onto $U = \spn\!\left(\begin{bmatrix}1\\1\\0\end{bmatrix}\right)$.
+
+Let $u_1 = \begin{bmatrix}1\\1\\0\end{bmatrix}$. We need $c_1$ such that $\hat{v} = c_1 u_1$ and $\langle u_1 \mid v - c_1 u_1 \rangle = 0$.
+
+\textbf{Step 1:} Set up the equation:
+\[
+\langle u_1 \mid v - c_1 u_1 \rangle = \langle u_1 \mid v \rangle - c_1 \langle u_1 \mid u_1 \rangle = 0
+\]
+
+\textbf{Step 2:} Compute the inner products:
+\[
+\langle u_1 \mid v \rangle = (1)(3) + (1)(4) + (0)(0) = 7, \qquad \langle u_1 \mid u_1 \rangle = 1 + 1 + 0 = 2
+\]
+
+\textbf{Step 3:} Solve for $c_1$:
+\[
+c_1 = \frac{\langle u_1 \mid v \rangle}{\langle u_1 \mid u_1 \rangle} = \frac{7}{2}
+\]
+
+\textbf{Step 4:} The projection is:
+\[
+\hat{v} = \frac{7}{2}\begin{bmatrix}1\\1\\0\end{bmatrix} = \begin{bmatrix}3.5\\3.5\\0\end{bmatrix}
+\]
+
+\textbf{Verify:} The error $v - \hat{v} = \begin{bmatrix}-0.5\\0.5\\0\end{bmatrix}$ should be orthogonal to $u_1$:
+\[
+\langle u_1 \mid v - \hat{v} \rangle = (1)(-0.5) + (1)(0.5) + (0)(0) = 0 \quad \checkmark
+\]
+\end{workedexample}
+
+\subsection{Gram--Schmidt}
+
+\begin{intuitionbox}
+Gram--Schmidt takes any linearly independent set of vectors and converts them into an orthonormal set with the same span. The idea: process one vector at a time. For each new vector, subtract off its projection onto all previous (already orthonormalized) vectors, then normalize the result to have length 1.
+\end{intuitionbox}
+
+Projecting onto the span of orthonormal vectors is really easy! However, not every list of vectors is orthonormal.
+
+\textbf{Gram--Schmidt} is an algorithm that converts a list of linearly independent vectors $v_1, \ldots, v_k \in V$ to a list of orthonormal vectors $u_1, \ldots, u_k \in V$ with the same span.
+
+\medskip
+For $i = 1, 2, \ldots, k$:
+\begin{align*}
+z_i &\leftarrow v_i - \sum_{j=1}^{i-1} \langle v_i \mid u_j \rangle u_j = v_i - \proj_{\spn(u_1, \ldots, u_{i-1})} v_i \\[6pt]
+u_i &\leftarrow \frac{z_i}{\|z_i\|}
+\end{align*}
+
+\begin{workedexample}[title=\textbf{Worked Example: Gram--Schmidt on two vectors in $\mathbb{R}^2$}]
+Orthonormalize $v_1 = \begin{bmatrix}1\\1\end{bmatrix}$, $v_2 = \begin{bmatrix}1\\0\end{bmatrix}$.
+
+\textbf{Step 1 ($i = 1$):} No previous vectors to project away.
+\[
+z_1 = v_1 = \begin{bmatrix}1\\1\end{bmatrix}, \qquad \|z_1\| = \sqrt{1^2 + 1^2} = \sqrt{2}
+\]
+\[
+u_1 = \frac{z_1}{\|z_1\|} = \frac{1}{\sqrt{2}}\begin{bmatrix}1\\1\end{bmatrix} = \begin{bmatrix}1/\sqrt{2}\\1/\sqrt{2}\end{bmatrix}
+\]
+
+\textbf{Step 2 ($i = 2$):} Remove the component of $v_2$ along $u_1$.
+\[
+\langle v_2 \mid u_1 \rangle = (1)\!\left(\tfrac{1}{\sqrt{2}}\right) + (0)\!\left(\tfrac{1}{\sqrt{2}}\right) = \frac{1}{\sqrt{2}}
+\]
+\[
+z_2 = v_2 - \langle v_2 \mid u_1 \rangle u_1 = \begin{bmatrix}1\\0\end{bmatrix} - \frac{1}{\sqrt{2}} \cdot \begin{bmatrix}1/\sqrt{2}\\1/\sqrt{2}\end{bmatrix} = \begin{bmatrix}1\\0\end{bmatrix} - \begin{bmatrix}1/2\\1/2\end{bmatrix} = \begin{bmatrix}1/2\\-1/2\end{bmatrix}
+\]
+\[
+\|z_2\| = \sqrt{(1/2)^2 + (-1/2)^2} = \sqrt{1/2} = \frac{1}{\sqrt{2}}
+\]
+\[
+u_2 = \frac{z_2}{\|z_2\|} = \sqrt{2}\begin{bmatrix}1/2\\-1/2\end{bmatrix} = \begin{bmatrix}1/\sqrt{2}\\-1/\sqrt{2}\end{bmatrix}
+\]
+
+\textbf{Verify orthonormality:}
+\[
+\langle u_1 \mid u_2 \rangle = \frac{1}{\sqrt{2}} \cdot \frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}} \cdot \left(-\frac{1}{\sqrt{2}}\right) = \frac{1}{2} - \frac{1}{2} = 0 \quad \checkmark
+\]
+\[
+\|u_1\| = \sqrt{1/2 + 1/2} = 1 \quad \checkmark \qquad \|u_2\| = \sqrt{1/2 + 1/2} = 1 \quad \checkmark
+\]
+\end{workedexample}
+
+\subsection{Orthogonal Complements}
+
+\begin{definition}[Orthogonal Complement]
+The \textbf{orthogonal complement} of a subspace $U \leq V$ is the set of all vectors orthogonal to every vector in $U$, which also forms a subspace of $V$.
+\[
+U^\perp := \{w \in V \mid \forall u \in U,\; \langle w \mid u \rangle = 0\}
+\]
+\end{definition}
+
+\begin{intuitionbox}
+If $U$ is a plane through the origin in $\mathbb{R}^3$, then $U^\perp$ is the line perpendicular to that plane (passing through the origin). Every vector in $\mathbb{R}^3$ can be uniquely split into a ``$U$ part'' and a ``$U^\perp$ part.''
+\end{intuitionbox}
+
+The ambient vector space $V$ is partitioned by any subspace and its orthogonal complement. In this way, their sum is direct:
+\[
+U \oplus U^\perp = V
+\]
+
+This means: for any $v \in V$, there exist unique $u \in U$ and $w \in U^\perp$ such that $v = u + w$.
+
+\begin{workedexample}[title=\textbf{Worked Example: Orthogonal complement in $\mathbb{R}^3$}]
+Let $U = \spn\!\left(\begin{bmatrix}1\\0\\0\end{bmatrix}, \begin{bmatrix}0\\1\\0\end{bmatrix}\right)$, which is the $xy$-plane.
+
+$U^\perp$ consists of all vectors $w = \begin{bmatrix}w_1\\w_2\\w_3\end{bmatrix}$ such that $w$ is orthogonal to every vector in $U$.
+
+It suffices to check orthogonality against the basis vectors:
+\[
+\left\langle \begin{bmatrix}w_1\\w_2\\w_3\end{bmatrix} \;\middle|\; \begin{bmatrix}1\\0\\0\end{bmatrix} \right\rangle = w_1 = 0, \qquad
+\left\langle \begin{bmatrix}w_1\\w_2\\w_3\end{bmatrix} \;\middle|\; \begin{bmatrix}0\\1\\0\end{bmatrix} \right\rangle = w_2 = 0
+\]
+
+So $w_1 = w_2 = 0$ and $w_3$ is free: $U^\perp = \spn\!\left(\begin{bmatrix}0\\0\\1\end{bmatrix}\right) =$ the $z$-axis.
+
+\medskip
+\textbf{Decomposition:} $\begin{bmatrix}3\\-1\\7\end{bmatrix} = \underbrace{\begin{bmatrix}3\\-1\\0\end{bmatrix}}_{\in\,U} + \underbrace{\begin{bmatrix}0\\0\\7\end{bmatrix}}_{\in\,U^\perp}$
+
+\medskip
+\textbf{Dimension check:} $\dim U + \dim U^\perp = 2 + 1 = 3 = \dim \mathbb{R}^3$. \checkmark
+\end{workedexample}
+
+\newpage
+%% ============================================================
+%% SECTION 3: MATRICES
+%% ============================================================
+\section{Matrices}
+
+\subsection{Operations}
+
+\begin{definition}[Matrix]
+A \textbf{matrix} $A \in F^{m \times n}$ is an $m$ by $n$ rectangular grid of elements from $F$.
+\[
+A = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix} = \begin{bmatrix} a_1 & \cdots & a_n \end{bmatrix} = \begin{bmatrix} \alpha_1^T \\ \vdots \\ \alpha_m^T \end{bmatrix}
+\]
+\end{definition}
+
+\begin{remark}[Column vs.\ row notation]
+We use two convenient ways to ``slice'' a matrix:
+\begin{itemize}[nosep]
+  \item $a_1, \ldots, a_n$ are the \textbf{columns} of $A$ (each is an $m$-dimensional vector).
+  \item $\alpha_1^T, \ldots, \alpha_m^T$ are the \textbf{rows} of $A$ (each written as a transpose of an $n$-dimensional vector).
+\end{itemize}
+\end{remark}
+
+The \textbf{transpose} $A^T$ flips a matrix across its diagonal (rows become columns and vice versa):
+\[
+A^T = \begin{bmatrix} a_{11} & a_{21} & \cdots & a_{m1} \\ a_{12} & a_{22} & \cdots & a_{m2} \\ \vdots & \vdots & \ddots & \vdots \\ a_{1n} & a_{2n} & \cdots & a_{mn} \end{bmatrix} = \begin{bmatrix} a_1^T \\ \vdots \\ a_n^T \end{bmatrix} = \begin{bmatrix} \alpha_1 & \cdots & \alpha_m \end{bmatrix}
+\]
+
+\begin{workedexample}[title=\textbf{Worked Example: Transpose}]
+\[
+A = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \quad \Longrightarrow \quad A^T = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}
+\]
+$A$ is $2 \times 3$, so $A^T$ is $3 \times 2$. The first \textit{row} of $A$ becomes the first \textit{column} of $A^T$.
+\end{workedexample}
+
+We define \textbf{matrix-vector multiplication} between a vector $x \in F^n$ and a matrix $A \in F^{m \times n}$ in two equivalent ways:
+
+\textbf{View 1 --- Column picture} (linear combination of columns):
+\[
+Ax = \begin{bmatrix} a_1 & \cdots & a_n \end{bmatrix} \begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} = x_1 a_1 + x_2 a_2 + \cdots + x_n a_n = \sum_{i=1}^{n} x_i a_i
+\]
+
+\textbf{View 2 --- Row picture} (dot products with rows):
+\[
+Ax = \begin{bmatrix} \alpha_1^T \\ \vdots \\ \alpha_m^T \end{bmatrix} x = \begin{bmatrix} \alpha_1^T x \\ \vdots \\ \alpha_m^T x \end{bmatrix} = \begin{bmatrix} \text{(row 1)} \cdot x \\ \vdots \\ \text{(row $m$)} \cdot x \end{bmatrix}
+\]
+
+\begin{workedexample}[title=\textbf{Worked Example: Matrix-vector multiplication both ways}]
+Let $A = \begin{bmatrix}1 & 2\\3 & 4\\5 & 6\end{bmatrix}$ and $x = \begin{bmatrix}2\\-1\end{bmatrix}$.
+
+\textbf{Column picture:} $Ax = 2\begin{bmatrix}1\\3\\5\end{bmatrix} + (-1)\begin{bmatrix}2\\4\\6\end{bmatrix} = \begin{bmatrix}2\\6\\10\end{bmatrix} + \begin{bmatrix}-2\\-4\\-6\end{bmatrix} = \begin{bmatrix}0\\2\\4\end{bmatrix}$
+
+\textbf{Row picture:} $Ax = \begin{bmatrix}(1)(2) + (2)(-1)\\(3)(2) + (4)(-1)\\(5)(2) + (6)(-1)\end{bmatrix} = \begin{bmatrix}2 - 2\\6 - 4\\10 - 6\end{bmatrix} = \begin{bmatrix}0\\2\\4\end{bmatrix}$ \quad \checkmark\ Same answer!
+\end{workedexample}
+
+\medskip
+Think about matrix-vector multiplication like a function $f : F^n \to F^m$, $x \mapsto \sum_{i=1}^{n} x_i a_i$.
+
+\begin{itemize}
+  \item When $f$ is \textbf{surjective} (onto), everything in $F^m$ must be mapped to.
+  \[
+  f \text{ is surjective} \iff \dim \spn(a_1, \ldots, a_n) = m \quad (m \text{ lin.\ ind.\ columns})
+  \]
+  \textit{In plain English: the columns of $A$ must span the entire output space. You need at least $m$ linearly independent columns.}
+  \item When $f$ is \textbf{injective} (one-to-one), each mapping is unique---no two inputs give the same output.
+  \[
+  f \text{ is injective} \iff a_1, \ldots, a_n \text{ is linearly independent}
+  \]
+  \textit{In plain English: if the columns are linearly dependent, then different $x$'s can produce the same $Ax$.}
+  \item When $f$ is \textbf{bijective} (both), everything in $F^m$ has a unique mapping to it.
+  \[
+  f \text{ is bijective} \iff a_1, \ldots, a_n \text{ is linearly independent and } m = n
+  \]
+  \textit{In plain English: the matrix must be square and invertible.}
+\end{itemize}
+
+\subsection{Fundamental Subspaces}
+
+A matrix $A \in F^{m \times n}$ has \textbf{4 fundamental subspaces}:
+\begin{enumerate}
+  \item \textbf{Column Space} \quad $\Col(A) := \{Ax \mid x \in F^n\} = \spn(a_1, \ldots, a_n)$
+
+  \textit{All possible outputs of the matrix. ``Where can $A$ send vectors?''}
+
+  \item \textbf{Null Space} \quad $\Null(A) := \{x \in F^n \mid Ax = 0\}$
+
+  \textit{All inputs that $A$ maps to zero. ``What does $A$ kill?''}
+
+  \item \textbf{Row Space} \quad $\Col(A^T) := \{A^T b \mid b \in F^m\} = \spn(\alpha_1, \ldots, \alpha_m)$
+
+  \textit{The column space of the transpose; equivalently, the span of the rows of $A$.}
+
+  \item \textbf{Left Null Space} \quad $\Null(A^T) := \{b \in F^m \mid A^T b = 0\}$
+
+  \textit{All vectors orthogonal to the column space of $A$.}
+\end{enumerate}
+
+\begin{workedexample}[title=\textbf{Worked Example: Finding fundamental subspaces}]
+Let $A = \begin{bmatrix}1 & 2\\2 & 4\end{bmatrix}$.
+
+\textbf{Column space:} $\Col(A) = \spn\!\left(\begin{bmatrix}1\\2\end{bmatrix}, \begin{bmatrix}2\\4\end{bmatrix}\right)$. Since $\begin{bmatrix}2\\4\end{bmatrix} = 2\begin{bmatrix}1\\2\end{bmatrix}$, we have $\Col(A) = \spn\!\left(\begin{bmatrix}1\\2\end{bmatrix}\right)$, a line.
+
+\textbf{Null space:} Solve $Ax = 0$:
+\[
+\begin{bmatrix}1 & 2\\2 & 4\end{bmatrix}\begin{bmatrix}x_1\\x_2\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix} \implies x_1 + 2x_2 = 0 \implies x_1 = -2x_2
+\]
+So $\Null(A) = \spn\!\left(\begin{bmatrix}-2\\1\end{bmatrix}\right)$, also a line.
+
+\textbf{Verify orthogonality:} $\begin{bmatrix}1\\2\end{bmatrix} \cdot \begin{bmatrix}-2\\1\end{bmatrix} = -2 + 2 = 0$. \checkmark\ The null space is orthogonal to the row space!
+\end{workedexample}
+
+\medskip
+\textbf{Important Results --- Orthogonal complement relationships:}
+
+The key insight is that the null space and row space are orthogonal complements, and similarly for the left null space and column space:
+\begin{align*}
+Ax = 0 &\iff \alpha_1^T x = \cdots = \alpha_m^T x = 0 \\
+&\iff x \text{ is orthogonal to every row of } A \\
+&\iff \Null(A) = (\Col(A^T))^\perp \implies \boxed{\Null(A) \oplus \Col(A^T) = F^n}
+\end{align*}
+
+By the same logic applied to $A^T$:
+\[
+\boxed{\Null(A^T) \oplus \Col(A) = F^m}
+\]
+
+From the direct sum decompositions (recall: $\dim(U \oplus W) = \dim U + \dim W$):
+\begin{align*}
+\Null(A) \oplus \Col(A^T) = F^n &\implies \dim \Null(A) + \dim \Col(A^T) = n \\
+\Null(A^T) \oplus \Col(A) = F^m &\implies \dim \Null(A^T) + \dim \Col(A) = m
+\end{align*}
+
+Since $\dim \Col(A) = \dim \Col(A^T)$ (both equal the rank), we get the \textbf{rank--nullity theorem}:
+\[
+\boxed{\underbrace{\dim \Null(A)}_{\text{nullity of } A} + \underbrace{\dim \Col(A)}_{\text{rank of } A} = n}
+\]
+
+\begin{remark}
+In words: the number of ``free variables'' (nullity) plus the number of ``pivot columns'' (rank) equals the total number of columns.
+\end{remark}
+
+\subsection{Least Squares}
+
+\begin{intuitionbox}
+Sometimes the system $Ax = b$ has no exact solution (when $b$ is not in the column space of $A$). \textbf{Least squares} finds the ``best approximate solution''---the $x$ that makes $Ax$ as close to $b$ as possible. This is the foundation of linear regression and many data-fitting methods.
+\end{intuitionbox}
+
+Given a system $Ax = b$, it may not be the case that $b \in \Col(A)$.
+
+\textbf{Least squares} is an optimization criterion which finds the vector which maps to the vector closest to $b$ with respect to the Euclidean norm.
+\[
+\arg\min_{x \in \mathbb{R}^n} \|Ax - b\|_2^2
+\]
+
+\textbf{Derivation of the normal equations.} From our study of projections, we know that the unique element of $\Col(A)$ that minimizes the error is $\proj_{\Col(A)} b$. The error $Ax^* - b$ must be orthogonal to the column space, meaning it must be orthogonal to every column $a_i$:
+\[
+a_1^T(Ax^* - b) = 0, \quad a_2^T(Ax^* - b) = 0, \quad \ldots, \quad a_n^T(Ax^* - b) = 0
+\]
+
+Stacking these $n$ equations into a single matrix equation:
+\[
+\begin{bmatrix} a_1^T \\ a_2^T \\ \vdots \\ a_n^T \end{bmatrix} (Ax^* - b) = 0 \implies A^T(Ax^* - b) = 0
+\]
+\[
+\boxed{A^T A x^* = A^T b} \qquad \text{(the \textbf{normal equations})}
+\]
+
+\begin{workedexample}[title=\textbf{Worked Example: Least squares with no exact solution}]
+Find the least-squares solution to $Ax = b$ where $A = \begin{bmatrix}1\\1\\1\end{bmatrix}$, $b = \begin{bmatrix}1\\2\\4\end{bmatrix}$.
+
+Here $A$ is $3 \times 1$ (a single column), so we're fitting a constant to three data points.
+
+\textbf{Step 1:} Compute $A^T A$ and $A^T b$:
+\[
+A^T A = \begin{bmatrix}1&1&1\end{bmatrix}\begin{bmatrix}1\\1\\1\end{bmatrix} = 3
+\]
+\[
+A^T b = \begin{bmatrix}1&1&1\end{bmatrix}\begin{bmatrix}1\\2\\4\end{bmatrix} = 1 + 2 + 4 = 7
+\]
+
+\textbf{Step 2:} Solve $A^T A x^* = A^T b$:
+\[
+3x^* = 7 \implies x^* = \frac{7}{3}
+\]
+
+This is the average of $\{1, 2, 4\}$! Least squares with a single column finds the mean.
+\end{workedexample}
+
+\textbf{Non-uniqueness of solutions.} Note that even though the projection $\proj_{\Col(A)} b$ is unique, the $x$ that achieves it might not be. For any solution $x^*$, adding any $z \in \Null(A)$ gives another solution:
+\[
+A^T A(x^* + z) = A^T A x^* + A^T \underbrace{Az}_{=\,0} = A^T A x^* = A^T b
+\]
+
+Hence, we write the full solution set as the affine set:
+\[
+\mathcal{S}_{\text{lstq}} = x^* + \Null(A) := \{x^* + z \mid z \in \Null(A)\}
+\]
+
+\begin{remark}
+If $A$ has linearly independent columns (i.e., $\Null(A) = \{0\}$), then $A^T A$ is invertible and the solution is unique: $x^* = (A^T A)^{-1} A^T b$.
+\end{remark}
+
+\subsection{Minimum Norm Solution}
+
+\begin{intuitionbox}
+When a system $Ax = b$ has infinitely many solutions (because $A$ has a non-trivial null space), which one should we pick? The \textbf{minimum norm solution} picks the solution with the smallest length. Geometrically, it's the solution closest to the origin.
+\end{intuitionbox}
+
+Assuming $b \in \Col(A)$, the system $Ax = b$ may have infinitely many solutions. What if we wanted a ``canonical'' one?
+
+The \textbf{minimum norm solution} to $Ax = b$ is the solution with the least norm.
+\[
+\arg\min_{x \in \mathbb{R}^n} \|x\|_2 \quad \text{s.t.} \quad Ax - b = 0
+\]
+
+\textbf{Derivation.} Every solution takes the form $x^* + z$ for some $z \in \Null(A)$ and a fixed solution $x^* \in \mathbb{R}^n$.
+
+\textbf{Step 1:} Decompose $x^*$ using $\mathbb{R}^n = \Null(A) \oplus \Null(A)^\perp$:
+\[
+x^* = \underbrace{x^*_{\Null(A)}}_{\text{null space part}} + \underbrace{x^*_{\Null(A)^\perp}}_{\text{row space part}}
+\]
+
+\textbf{Step 2:} Compute $\|x\|^2$ for a general solution $x = x^* + z$:
+\[
+\|x\|^2 = \|x^* + z\|^2 = \|x^*_{\Null(A)} + x^*_{\Null(A)^\perp} + z\|^2
+\]
+Since $x^*_{\Null(A)} + z \in \Null(A)$ and $x^*_{\Null(A)^\perp} \in \Null(A)^\perp$, by the Pythagorean theorem:
+\[
+= \underbrace{\|x^*_{\Null(A)^\perp}\|^2}_{\text{fixed (doesn't depend on $z$)}} + \|x^*_{\Null(A)} + z\|^2
+\]
+
+\textbf{Step 3:} Minimize by choosing $z = -x^*_{\Null(A)}$ (which zeros out the second term):
+\[
+\underline{x} = x^* + z = x^*_{\Null(A)^\perp} \in \Null(A)^\perp = \Col(A^T)
+\]
+
+\textbf{Step 4:} Since $\underline{x} \in \Col(A^T)$, there exists $u \in \mathbb{R}^m$ such that $\underline{x} = A^T u$. Substituting into $Ax = b$:
+\[
+A\underline{x} = A(A^T u) = b \implies AA^T u = b
+\]
+
+As it turns out, even if there are multiple solutions to the system $b = AA^T u$, the minimum norm solution $\underline{x} = A^T u$ is always unique.
+\[
+\boxed{AA^T u = b, \qquad \underline{x} = A^T u}
+\]
+
+\subsection{Eigenstuff}
+
+\begin{intuitionbox}
+An \textbf{eigenvector} of a matrix $A$ is a special non-zero vector that, when multiplied by $A$, only gets scaled (stretched/shrunk/flipped) but doesn't change direction. The scaling factor is the \textbf{eigenvalue}. Eigenvectors reveal the ``natural axes'' of a linear transformation.
+\end{intuitionbox}
+
+For a square matrix $A \in F^{n \times n}$, the \textbf{eigenvalue problem} is:
+\[
+Av = \lambda v \qquad v \neq 0
+\]
+
+\textbf{How to find eigenvalues.} Rearranging: $(A - \lambda I)v = 0$. For a non-zero $v$ to exist, the matrix $(A - \lambda I)$ must be singular (non-invertible), which means:
+\[
+(A - \lambda I)v = 0 \implies \det(A - \lambda I) = 0
+\]
+
+We call $p(\lambda) := \det(A - \lambda I)$ the \textbf{characteristic polynomial}. Its roots are the eigenvalues.
+
+Each root $\lambda_i$ is called an eigenvalue and the solutions to $(A - \lambda_i I)v_i = 0$ are called eigenvectors corresponding to $\lambda_i$.
+
+Eigenvectors corresponding to distinct eigenvalues are linearly independent.
+
+\begin{workedexample}[title=\textbf{Worked Example: Finding eigenvalues and eigenvectors}]
+Find the eigenvalues and eigenvectors of $A = \begin{bmatrix}2 & 1\\0 & 3\end{bmatrix}$.
+
+\textbf{Step 1:} Compute the characteristic polynomial:
+\[
+\det(A - \lambda I) = \det\begin{bmatrix}2-\lambda & 1\\0 & 3-\lambda\end{bmatrix} = (2-\lambda)(3-\lambda) - (0)(1) = (2-\lambda)(3-\lambda)
+\]
+
+\textbf{Step 2:} Find the roots: $\lambda_1 = 2$, $\lambda_2 = 3$.
+
+\textbf{Step 3:} Find eigenvectors for each eigenvalue.
+
+For $\lambda_1 = 2$: Solve $(A - 2I)v = 0$:
+\[
+\begin{bmatrix}0 & 1\\0 & 1\end{bmatrix}\begin{bmatrix}v_1\\v_2\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix} \implies v_2 = 0, \; v_1 \text{ is free} \implies v_1 = \begin{bmatrix}1\\0\end{bmatrix}
+\]
+
+For $\lambda_2 = 3$: Solve $(A - 3I)v = 0$:
+\[
+\begin{bmatrix}-1 & 1\\0 & 0\end{bmatrix}\begin{bmatrix}v_1\\v_2\end{bmatrix} = \begin{bmatrix}0\\0\end{bmatrix} \implies v_1 = v_2 \implies v_2 = \begin{bmatrix}1\\1\end{bmatrix}
+\]
+
+\textbf{Verify:} $A\begin{bmatrix}1\\0\end{bmatrix} = \begin{bmatrix}2\\0\end{bmatrix} = 2\begin{bmatrix}1\\0\end{bmatrix}$ \checkmark\quad and $A\begin{bmatrix}1\\1\end{bmatrix} = \begin{bmatrix}3\\3\end{bmatrix} = 3\begin{bmatrix}1\\1\end{bmatrix}$ \checkmark
+\end{workedexample}
+
+\medskip
+
+For each eigenvalue $\lambda_i \in \sigma(A)$, we define:
+\begin{itemize}[nosep]
+\item \textbf{Algebraic multiplicity}: the multiplicity of $\lambda_i$ as a root of $p(\lambda)$ (how many times does it appear as a root?)
+\item \textbf{Geometric multiplicity}: the number of linearly independent eigenvectors corresponding to it (the dimension of the null space of $A - \lambda_i I$)
+\end{itemize}
+\[
+(\lambda_i)_{\text{alg}} \geq (\lambda_i)_{\text{geo}}
+\]
+
+A matrix $A \in F^{n \times n}$ is said to be \textbf{diagonalizable} if for each of its eigenvalues, the algebraic multiplicity is equal to the geometric multiplicity.
+
+\textbf{What diagonalization looks like.} If $A$ has $n$ linearly independent eigenvectors $v_1, \ldots, v_n$ with eigenvalues $\lambda_1, \ldots, \lambda_n$, form the matrix $V = [v_1 \;\cdots\; v_n]$. Then:
+\[
+AV = [Av_1 \;\cdots\; Av_n] = [\lambda_1 v_1 \;\cdots\; \lambda_n v_n] = [v_1 \;\cdots\; v_n]\diag(\lambda_1, \ldots, \lambda_n) = V\Lambda
+\]
+\[
+\implies \boxed{A = V\Lambda V^{-1}}
+\]
+
+\begin{remark}
+Diagonalization is powerful because it makes matrix powers easy: $A^k = V\Lambda^k V^{-1}$, and $\Lambda^k$ is trivial---just raise each diagonal entry to the $k$th power.
+\end{remark}
+
+\subsection{Singular Value Decomposition}
+
+\begin{intuitionbox}
+The SVD is the ``ultimate'' matrix factorization. While eigendecomposition only works for square matrices (and not all of them), \textbf{every} matrix---any shape, any rank---has an SVD. It decomposes any linear transformation into three simple steps: \textbf{rotate} ($V^T$), \textbf{stretch} ($\Sigma$), \textbf{rotate again} ($U$). This is one of the most important decompositions in all of applied mathematics.
+\end{intuitionbox}
+
+Any matrix $A \in F^{m \times n}$ has a \textbf{singular value decomposition}:
+\[
+A = \underbrace{[U]_{m \times m}}_{\text{orthogonal}} [\Sigma]_{m \times n} \underbrace{[V^T]_{n \times n}}_{\text{orthogonal}}
+\]
+
+\begin{remark}[What are $U$, $\Sigma$, $V$?]
+\begin{itemize}[nosep]
+\item $U$ is an $m \times m$ orthogonal matrix (so $U^T U = UU^T = I_m$). Its columns are called \textbf{left singular vectors}.
+\item $V$ is an $n \times n$ orthogonal matrix (so $V^T V = VV^T = I_n$). Its columns are called \textbf{right singular vectors}.
+\item $\Sigma$ is an $m \times n$ ``diagonal'' matrix (zeros everywhere except possibly the main diagonal).
+\end{itemize}
+\end{remark}
+
+The structure of $\Sigma$ is:
+\[
+\Sigma = \begin{bmatrix} \sigma_1 & \cdots & 0 & 0 & \cdots & 0 \\ \vdots & \ddots & \vdots & \vdots & \ddots & \vdots \\ 0 & \cdots & \sigma_r & 0 & \cdots & 0 \\ 0 & \cdots & 0 & 0 & \cdots & 0 \\ \vdots & \ddots & \vdots & \vdots & \ddots & \vdots \\ 0 & \cdots & 0 & 0 & \cdots & 0 \end{bmatrix} = \begin{bmatrix} [\Sigma_r]_{r \times r} & [0]_{r \times (n-r)} \\ [0]_{(m-r) \times r} & [0]_{(m-r) \times (n-r)} \end{bmatrix}
+\]
+
+where $\Sigma_r = \diag(\sigma_1, \ldots, \sigma_r)$ contains the nonzero entries. We call these the \textbf{singular values} of $A$, where $r := \rank(A)$, and conventionally order them:
+\[
+\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_r > 0
+\]
+
+\begin{intuitionbox}
+The singular values tell you ``how much stretching'' happens along each direction. The largest singular value $\sigma_1$ is the maximum amount the matrix can stretch any unit vector; $\sigma_r$ (the smallest nonzero one) is the minimum stretching along any active direction.
+\end{intuitionbox}
+
+\bigskip
+\textbf{Connecting SVD to eigendecomposition (detailed derivation).}
+
+The key idea: we can relate the SVD of $A$ to the eigendecompositions of $AA^T$ and $A^T A$.
+
+\textbf{Step 1:} Form $AA^T$ and substitute $A = U\Sigma V^T$:
+\[
+AA^T = (U\Sigma V^T)(U\Sigma V^T)^T = (U\Sigma V^T)(V \Sigma^T U^T)
+\]
+
+\textbf{Step 2:} Since $V$ is orthogonal, $V^T V = I_n$, so the middle simplifies:
+\[
+AA^T = U\Sigma \underbrace{V^T V}_{=\,I_n} \Sigma^T U^T = U (\Sigma \Sigma^T) U^T
+\]
+
+\textbf{Step 3:} Compute $\Sigma \Sigma^T$ using block multiplication. Since $\Sigma$ is $m \times n$ and $\Sigma^T$ is $n \times m$:
+\[
+\Sigma \Sigma^T = \begin{bmatrix} [\Sigma_r]_{r \times r} & [0]_{r \times (n-r)} \\ [0]_{(m-r) \times r} & [0]_{(m-r) \times (n-r)} \end{bmatrix}
+\begin{bmatrix} [\Sigma_r]_{r \times r} & [0]_{r \times (m-r)} \\ [0]_{(n-r) \times r} & [0]_{(n-r) \times (m-r)} \end{bmatrix}
+\]
+
+\begin{remark}[Block multiplication step by step]
+This is a $2 \times 2$ block times a $2 \times 2$ block. Using the block multiplication rule (same as regular matrix multiplication but with sub-matrices):
+\[
+\text{Top-left: } \Sigma_r \cdot \Sigma_r + 0 \cdot 0 = \Sigma_r^2 \qquad \text{Top-right: } \Sigma_r \cdot 0 + 0 \cdot 0 = 0
+\]
+\[
+\text{Bottom-left: } 0 \cdot \Sigma_r + 0 \cdot 0 = 0 \qquad \text{Bottom-right: } 0 \cdot 0 + 0 \cdot 0 = 0
+\]
+\end{remark}
+
+So we get:
+\[
+\Sigma \Sigma^T = \begin{bmatrix} [\Sigma_r^2]_{r \times r} & [0]_{r \times (m-r)} \\ [0]_{(m-r) \times r} & [0]_{(m-r) \times (m-r)} \end{bmatrix}
+= \diag(\sigma_1^2, \ldots, \sigma_r^2, \underbrace{0, \ldots, 0}_{m-r})
+\]
+
+Therefore:
+\[
+\boxed{AA^T = U \begin{bmatrix} \Sigma_r^2 & 0 \\ 0 & 0 \end{bmatrix} U^T}
+\]
+
+\textbf{Step 4:} Recognize this as an eigendecomposition! Since $U$ is orthogonal, the equation $AA^T = U\,\diag(\sigma_1^2, \ldots, \sigma_r^2, 0, \ldots, 0)\,U^T$ tells us that $AA^T$ has:
+
+\begin{itemize}[nosep]
+\item Eigenvectors: the columns of $U$ (i.e., $u_1, u_2, \ldots, u_m$)
+\item Eigenvalues: $\sigma_1^2, \sigma_2^2, \ldots, \sigma_r^2, 0, 0, \ldots, 0$
+\end{itemize}
+
+\textbf{Step 5:} To see this explicitly, look at what happens when we multiply $AA^T$ by each column $u_i$:
+\[
+AA^T U = U \begin{bmatrix} \Sigma_r^2 & 0 \\ 0 & 0 \end{bmatrix}
+\implies AA^T [u_1 \;\cdots\; u_m] = [u_1 \;\cdots\; u_m] \begin{bmatrix} \sigma_1^2 & & & & \\ & \ddots & & & \\ & & \sigma_r^2 & & \\ & & & 0 & \\ & & & & \ddots \end{bmatrix}
+\]
+
+Reading off column by column:
+\[
+\implies \begin{cases}
+AA^T u_i = \underbrace{\sigma_i^2}_{\lambda_i(AA^T)}\, u_i & \text{for } i = 1, 2, \ldots, r \\[6pt]
+AA^T u_i = \underbrace{0}_{\lambda_i(AA^T)} \cdot\, u_i & \text{for } i > r
+\end{cases}
+\]
+
+\begin{remark}
+The first $r$ columns of $U$ are eigenvectors with eigenvalue $\sigma_i^2 > 0$. The remaining $m - r$ columns are eigenvectors with eigenvalue $0$ (they span the null space of $AA^T$, which is the left null space of $A$).
+\end{remark}
+
+\textbf{The same argument works for $A^T A$.} By an identical derivation:
+\[
+A^T A = (V\Sigma^T U^T)(U\Sigma V^T) = V \underbrace{\Sigma^T \Sigma}_{=\,\text{diag}(\sigma_1^2,\ldots,\sigma_r^2,0,\ldots,0)} V^T
+\]
+so the columns of $V$ are eigenvectors of $A^T A$ with the same nonzero eigenvalues $\sigma_1^2, \ldots, \sigma_r^2$.
+
+\bigskip
+\begin{remark}[Summary: Where do $U$, $\Sigma$, $V$ come from?]
+\begin{itemize}
+\item The columns of $U$ (\textbf{left singular vectors}) are the \textbf{eigenvectors of $AA^T$}.
+\item The columns of $V$ (\textbf{right singular vectors}) are the \textbf{eigenvectors of $A^T A$}.
+\item The \textbf{singular values} $\sigma_i$ are the \textbf{positive square roots of the eigenvalues}: $\sigma_i = \sqrt{\lambda_i(A^T A)} = \sqrt{\lambda_i(AA^T)}$.
+\item The \textbf{spectral theorem} (Section 4.2) guarantees that $AA^T$ and $A^T A$ are symmetric, so their eigenvectors are orthonormal---this is why $U$ and $V$ are orthogonal matrices, and why $\Sigma$ is real.
+\end{itemize}
+\end{remark}
+
+\bigskip
+\textbf{Algorithm for computing SVD:}
+\begin{enumerate}
+  \item \textbf{Find eigenvalues of $A^T A$} (or $AA^T$). These give $\sigma_i^2$. Take positive square roots: $\sigma_i = \sqrt{\lambda_i}$. Order them: $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_r > 0$.
+  \item \textbf{Find eigenvectors of $A^T A$} and orthonormalize them. These form the columns of $V$.
+  \item \textbf{Compute $U$ from $V$ and $\Sigma$:} For each $i = 1, \ldots, r$, compute $u_i = \frac{1}{\sigma_i} A v_i$. (This follows from $AV = U\Sigma$, so $Av_i = \sigma_i u_i$.) Extend $\{u_1, \ldots, u_r\}$ to a full orthonormal basis of $\mathbb{R}^m$ if $r < m$.
+\end{enumerate}
+
+\begin{workedexample}[title=\textbf{Worked Example: SVD of a $2 \times 2$ matrix}]
+Find the SVD of $A = \begin{bmatrix}3 & 0\\0 & 2\end{bmatrix}$.
+
+\textbf{Step 1: Compute $A^T A$ and find its eigenvalues.}
+\[
+A^T A = \begin{bmatrix}3&0\\0&2\end{bmatrix}\begin{bmatrix}3&0\\0&2\end{bmatrix} = \begin{bmatrix}9&0\\0&4\end{bmatrix}
+\]
+This is already diagonal! Eigenvalues: $\lambda_1 = 9$, $\lambda_2 = 4$.
+
+Singular values: $\sigma_1 = \sqrt{9} = 3$, $\sigma_2 = \sqrt{4} = 2$.
+
+\textbf{Step 2: Find eigenvectors of $A^T A$ $\to$ columns of $V$.}
+
+Since $A^T A$ is already diagonal, the eigenvectors are $v_1 = \begin{bmatrix}1\\0\end{bmatrix}$, $v_2 = \begin{bmatrix}0\\1\end{bmatrix}$. So $V = I_2$.
+
+\textbf{Step 3: Compute $U$ from $u_i = \frac{1}{\sigma_i} Av_i$.}
+\[
+u_1 = \frac{1}{3}\begin{bmatrix}3&0\\0&2\end{bmatrix}\begin{bmatrix}1\\0\end{bmatrix} = \frac{1}{3}\begin{bmatrix}3\\0\end{bmatrix} = \begin{bmatrix}1\\0\end{bmatrix}
+\]
+\[
+u_2 = \frac{1}{2}\begin{bmatrix}3&0\\0&2\end{bmatrix}\begin{bmatrix}0\\1\end{bmatrix} = \frac{1}{2}\begin{bmatrix}0\\2\end{bmatrix} = \begin{bmatrix}0\\1\end{bmatrix}
+\]
+So $U = I_2$.
+
+\textbf{Result:} $A = U\Sigma V^T = I \begin{bmatrix}3&0\\0&2\end{bmatrix} I = \begin{bmatrix}3&0\\0&2\end{bmatrix}$. \checkmark
+
+(For a diagonal matrix, the SVD is trivial---the singular values are the absolute values of the diagonal entries.)
+\end{workedexample}
+
+\begin{workedexample}[title=\textbf{Worked Example: SVD of a non-square matrix}]
+Find the SVD of $A = \begin{bmatrix}1 & 1\\0 & 0\end{bmatrix}$.
+
+\textbf{Step 1: Compute $A^T A$:}
+\[
+A^T A = \begin{bmatrix}1&0\\1&0\end{bmatrix}\begin{bmatrix}1&1\\0&0\end{bmatrix} = \begin{bmatrix}1&1\\1&1\end{bmatrix}
+\]
+
+\textbf{Step 2: Find eigenvalues} via $\det(A^TA - \lambda I) = 0$:
+\[
+\det\begin{bmatrix}1-\lambda & 1\\1 & 1-\lambda\end{bmatrix} = (1-\lambda)^2 - 1 = \lambda^2 - 2\lambda = \lambda(\lambda - 2) = 0
+\]
+Eigenvalues: $\lambda_1 = 2$, $\lambda_2 = 0$. So $\rank(A) = 1$ and $\sigma_1 = \sqrt{2}$.
+
+\textbf{Step 3: Find $V$} (eigenvectors of $A^TA$):
+
+For $\lambda_1 = 2$: $(A^TA - 2I)v = 0 \implies \begin{bmatrix}-1&1\\1&-1\end{bmatrix}v = 0 \implies v_1 = \frac{1}{\sqrt{2}}\begin{bmatrix}1\\1\end{bmatrix}$
+
+For $\lambda_2 = 0$: $(A^TA)v = 0 \implies \begin{bmatrix}1&1\\1&1\end{bmatrix}v = 0 \implies v_2 = \frac{1}{\sqrt{2}}\begin{bmatrix}1\\-1\end{bmatrix}$
+
+\textbf{Step 4: Find $U$:} $u_1 = \frac{1}{\sigma_1}Av_1 = \frac{1}{\sqrt{2}}\begin{bmatrix}1&1\\0&0\end{bmatrix}\frac{1}{\sqrt{2}}\begin{bmatrix}1\\1\end{bmatrix} = \frac{1}{2}\begin{bmatrix}2\\0\end{bmatrix} = \begin{bmatrix}1\\0\end{bmatrix}$
+
+Extend to full basis: $u_2 = \begin{bmatrix}0\\1\end{bmatrix}$.
+
+\textbf{Result:}
+\[
+A = \begin{bmatrix}1&0\\0&1\end{bmatrix} \begin{bmatrix}\sqrt{2}&0\\0&0\end{bmatrix} \begin{bmatrix}1/\sqrt{2}&1/\sqrt{2}\\1/\sqrt{2}&-1/\sqrt{2}\end{bmatrix}
+\]
+
+\textbf{Verify:} $U\Sigma V^T = \begin{bmatrix}\sqrt{2} & 0\\0&0\end{bmatrix}\begin{bmatrix}1/\sqrt{2}&1/\sqrt{2}\\1/\sqrt{2}&-1/\sqrt{2}\end{bmatrix} = \begin{bmatrix}1&1\\0&0\end{bmatrix} = A$ \checkmark
+\end{workedexample}
+
+\bigskip
+\textbf{Main Corollaries:}
+\begin{enumerate}
+  \item \textbf{Geometric interpretation.} Any linear transformation is: a rotation ($V^T$), followed by a stretch/compression along coordinate axes ($\Sigma$), followed by another rotation ($U$). In other words, every matrix just rotates and stretches---nothing more.
+
+  \item \textbf{Rank-1 decomposition.} Any matrix can be written as a sum of rank-1 matrices:
+  \[
+  A = \sum_{i=1}^{r} \sigma_i u_i v_i^T
+  \]
+  Each $u_i v_i^T$ is an $m \times n$ matrix of rank 1, and the singular values $\sigma_i$ tell you how ``important'' each component is. The first term $\sigma_1 u_1 v_1^T$ is the best rank-1 approximation to $A$.
+\end{enumerate}
+
+\subsection{Moore--Penrose Pseudoinverse}
+
+\begin{intuitionbox}
+The pseudoinverse $A^\dagger$ generalizes the concept of a matrix inverse to \textit{all} matrices, including non-square and singular ones. Applying $A^\dagger$ to $b$ gives you the least-squares solution of minimum norm---the ``best'' solution in every sense.
+\end{intuitionbox}
+
+Any matrix $A \in F^{m \times n}$ has a unique \textbf{pseudoinverse}.
+
+\textbf{Derivation using SVD.} Start with $Ax = b$ and substitute $A = U\Sigma V^T$:
+\[
+U\Sigma V^T x = b \implies \Sigma V^T x = U^T b \quad \text{(multiply both sides by $U^T$, since $U^T U = I$)}
+\]
+
+Define the pseudoinverse of $\Sigma$:
+\[
+\Sigma^\dagger := \begin{bmatrix} [\Sigma_r^{-1}]_{r \times r} & [0]_{r \times (m-r)} \\ [0]_{(n-r) \times r} & [0]_{(n-r) \times (m-r)} \end{bmatrix}
+\]
+
+\begin{remark}
+$\Sigma^\dagger$ is $n \times m$ (the transpose dimensions of $\Sigma$). It just takes the reciprocal of each nonzero diagonal entry and transposes the shape. For example, if $\Sigma = \begin{bmatrix}3 & 0\\0 & 2\\0 & 0\end{bmatrix}$ then $\Sigma^\dagger = \begin{bmatrix}1/3 & 0 & 0\\0 & 1/2 & 0\end{bmatrix}$.
+\end{remark}
+
+Multiply both sides of $\Sigma V^T x = U^T b$ by $\Sigma^\dagger$:
+\[
+\Sigma^\dagger \Sigma V^T x = \begin{bmatrix} I_{r} & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} V_r^T \\ V_{n-r}^T \end{bmatrix} x = \begin{bmatrix} V_r^T x \\ 0 \end{bmatrix} = \Sigma^\dagger U^T b
+\]
+
+Multiply by $V$ on the left:
+\[
+V_r V_r^T x = V\Sigma^\dagger U^T b
+\]
+
+where $V_r V_r^T = \proj_{\Col(V_r)}$ is the projection onto the first $r$ columns of $V$.
+
+One can show that $\Col(V_r) = \Col(A^T)$, so:
+\[
+\tilde{x} = V\Sigma^\dagger U^T b \qquad \tilde{x} \in \Col(A^T)
+\]
+
+From our study of minimum norm solutions, the unique solution in $\Col(A^T)$ is exactly the minimum norm solution:
+\[
+\boxed{A^\dagger := V\Sigma^\dagger U^T, \qquad \underline{x} = A^\dagger b}
+\]
+
+\medskip
+\textbf{Least-squares connection.} Nowhere in our derivation did we assume $b \in \Col(A)$! The pseudoinverse automatically projects $b$ onto the column space. To verify, check that $x^\dagger = A^\dagger b$ satisfies the normal equations $A^T(Ax^\dagger - b) = 0$:
+
+\begin{align*}
+A^T(Ax^\dagger - b) &= V\Sigma^T U^T(U\Sigma V^T A^\dagger b - b) \\
+&= V\Sigma^T \Sigma \Sigma^\dagger U^T b - V\Sigma^T U^T b
+\end{align*}
+
+Using $\Sigma^T \Sigma \Sigma^\dagger = \begin{bmatrix} \Sigma_r & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} I & 0 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} \Sigma_r & 0 \\ 0 & 0 \end{bmatrix} = \Sigma^T$:
+\[
+= V\Sigma^T U^T b - V\Sigma^T U^T b = 0 \quad \checkmark
+\]
+
+So the pseudoinverse also gets us the least-squares solution!
+
+\medskip
+\textbf{Summary.} The pseudoinverse gives the least-squares solution of minimum norm:
+\[
+\boxed{x^\dagger = A^\dagger b = \arg\min_{x \in \mathcal{S}_{\text{lstq}}} \|x\|_2}
+\]
+
+\newpage
+%% ============================================================
+%% SECTION 4: CLASSIFICATIONS OF MATRICES
+%% ============================================================
+\section{Classifications of Matrices}
+
+\subsection{Orthogonal Matrices}
+
+\begin{intuitionbox}
+An \textbf{orthogonal matrix} represents a ``rigid motion''---a rotation (or reflection). It preserves lengths and angles. If you rotate an object, distances between points don't change; orthogonal matrices are the mathematical version of this.
+\end{intuitionbox}
+
+\begin{definition}[Orthogonal Matrix]
+An \textbf{orthogonal matrix} $Q \in F^{n \times n}$ is a square matrix with orthonormal columns.
+\[
+Q^T Q = QQ^T = I
+\]
+(rows are orthonormal too!)
+\end{definition}
+
+\begin{remark}
+This means $Q^{-1} = Q^T$---the inverse is just the transpose! This makes orthogonal matrices extremely convenient computationally.
+\end{remark}
+
+Orthogonal matrices correspond to linear isometries (distance/angle-preserving):
+\[
+\|Qx\|_2 = \|x\|_2
+\]
+
+\begin{remark}[Why does $Q$ preserve length?]
+\[
+\|Qx\|^2 = (Qx)^T(Qx) = x^T \underbrace{Q^T Q}_{=\,I} x = x^T x = \|x\|^2
+\]
+\end{remark}
+
+\begin{workedexample}[title=\textbf{Worked Example: A 2D rotation matrix}]
+The matrix $Q = \begin{bmatrix}\cos\theta & -\sin\theta\\\sin\theta & \cos\theta\end{bmatrix}$ rotates vectors by angle $\theta$. For $\theta = 90°$:
+\[
+Q = \begin{bmatrix}0 & -1\\1 & 0\end{bmatrix}, \quad Q^T = \begin{bmatrix}0 & 1\\-1 & 0\end{bmatrix}
+\]
+\[
+Q^T Q = \begin{bmatrix}0 & 1\\-1 & 0\end{bmatrix}\begin{bmatrix}0 & -1\\1 & 0\end{bmatrix} = \begin{bmatrix}1 & 0\\0 & 1\end{bmatrix} = I \quad \checkmark
+\]
+\end{workedexample}
+
+\textbf{Non-square case.} If a matrix $Q \in F^{m \times n}$ ($m > n$) has orthonormal columns but is not square, then:
+\[
+Q^T Q = I_n \qquad \text{(still holds---$n \times n$ identity)}
+\]
+\[
+QQ^T \neq I_m \qquad \text{(not the $m \times m$ identity!)}
+\]
+
+Instead, $QQ^T$ acts as the \textbf{projection} onto the column space of $Q$:
+\[
+QQ^T x = \proj_{\Col(Q)} x
+\]
+
+\begin{remark}[Why $QQ^T \neq I_m$?]
+Since $Q$ is $m \times n$ with $m > n$, $\rank(QQ^T) \leq \rank(Q) = n < m = \rank(I_m)$, so $QQ^T$ cannot equal $I_m$. It ``projects away'' the $m - n$ dimensions not covered by the columns of $Q$.
+\end{remark}
+
+\subsection{Symmetric Matrices}
+
+\begin{definition}[Symmetric Matrix]
+A matrix $S \in F^{n \times n}$ is said to be \textbf{symmetric} if $S = S^T$.
+\end{definition}
+
+\begin{intuitionbox}
+Symmetric matrices are the ``nicest'' square matrices. The spectral theorem guarantees they can always be diagonalized with an orthonormal basis of eigenvectors, and all their eigenvalues are real numbers.
+\end{intuitionbox}
+
+\begin{theorem}[Spectral Theorem]
+All symmetric matrices have real eigenvalues and a full set of orthonormal eigenvectors (are orthonormally diagonalizable).
+\end{theorem}
+
+\begin{remark}
+Concretely, if $S$ is symmetric, then $S = Q\Lambda Q^T$ where $Q$ is orthogonal (its columns are the eigenvectors) and $\Lambda$ is a real diagonal matrix (the eigenvalues). Compare with general diagonalization $A = V\Lambda V^{-1}$: for symmetric matrices, $V$ is orthogonal so $V^{-1} = V^T$, which is much simpler.
+\end{remark}
+
+The fact that $AA^T$ and $A^T A$ are symmetric (verify: $(AA^T)^T = (A^T)^T A^T = AA^T$) guarantees existence of an SVD for any matrix.
+
+These matrices are the workhorse of EECS 127!
+
+\newpage
+%% ============================================================
+%% SECTION 5: EXTRA RESOURCES
+%% ============================================================
+\section{Extra Resources}
+
+What we didn't cover (non-exhaustive):
+\begin{itemize}[nosep]
+  \item Projection Matrices
+  \item QR Decomposition
+  \item LU Decomposition
+  \item Low Rank Factorization
+  \item Change of Basis
+  \item Cholesky Decomposition
+\end{itemize}
+
+\medskip
+Here are some extra resources to dive deeper:
+\begin{itemize}[nosep]
+  \item \textit{Applied Linear Algebra} (Olver and Shakiban)
+  \item \textit{Introduction to Applied Linear Algebra -- Vectors, Matrices, and Least Squares} (Boyd and Vandenberghe)
+  \item 3Blue1Brown's ``Essence of Linear Algebra''
+  \item EECS 127 Course Reader
+\end{itemize}
+
+\end{document}

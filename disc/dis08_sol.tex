@@ -1,0 +1,175 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Discussion 8}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries EECS 127/227AT \hfill Optimization Models in Engineering \hfill UC Berkeley}\\[4pt]
+{\Large\bfseries Discussion 8} \hfill {\large Spring 2026}
+\end{center}
+
+\vspace{1em}
+
+\section{Convexity and Composition of Functions}
+
+Let $f : \RR \to \RR$ and $g : \RR^n \to \RR$. Define the composition of $f$ with $g$ as $h = f \circ g : \RR^n \to \RR$ such that
+$h(\vec{x}) = f(g(\vec{x}))$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that if $f$ is convex and non decreasing and $g$ is convex, then $h$ is convex.
+
+    \textbf{Solution:}
+    \begin{align}
+        h(\lambda \vec{x} + (1 - \lambda)\vec{y}) &= f(g(\lambda \vec{x} + (1 - \lambda)\vec{y})) \\
+        &\leq f(\lambda g(\vec{x}) + (1 - \lambda)(g(\vec{y}))) \qquad (g \text{ convex and } f \text{ nondecreasing}) \\
+        &\leq \lambda f(g(\vec{x})) + (1 - \lambda) f(g(\vec{y})) \qquad (f \text{ convex}) \\
+        &= \lambda h(\vec{x}) + (1 - \lambda) h(\vec{y})
+    \end{align}
+    So $h$ is convex.
+
+    \item Show that there exists $f$ non decreasing and $g$ convex, such that $h = f \circ g$ is not convex.
+
+    \textbf{Solution:} Take $n = 1$, $f(x) = \log(x)$ and $g(x) = x$. Then $h(x) = \log(x)$ is not convex.
+
+    \item Show that there exists $f$ convex and $g$ convex such that $h = f \circ g$ is not convex.
+
+    \textbf{Solution:} Take $n = 1$, $f(x) = -x$ and $g(x) = x^2$, then $h(x) = -x^2$ is not convex.
+\end{enumerate}
+
+\newpage
+
+\section{Simple Constrained Optimization Problem}
+
+Consider the optimization problem
+\begin{alignat}{3}
+    &\min_{x_1, x_2 \in \RR} &\quad& f(x_1, x_2) \\
+    &\text{s.t.} && 2x_1 + x_2 \geq 1 \\
+    &&& x_1 + 3x_2 \geq 1 \\
+    &&& x_1 \geq 0,\; x_2 \geq 0
+\end{alignat}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Make a sketch of the feasible set.
+
+    \textbf{Solution:} See figure (the feasible set is the region satisfying all four inequality constraints simultaneously).
+\end{enumerate}
+
+For each of the following objective functions, give the optimal set or the optimal value.
+
+\begin{enumerate}[label=(\alph*), resume]
+    \item $f(x_1, x_2) = x_1 + x_2$.
+
+    \textbf{Solution:}
+
+    For this subpart we may use the fact that $\nabla f$ is the constant vector $\begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
+
+    \textbf{Solution 1}
+
+    If there is an optimal point, it can be in one of several regions of the drawing depending on what subset of the four constraints are active. A simple but inefficient approach is to consider each of these possible constraint sets.
+
+    For example, if an optimal point $\vec{x}^\star$ is in the interior of the feasible set -- that is, if no constraints are active -- that leads to a contradiction. In this case, we can move a small distance in any direction and remain feasible. Therefore, there exists some $\epsilon > 0$ such that $f\!\left(\vec{x}^\star - \epsilon \begin{bmatrix} 1 \\ 1 \end{bmatrix}\right) < f(\vec{x}^\star)$ and $\vec{x}^\star - \epsilon \begin{bmatrix} 1 \\ 1 \end{bmatrix}$ is in the feasible set.
+
+    For the other active constraint sets, we can treat the active constraints as equalities and use this to reduce the dimensionality of the problem. If there is one active constraint, we can use it to express $x_2$ in terms of $x_1$ or vice versa, obtaining an optimization problem over a single variable, which is easy to solve. In the cases where there are two active constraints, we will find that we can solve this linear system to find a single feasible vertex corresponding to that active constraint set. This approach lets us reject possible active constraint sets when the optimum of the single-variable problem is infeasible or when the objective function evaluated at a vertex is greater than the objective at some other feasible point.
+
+    Repeating this argument for all possible constraint sets will narrow down the possibilities of what can be the optimal point. Eventually we will see that the first two constraints must be active, which gives a linear system with two equations. Solving gives us that $\vec{x}^\star$ must be $x_1^\star = \tfrac{2}{5}$ and $x_2^\star = \tfrac{1}{5}$.
+
+    If we have eliminated all other possibilities, we still need to show that at least one optimal point exists in order to conclude that the candidate $\vec{x}^\star$ is optimal. There are multiple ways to show this, but all will use the fact that we cannot infinitely decrease the objective while remaining in the feasible set.
+
+    \textbf{Solution 2}
+
+    Alternatively, by looking at the drawing we can immediately guess that the solution is such that $x_1^\star = \tfrac{2}{5}$ and $x_2^\star = \tfrac{1}{5}$.
+
+    To prove that our guess $\vec{x}^\star$ is correct, we must show that for all other feasible points $\vec{x}$, $f(\vec{x}) \geq f(\vec{x}^\star)$. Since $f$ is convex and differentiable, the first order convexity condition holds:
+    \begin{equation}
+        f(\vec{x}) \geq f(\vec{x}^\star) + (\nabla f(\vec{x}^\star))^\top (\vec{x} - \vec{x}^\star)
+    \end{equation}
+
+    The problem then reduces to checking that the entire feasible set lies within the half-space where $(\nabla f(\vec{x}^\star))^\top (\vec{x} - \vec{x}^\star)$ is nonnegative. In the case of this problem, it is sufficient to individually check the two boundaries of the feasible set that intersect at that vertex.
+
+    \textbf{Solution 3}
+
+    Later we will see that this problem can be solved using strong duality.
+
+    \textbf{Solution 4}
+
+    This optimization problem is a linear program. We will see later that either an LP is infeasible, the objective of the LP is unbounded below, or the optimum is achieved at a vertex of the feasible set. This justifies an approach that first refutes that the objective is unbounded below, and then checks the value of $f$ at each vertex. However, we cannot use this approach in the other subparts of this question that do not involve LPs.
+
+    \item $f(x_1, x_2) = -x_1 - x_2$.
+
+    \textbf{Solution:} Here the problem is unbounded below because if $(x_1, x_2) = t(1,1)$ with $t \geq 0$ then $(x_1, x_2)$ is always feasible and $-2t \to -\infty$ when $t \to \infty$.
+
+    \item $f(x_1, x_2) = x_1$
+
+    \textbf{Solution:} The set of solutions is $S = \{\vec{x} : x_1 = 0 \text{ and } x_2 \geq 1\}$. This can be shown using similar arguments to what we used for 2(b).
+
+    \item $f(x_1, x_2) = \max\{x_1, x_2\}$
+
+    \textbf{Solution:}
+
+    We will show that the solution is such that:
+    \begin{equation}
+        x_1^\star = x_2^\star = \frac{1}{3}.
+    \end{equation}
+    This should make sense based on what we see in the figure.
+
+    \textbf{Solution 1}
+
+    For the parts of the feasible set where $\nabla f$ is defined, we can use similar arguments to what we used in 2(b). In particular, although $f$ is not differentiable everywhere, the first order condition still follows from convexity of $f$ for any specific $\vec{x}^\star$ where $f$ is differentiable, so we can still use it to obtain bounds of $f(\vec{x})$ in terms of $f(\vec{x}^\star)$.
+
+    However, we must separately consider the $x_1 = x_2$ line where $\nabla f$ is undefined because that is where our preceding arguments cannot refute that there may be an optimum there. Finding the intersection between that line and the first constraint gives us a candidate solution, which we can argue to be optimal by process of elimination, as we did in 2(b).
+
+    \textbf{Solution 2}
+
+    Another technique for handling the non-differentiable objective function is to use a slack variable. The problem is equivalent to
+    \begin{alignat}{3}
+        &\min_{x_1, x_2, t} &\quad& t \\
+        &\text{s.t.} && t \geq x_1,\; t \geq x_2 \\
+        &&& 2x_1 + x_2 \geq 1 \\
+        &&& x_1 + 3x_2 \geq 1 \\
+        &&& x_1 \geq 0,\; x_2 \geq 0
+    \end{alignat}
+    Here we can use the first order condition to check optimality conditions.
+
+    \item $f(x_1, x_2) = x_1^2 + 9x_2^2$
+
+    \textbf{Solution:}
+
+    Using the drawing, it seems that the solution lies on the boundary where only the second constraint ($x_1 + 3x_2 \geq 1$) is active.
+
+    The same approaches as discussed in the solution to 2(b) are applicable here. In particular, we can use the active constraint to express one of $x_2$ or $x_1$ in terms of the other, and then solve the resulting single-variable optimization problem. Then, we can use either process of elimination or the first order condition for convexity to conclude that this solution is indeed optimal.
+\end{enumerate}
+
+\vfill
+\noindent\textcopyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+
+\end{document}

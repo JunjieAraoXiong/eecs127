@@ -21,8 +21,12 @@
 %------------------------------------------------------------------------------
 % SPACING
 %------------------------------------------------------------------------------
-\linespread{1.08}
-\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+\linespread{1.18}
+\setlength{\parskip}{0.8ex plus 0.3ex minus 0.1ex}
+\setlength{\abovedisplayskip}{8pt plus 3pt minus 3pt}
+\setlength{\belowdisplayskip}{8pt plus 3pt minus 3pt}
+\setlength{\abovedisplayshortskip}{4pt plus 2pt}
+\setlength{\belowdisplayshortskip}{4pt plus 2pt}
 
 %------------------------------------------------------------------------------
 % BOX STYLES
@@ -32,8 +36,9 @@
     colback=white,
     colframe=black,
     arc=0pt,
-    boxsep=3pt,
-    left=4pt, right=4pt, top=4pt, bottom=4pt
+    boxsep=4pt,
+    left=5pt, right=5pt, top=6pt, bottom=6pt,
+    before skip=8pt, after skip=8pt
 }
 
 \newtcolorbox{result}{
@@ -41,8 +46,9 @@
     colback=black!5,
     colframe=white,
     arc=0pt,
-    boxsep=2pt,
-    left=4pt, right=4pt, top=4pt, bottom=4pt
+    boxsep=3pt,
+    left=5pt, right=5pt, top=6pt, bottom=6pt,
+    before skip=8pt, after skip=8pt
 }
 
 %------------------------------------------------------------------------------
@@ -50,13 +56,13 @@
 %------------------------------------------------------------------------------
 \titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
-\titlespacing*{\section}{0pt}{1.5ex}{1ex}
-\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+\titlespacing*{\section}{0pt}{2.5ex plus 0.5ex}{1.5ex plus 0.3ex}
+\titlespacing*{\subsection}{0pt}{2.0ex plus 0.4ex}{1.0ex plus 0.2ex}
 
 %------------------------------------------------------------------------------
 % LIST FORMATTING
 %------------------------------------------------------------------------------
-\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+\setlist{itemsep=3pt, topsep=6pt, parsep=2pt, leftmargin=1.5em}
 
 %------------------------------------------------------------------------------
 % HEADER/FOOTER
@@ -184,6 +190,26 @@ Any vector $(a, b) \in \RR^2$ decomposes as:
 \]
 Notice that $(a,0) \cdot (0,b) = 0$, confirming orthogonality.
 \end{example}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9, >=Stealth]
+    \draw[->] (-0.5,0) -- (3.2,0) node[right] {\small $x_1$};
+    \draw[->] (0,-0.5) -- (0,2.5) node[above] {\small $x_2$};
+    % Subspace S (x-axis), shaded lightly
+    \fill[blue!6] (-0.4,-0.08) rectangle (3.0,0.08);
+    \node[below right, blue!60!black] at (2.8,-0.15) {\scriptsize $S$};
+    % Vector (a,b) = (2,1.8)
+    \draw[->, very thick] (0,0) -- (2,1.8) node[above right=-1pt] {\small $(a,b)$};
+    % Projection onto S: (a,0) = (2,0)
+    \draw[->, thick, blue!70!black] (0,0) -- (2,0) node[below] {\small $(a,0) \in S$};
+    % Perpendicular component: (0,b) = (0,1.8)
+    \draw[->, thick, red!70!black] (2,0) -- (2,1.8) node[midway, right=2pt] {\small $(0,b) \in S^\perp$};
+    % Dashed drop line
+    \draw[dashed, thin, black!40] (2,1.8) -- (2,0);
+    % Right-angle marker
+    \draw[thin] (2,0.18) -- (1.82,0.18) -- (1.82,0);
+\end{tikzpicture}
+\end{center}
 
 We now turn to how matrices decompose $\RR^n$ and $\RR^m$ into orthogonal pieces.
 
@@ -324,6 +350,35 @@ Every $x \in \RR^n$ uniquely decomposes into null space and row space components
 \textbf{Rank-Nullity:} The decomposition implies $\dim(\NN(A)) + \text{rank}(A) = n$.
 \end{tcolorbox}
 
+\textit{Geometric picture: decomposing $b$ relative to the column space.}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.85, >=Stealth]
+    % Column space (tilted plane shown as a line in 2D cross-section)
+    \draw[thick, blue!60!black] (-1.0,-0.5) -- (2.5,1.25) node[right] {\small $\Range(A)$};
+    % b vector
+    \draw[->, very thick] (0,0) -- (1.5,2.2) node[above right=-1pt] {\small $\vec{b}$};
+    % b_parallel (projection onto column space)
+    % Project (1.5, 2.2) onto direction (1, 0.5): t = (1.5+1.1)/(1+0.25) = 2.6/1.25 = 2.08
+    % P = 2.08*(1,0.5)/|(1,0.5)| ... let's just use a nice point
+    \coordinate (bpar) at (1.8, 0.9);
+    \draw[->, thick, blue!70!black] (0,0) -- (bpar) node[below right=-1pt] {\small $b_\parallel = A\hat{x}$};
+    % b_perp (residual)
+    \draw[->, thick, red!70!black] (bpar) -- (1.5,2.2) node[midway, right=3pt] {\small $b_\perp \in \NN(A^\top)$};
+    % Dashed drop
+    \draw[dashed, thin, black!40] (1.5,2.2) -- (bpar);
+    % Right-angle marker at bpar
+    % Direction along R(A): (1,0.5)/|...| ≈ (0.894, 0.447)
+    % Perp direction: (-0.447, 0.894)
+    \coordinate (Ra) at ($(bpar) + 0.13*(-0.447, 0.894)$);
+    \coordinate (Rb) at ($(bpar) + 0.13*(-0.447, 0.894) + 0.13*(0.894, 0.447)$);
+    \coordinate (Rc) at ($(bpar) + 0.13*(0.894, 0.447)$);
+    \draw[thin] (Ra) -- (Rb) -- (Rc);
+    % Origin label
+    \fill (0,0) circle (1pt);
+\end{tikzpicture}
+\end{center}
+
 %==============================================================================
 \section{Proof: $\NN(A) = \Range(A^\top)^\perp$}
 %==============================================================================
@@ -432,6 +487,46 @@ For completeness, we outline the analogous proof.
 \textbf{Part (b): $\Range(A)^\perp \subseteq \NN(A^\top)$.} Let $y \in \Range(A)^\perp$. Then $\langle y, Ax \rangle = 0$ for all $x$, so $\langle A^\top y, x \rangle = 0$ for all $x$. Choosing $x = A^\top y$ gives $A^\top y = 0$. $\square$
 
 %==============================================================================
+\section{Orthogonal Projection Matrices}
+%==============================================================================
+
+The FTLA tells us every vector decomposes into orthogonal components. The \textbf{projection matrix} implements this decomposition.
+
+\begin{definition}[Orthogonal Projection]
+Given a subspace $S$ with orthonormal basis $\{q_1, \ldots, q_k\}$, the \textbf{orthogonal projection} onto $S$ is:
+\[
+    P_S x = \sum_{i=1}^{k} \langle x, q_i \rangle q_i = QQ^\top x
+\]
+where $Q = [q_1, \ldots, q_k]$ has orthonormal columns ($Q^\top Q = I_k$).
+\end{definition}
+
+\begin{result}
+\textbf{Properties of $P = QQ^\top$:}
+\begin{enumerate}[label=(\roman*)]
+    \item $P^2 = P$ \quad (idempotent: projecting twice = projecting once)
+    \item $P^\top = P$ \quad (symmetric)
+    \item $\Range(P) = S$, \quad $\NN(P) = S^\perp$
+    \item $I - P$ projects onto $S^\perp$
+\end{enumerate}
+\end{result}
+
+\begin{proof}[Verification]
+(i) $P^2 = QQ^\top Q Q^\top = Q I_k Q^\top = QQ^\top = P$. (ii) $(QQ^\top)^\top = QQ^\top$. (iii) $Px = QQ^\top x \in \Range(Q) = S$. If $Px = 0$, then $Q^\top x = 0$, so $x \perp$ each $q_i$, giving $x \in S^\perp$. (iv) $(I-P)x = x - Px$ is the $S^\perp$ component.
+\end{proof}
+
+For a general (non-orthonormal) basis $A$ of $S$, the projection is:
+\begin{result}
+\[
+    P_S = A(A^\top A)^{-1}A^\top
+\]
+This reduces to $QQ^\top$ when $A$ has orthonormal columns.
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50, title={\small Connection to Least Squares}]
+The least squares solution $\hat{x} = (A^\top A)^{-1}A^\top b$ gives the projection $P_{\Range(A)} b = A\hat{x} = A(A^\top A)^{-1}A^\top b$. Projection and least squares are the \emph{same operation}.
+\end{tcolorbox}
+
+%==============================================================================
 \section{Application: Minimum-Norm Solutions}
 %==============================================================================
 
@@ -506,6 +601,41 @@ Note: $(1, -1)^\top \in \NN(A)$ and $(1, 1)^\top \in \Range(A^\top)$.
 This is the point on the solution line closest to the origin---the null space component has been ``killed.''
 \end{example}
 
+\textit{Geometric picture: the solution line and the minimum-norm point.}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.75, >=Stealth]
+    \draw[->] (-0.8,0) -- (3.2,0) node[right] {\small $x_1$};
+    \draw[->] (0,-0.8) -- (0,3.2) node[above] {\small $x_2$};
+    % Solution line: x1 + x2 = 2, i.e., x2 = 2 - x1
+    % From (0,2) to (2.5, -0.5) -- clip to nice range
+    \draw[thick, black!50] (-0.3, 2.3) -- (2.8, -0.8) node[right] {\scriptsize $x_1+x_2=2$};
+    % Null space direction (1,-1) shown as dashed through origin
+    \draw[dashed, thin, black!30] (-0.5,0.5) -- (1.5,-1.5);
+    \node[below, black!50] at (1.5,-1.5) {\scriptsize $\NN(A)$};
+    % Row space direction (1,1) shown as dashed through origin
+    \draw[dashed, thin, blue!40] (-0.3,-0.3) -- (1.8,1.8);
+    \node[above left, blue!60!black] at (1.6,1.6) {\scriptsize $\Range(A^\top)$};
+    % x* = (1,1) at intersection of row space line and solution line
+    \fill[black] (1,1) circle (2pt);
+    \node[above right] at (1,1) {\small $\vec{x}^\star = (1,1)$};
+    % Vector from origin to x*
+    \draw[->, very thick] (0,0) -- (0.95,0.95);
+    % Another solution point, e.g., (0,2)
+    \fill[black!40] (0,2) circle (1.5pt);
+    \node[left, black!50] at (0,2) {\scriptsize $(0,2)$};
+    % Another solution point, e.g., (2,0)
+    \fill[black!40] (2,0) circle (1.5pt);
+    \node[below, black!50] at (2,0) {\scriptsize $(2,0)$};
+    % Right-angle marker at x* (row space meets solution line perpendicularly)
+    % Row space dir: (0.707, 0.707), solution line dir: (0.707, -0.707)
+    \draw[thin] (1.0, 0.85) -- (0.85, 0.85) -- (0.85, 1.0);
+    % Origin
+    \fill (0,0) circle (1.5pt);
+    \node[below left] at (0,0) {\scriptsize $0$};
+\end{tikzpicture}
+\end{center}
+
 %==============================================================================
 
 \vfill
@@ -526,6 +656,8 @@ This is the point on the solution line closest to the origin---the null space co
     \item \textbf{Solvability test.} $Ax = b$ solvable $\Leftrightarrow$ $b \in \Range(A)$ $\Leftrightarrow$ $b \perp \NN(A^\top)$.
 
     \item \textbf{Minimum-norm solutions.} For underdetermined systems: the FTLA shows the optimal $x^\star$ lies in $\Range(A^\top)$. Formula: $x^\star = A^\top(AA^\top)^{-1}b$.
+
+    \item \textbf{Looking ahead: SVD.} The four fundamental subspaces are precisely the column spaces and null spaces of $U$, $\Sigma$, $V$ in the singular value decomposition $A = U\Sigma V^\top$---the subject of a later lecture.
 \end{enumerate}
 
 \end{document}

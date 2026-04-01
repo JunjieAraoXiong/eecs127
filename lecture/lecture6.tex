@@ -1,0 +1,441 @@
+%==============================================================================
+% EECS 127 - Lecture 6: Vector Calculus
+%==============================================================================
+
+\documentclass[10pt, twocolumn]{article}
+\usepackage[margin=0.75in, columnsep=0.3in]{geometry}
+
+%------------------------------------------------------------------------------
+% REQUIRED PACKAGES
+%------------------------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc}
+
+%------------------------------------------------------------------------------
+% SPACING
+%------------------------------------------------------------------------------
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+%------------------------------------------------------------------------------
+% BOX STYLES
+%------------------------------------------------------------------------------
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+%------------------------------------------------------------------------------
+% HEADER/FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Lecture 6}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\spn}{span}
+
+%==============================================================================
+
+\begin{document}
+
+\noindent
+\begin{minipage}{\linewidth}
+    \centering
+    \textbf{\Large Lecture 6: Vector Calculus} \\[0.5em]
+    \hrule
+\end{minipage}
+\vspace{1em}
+
+% Textbook: Chapter 3, Section 3.1
+
+In optimization, we need to understand how functions change as we vary their inputs. For scalar functions $f: \RR \to \RR$, this is captured by the derivative. In this lecture, we generalize derivatives to two settings:
+\begin{enumerate}
+    \item \textbf{Multivariate functions} $f: \RR^n \to \RR$ (vector in, scalar out)
+    \item \textbf{Vector-valued functions} $\vec{f}: \RR^n \to \RR^m$ (vector in, vector out)
+\end{enumerate}
+
+We start by recalling the scalar derivative and chain rule, then build up to the gradient, Jacobian, and Hessian.
+
+%==============================================================================
+\section{Scalar Derivatives}
+%==============================================================================
+
+\begin{definition}[Derivative for Scalar Functions]
+Let $f: \RR \to \RR$ be differentiable. The \textbf{derivative} of $f$ with respect to $x$ is:
+\[
+    \frac{\mathrm{d}f}{\mathrm{d}x}(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}.
+\]
+\end{definition}
+
+\begin{theorem}[Chain Rule for Scalar Functions]
+Let $f, g: \RR \to \RR$ be differentiable and $h(x) = f(g(x))$. Then:
+\begin{result}
+\[
+    \frac{\mathrm{d}h}{\mathrm{d}x}(x) = \frac{\mathrm{d}f}{\mathrm{d}g}(g(x)) \cdot \frac{\mathrm{d}g}{\mathrm{d}x}(x).
+\]
+\end{result}
+\end{theorem}
+
+%==============================================================================
+\section{Partial Derivatives}
+%==============================================================================
+
+For multivariate functions $f: \RR^n \to \RR$, we need to specify \emph{which} input we are differentiating with respect to. A partial derivative measures the rate of change of $f$ due to one input $x_i$, while holding all other inputs fixed.
+
+\begin{definition}[Partial Derivative]
+Let $f: \RR^n \to \RR$ be differentiable. The \textbf{partial derivative} of $f$ with respect to $x_i$ is:
+\[
+    \frac{\partial f}{\partial x_i}(\vec{x}) = \lim_{h \to 0} \frac{f(\vec{x} + h \vec{e}_i) - f(\vec{x})}{h}
+\]
+where $\vec{e}_i$ is the $i$th standard basis vector.
+\end{definition}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Problem solving strategy:} To compute $\frac{\partial f}{\partial x_i}$, pretend that all $x_j$ for $j \neq i$ are constants, then take the ordinary derivative in $x_i$.
+\end{tcolorbox}
+
+\begin{theorem}[Chain Rule for Multivariate Functions]
+Let $f: \RR^n \to \RR$ and $\vec{g}: \RR \to \RR^n$ be differentiable. Define $h(x) = f(\vec{g}(x))$. Then:
+\begin{result}
+\[
+    \frac{\mathrm{d}h}{\mathrm{d}x}(x) = \sum_{i=1}^{n} \frac{\partial f}{\partial g_i}(\vec{g}(x)) \cdot \frac{\mathrm{d}g_i}{\mathrm{d}x}(x).
+\]
+\end{result}
+\end{theorem}
+
+%==============================================================================
+\section{Gradient}
+%==============================================================================
+
+The gradient collects all partial derivatives into a single vector.
+
+\begin{tcolorbox}
+\textbf{Definition} (Gradient):
+
+Let $f: \RR^n \to \RR$ be differentiable. The \textbf{gradient} of $f$ is the function $\nabla f: \RR^n \to \RR^n$ defined by:
+\[
+    \nabla f(\vec{x}) = \begin{pmatrix} \frac{\partial f}{\partial x_1}(\vec{x}) \\ \vdots \\ \frac{\partial f}{\partial x_n}(\vec{x}) \end{pmatrix}.
+\]
+Note: the gradient is a \textbf{column vector}.
+\end{tcolorbox}
+
+%------------------------------------------------------------------------------
+\subsection{Geometric Properties of the Gradient}
+%------------------------------------------------------------------------------
+
+\begin{theorem}[Steepest Ascent]
+The gradient $\nabla f(\vec{x})$ points in the direction of \textbf{steepest ascent} at $\vec{x}$, i.e., the direction in which $f$ increases most rapidly. The rate of change in this direction is $\|\nabla f(\vec{x})\|_2$.
+\end{theorem}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{For optimization:} Since $\nabla f$ points uphill, $-\nabla f$ points \emph{downhill}. This is the basis of \textbf{gradient descent}: to minimize $f$, take steps in the direction $-\nabla f(\vec{x})$.
+\end{tcolorbox}
+
+\begin{definition}[Level Set]
+Let $f: \RR^n \to \RR$ and $\alpha \in \RR$.
+\begin{itemize}
+    \item The $\alpha$-\textbf{level set}: $L_\alpha(f) = \{\vec{x} \in \RR^n : f(\vec{x}) = \alpha\}$.
+    \item The $\alpha$-\textbf{sublevel set}: $L_{\le \alpha}(f) = \{\vec{x} \in \RR^n : f(\vec{x}) \le \alpha\}$.
+    \item The $\alpha$-\textbf{superlevel set}: $L_{\ge \alpha}(f) = \{\vec{x} \in \RR^n : f(\vec{x}) \ge \alpha\}$.
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Gradient is Orthogonal to Level Sets]
+Let $\vec{x} \in \RR^n$ with $f(\vec{x}) = \alpha$. Then $\nabla f(\vec{x})$ is orthogonal to the tangent hyperplane of the $\alpha$-level set at $\vec{x}$.
+\end{theorem}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Geometric picture:} Level sets are ``contour lines'' of $f$. The gradient is always perpendicular to these contours, pointing toward higher values of $f$. This is consistent with steepest ascent: the fastest way to increase $f$ is to move perpendicular to the contours.
+\end{tcolorbox}
+
+%------------------------------------------------------------------------------
+\subsection{Important Gradient Examples}
+%------------------------------------------------------------------------------
+
+\begin{example}[Gradient of $\|\vec{x}\|_2^2$]
+Let $f(\vec{x}) = \|\vec{x}\|_2^2 = x_1^2 + \cdots + x_n^2$. Then:
+\begin{result}
+\[
+    \nabla f(\vec{x}) = 2\vec{x}.
+\]
+\end{result}
+\end{example}
+
+\textit{Sanity check:} Each partial derivative is $\frac{\partial}{\partial x_i}(x_1^2 + \cdots + x_n^2) = 2x_i$. Stacking gives $2\vec{x}$. \checkmark
+
+\begin{example}[Gradient of $\vec{a}^\top \vec{x}$]
+Let $f(\vec{x}) = \vec{a}^\top \vec{x}$ where $\vec{a} \in \RR^n$ is a fixed vector. Then:
+\begin{result}
+\[
+    \nabla f(\vec{x}) = \vec{a}.
+\]
+\end{result}
+\end{example}
+
+\textit{Sanity check:} We have $f(\vec{x}) = a_1 x_1 + \cdots + a_n x_n$, so $\frac{\partial f}{\partial x_i} = a_i$. Stacking gives $\vec{a}$. \checkmark
+
+\begin{example}[Gradient of $\vec{x}^\top A \vec{x}$]
+Let $A \in \RR^{n \times n}$ and $f(\vec{x}) = \vec{x}^\top A \vec{x}$. Then:
+\begin{result}
+\[
+    \nabla f(\vec{x}) = (A + A^\top)\vec{x}.
+\]
+\end{result}
+If $A$ is symmetric, this simplifies to $\nabla f(\vec{x}) = 2A\vec{x}$.
+\end{example}
+
+\textit{Sanity check:} For $A = I$, we get $f(\vec{x}) = \|\vec{x}\|_2^2$ and $\nabla f = 2\vec{x}$, matching the first example. \checkmark
+
+%==============================================================================
+\section{Jacobian}
+%==============================================================================
+
+The Jacobian generalizes the gradient to vector-valued functions $\vec{f}: \RR^n \to \RR^m$.
+
+\begin{tcolorbox}
+\textbf{Definition} (Jacobian):
+
+Let $\vec{f}: \RR^n \to \RR^m$ be differentiable. The \textbf{Jacobian} of $\vec{f}$ is the function $D\vec{f}: \RR^n \to \RR^{m \times n}$ defined as:
+\[
+    D\vec{f}(\vec{x}) = \begin{pmatrix} \nabla f_1(\vec{x})^\top \\ \vdots \\ \nabla f_m(\vec{x})^\top \end{pmatrix} = \begin{pmatrix} \frac{\partial f_1}{\partial x_1} & \!\cdots\! & \frac{\partial f_1}{\partial x_n} \\ \vdots & \!\ddots\! & \vdots \\ \frac{\partial f_m}{\partial x_1} & \!\cdots\! & \frac{\partial f_m}{\partial x_n} \end{pmatrix}.
+\]
+Row $i$ of the Jacobian is $\nabla f_i(\vec{x})^\top$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Jacobian vs.\ gradient:} The Jacobian of $\vec{f}: \RR^n \to \RR^m$ is an $m \times n$ matrix. When $m = 1$ (scalar output), the Jacobian is a $1 \times n$ \emph{row} vector, which is the \emph{transpose} of the gradient. So $Df(\vec{x}) = \nabla f(\vec{x})^\top$.
+\end{tcolorbox}
+
+%------------------------------------------------------------------------------
+\subsection{Chain Rule for Vector-Valued Functions}
+%------------------------------------------------------------------------------
+
+\begin{theorem}[Chain Rule]
+Let $\vec{f}: \RR^p \to \RR^m$ and $\vec{g}: \RR^n \to \RR^p$ be differentiable. Define $\vec{h}(\vec{x}) = \vec{f}(\vec{g}(\vec{x}))$. Then:
+\begin{result}
+\[
+    D\vec{h}(\vec{x}) = D\vec{f}(\vec{g}(\vec{x})) \cdot D\vec{g}(\vec{x}).
+\]
+\end{result}
+The chain rule says: the Jacobian of a composition is the \textbf{product} of the Jacobians.
+\end{theorem}
+
+\begin{corollary}[Gradient of a Composition]
+Let $f: \RR^p \to \RR$ and $\vec{g}: \RR^n \to \RR^p$ be differentiable. Define $h(\vec{x}) = f(\vec{g}(\vec{x}))$. Then:
+\begin{result}
+\[
+    \nabla h(\vec{x}) = [D\vec{g}(\vec{x})]^\top \nabla f(\vec{g}(\vec{x})).
+\]
+\end{result}
+\end{corollary}
+
+\begin{example}[Gradient of $\|A\vec{x} - \vec{y}\|_2^2$]
+Write $h(\vec{x}) = f(\vec{g}(\vec{x}))$ where $f(\vec{z}) = \|\vec{z}\|_2^2$ and $\vec{g}(\vec{x}) = A\vec{x} - \vec{y}$.
+
+\textbf{Step 1: Compute the pieces.}
+
+$\nabla f(\vec{z}) = 2\vec{z}$ and $D\vec{g}(\vec{x}) = A$.
+
+\textbf{Step 2: Apply the corollary.}
+\begin{align*}
+    \nabla h(\vec{x}) &= [D\vec{g}(\vec{x})]^\top \nabla f(\vec{g}(\vec{x})) \\
+    &= A^\top \cdot 2(A\vec{x} - \vec{y})
+\end{align*}
+\begin{result}
+\[
+    \nabla \|A\vec{x} - \vec{y}\|_2^2 = 2A^\top(A\vec{x} - \vec{y}).
+\]
+\end{result}
+\end{example}
+
+\textit{Sanity check:} Setting this gradient to $\vec{0}$ gives $A^\top A \vec{x} = A^\top \vec{y}$, which are exactly the \textbf{normal equations} from Lecture~1. \checkmark
+
+%==============================================================================
+\section{Hessian}
+%==============================================================================
+
+For multivariate functions $f: \RR^n \to \RR$, the second derivative becomes a matrix called the \textbf{Hessian}. It captures how the gradient itself changes, and plays a key role in optimization (e.g., determining whether a critical point is a minimum, maximum, or saddle point).
+
+\begin{tcolorbox}
+\textbf{Definition} (Hessian):
+
+Let $f: \RR^n \to \RR$ be twice differentiable. The \textbf{Hessian} of $f$ is $\nabla^2 f: \RR^n \to \RR^{n \times n}$ defined by:
+\[
+    \nabla^2 f(\vec{x}) = D(\nabla f)(\vec{x}) = \begin{pmatrix} \frac{\partial^2 f}{\partial x_1^2} & \!\cdots\! & \frac{\partial^2 f}{\partial x_n \partial x_1} \\ \vdots & \!\ddots\! & \vdots \\ \frac{\partial^2 f}{\partial x_1 \partial x_n} & \!\cdots\! & \frac{\partial^2 f}{\partial x_n^2} \end{pmatrix}.
+\]
+The Hessian is the \textbf{Jacobian of the gradient}.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Key relationship:}
+\begin{itemize}
+    \item Gradient $\nabla f$: first-order information (direction of steepest ascent)
+    \item Hessian $\nabla^2 f$: second-order information (curvature)
+\end{itemize}
+The Hessian tells us how the gradient changes as we move through space. This is crucial for understanding the shape of $f$ near critical points.
+\end{tcolorbox}
+
+%------------------------------------------------------------------------------
+\subsection{Symmetry of the Hessian}
+%------------------------------------------------------------------------------
+
+\begin{theorem}[Clairaut's Theorem]
+Let $f: \RR^n \to \RR$ be twice continuously differentiable. Then $\nabla^2 f(\vec{x})$ is symmetric:
+\begin{result}
+\[
+    \frac{\partial^2 f}{\partial x_i \partial x_j}(\vec{x}) = \frac{\partial^2 f}{\partial x_j \partial x_i}(\vec{x}) \quad \text{for all } i, j.
+\]
+\end{result}
+\end{theorem}
+
+This means the Hessian is always a symmetric matrix (for sufficiently smooth functions), so we can apply the spectral theorem from Lecture~4. In particular, the Hessian has real eigenvalues and orthogonal eigenvectors.
+
+%------------------------------------------------------------------------------
+\subsection{Hessian Examples}
+%------------------------------------------------------------------------------
+
+\begin{example}[Hessian of $\|\vec{x}\|_2^2$]
+For $f(\vec{x}) = \|\vec{x}\|_2^2$ with $\vec{x} \in \RR^n$, we found $\nabla f(\vec{x}) = 2\vec{x}$. Differentiating again:
+\begin{result}
+\[
+    \nabla^2 f(\vec{x}) = 2I.
+\]
+\end{result}
+\end{example}
+
+\textit{Sanity check:} The Hessian is constant (does not depend on $\vec{x}$), which makes sense because $\|\vec{x}\|_2^2$ is a quadratic function with uniform curvature. \checkmark
+
+\begin{example}[Hessian of $\vec{x}^\top A \vec{x}$]
+For $f(\vec{x}) = \vec{x}^\top A \vec{x}$ with $A$ symmetric, we found $\nabla f(\vec{x}) = 2A\vec{x}$. Differentiating again:
+\begin{result}
+\[
+    \nabla^2 f(\vec{x}) = 2A.
+\]
+\end{result}
+\end{example}
+
+\textit{Sanity check:} For $A = I$, this gives $\nabla^2 f = 2I$, matching the previous example. \checkmark
+
+\begin{example}[Hessian of $\log(1 + \|\vec{x}\|_2^2)$]
+Let $h(\vec{x}) = \log(1 + \|\vec{x}\|_2^2)$.
+
+\textbf{Step 1: Compute the gradient.}
+
+Using the chain rule: $\nabla h(\vec{x}) = \frac{2\vec{x}}{1 + \|\vec{x}\|_2^2}$.
+
+\textbf{Step 2: Compute each Hessian entry.}
+
+For the $(j, k)$ entry, differentiate the $j$th component of $\nabla h$ with respect to $x_k$:
+\[
+    [\nabla^2 h(\vec{x})]_{j,k} = \frac{\partial}{\partial x_k}\!\left(\frac{2x_j}{1 + \|\vec{x}\|_2^2}\right).
+\]
+
+By the quotient rule:
+\[
+    = \frac{2 \cdot \mathbf{1}_{j=k}}{1 + \|\vec{x}\|_2^2} - \frac{4 x_j x_k}{(1 + \|\vec{x}\|_2^2)^2}.
+\]
+
+\textbf{Step 3: Write in matrix form.}
+\begin{result}
+\[
+    \nabla^2 h(\vec{x}) = \frac{2I}{1 + \|\vec{x}\|_2^2} - \frac{4\vec{x}\vec{x}^\top}{(1 + \|\vec{x}\|_2^2)^2}.
+\]
+\end{result}
+\end{example}
+
+\textit{Sanity check:} At $\vec{x} = \vec{0}$: $\nabla^2 h(\vec{0}) = 2I$, which is positive definite. This confirms $\vec{0}$ is a local minimum of $-h$ (or local maximum of $h$, since $h$ is concave near the origin). \checkmark
+
+%==============================================================================
+\section{Summary Table}
+%==============================================================================
+
+\begin{center}
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Object} & \textbf{Input $\to$ Output} & \textbf{Size} \\
+\midrule
+Derivative $\frac{\mathrm{d}f}{\mathrm{d}x}$ & $\RR \to \RR$ & scalar \\[4pt]
+Gradient $\nabla f$ & $\RR^n \to \RR^n$ & column vector \\[4pt]
+Jacobian $D\vec{f}$ & $\RR^n \to \RR^{m \times n}$ & matrix \\[4pt]
+Hessian $\nabla^2 f$ & $\RR^n \to \RR^{n \times n}$ & symmetric matrix \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%==============================================================================
+
+\vfill
+
+\begin{center}
+\rule{0.5\linewidth}{0.4pt}
+
+\textit{Key Takeaways}
+\end{center}
+
+\begin{enumerate}
+    \item \textbf{Partial derivatives} measure the rate of change of $f$ in one variable while holding others fixed. Strategy: treat other variables as constants.
+    \item \textbf{Gradient} $\nabla f(\vec{x})$ is a column vector of all partial derivatives. It points in the direction of steepest ascent and is orthogonal to level sets.
+    \item \textbf{Key gradients:} $\nabla(\vec{a}^\top \vec{x}) = \vec{a}$, \; $\nabla(\|\vec{x}\|_2^2) = 2\vec{x}$, \; $\nabla(\vec{x}^\top A \vec{x}) = (A + A^\top)\vec{x}$.
+    \item \textbf{Jacobian} $D\vec{f}(\vec{x})$ is the $m \times n$ matrix generalizing the gradient to vector-valued functions. Row $i$ is $\nabla f_i^\top$.
+    \item \textbf{Chain rule:} $D(\vec{f} \circ \vec{g}) = (D\vec{f})(D\vec{g})$; for scalar compositions, $\nabla(f \circ \vec{g}) = (D\vec{g})^\top \nabla f$.
+    \item \textbf{Hessian} $\nabla^2 f(\vec{x})$ is the Jacobian of the gradient. By Clairaut's theorem, it is always symmetric.
+    \item \textbf{Key Hessians:} $\nabla^2(\|\vec{x}\|_2^2) = 2I$, \; $\nabla^2(\vec{x}^\top A \vec{x}) = A + A^\top$.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,471 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{intuition}{
+    boxrule=0.6pt,
+    colback=blue!3,
+    colframe=blue!40!black,
+    arc=2pt,
+    boxsep=3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\small\bfseries Intuition},
+    fonttitle=\small\bfseries,
+    coltitle=blue!40!black
+}
+
+\newtcolorbox{keyconcept}{
+    boxrule=0.6pt,
+    colback=green!3,
+    colframe=green!40!black,
+    arc=2pt,
+    boxsep=3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\small\bfseries Key Concept},
+    fonttitle=\small\bfseries,
+    coltitle=green!40!black
+}
+
+\newtcolorbox{pitfall}{
+    boxrule=0.6pt,
+    colback=red!3,
+    colframe=red!40!black,
+    arc=2pt,
+    boxsep=3pt,
+    left=6pt, right=6pt, top=4pt, bottom=4pt,
+    title={\small\bfseries Common Pitfall},
+    fonttitle=\small\bfseries,
+    coltitle=red!40!black
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 01 --- Enhanced Notes}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\spn}{span}
+\DeclareMathOperator{\argmin}{argmin}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{lccc}
+\textbf{EECS 127/227AT} & Optimization Models in Engineering & UC Berkeley & Spring 2026 \\
+\textbf{Homework 01} & & &
+\end{tabular}
+\end{center}
+\noindent\rule{\textwidth}{2pt}
+
+\vspace{1em}
+
+\section{Course Setup}
+
+Please complete the following steps to get access to all course resources.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Visit the course website at \url{http://eecs127.github.io/} and familiarize yourself with the syllabus.
+    \item Verify that you can access the class Ed site at \url{https://edstem.org/us/courses/93760/discussion}.
+    \item Verify that you can access the class Gradescope site at \url{https://www.gradescope.com/courses/1228786}.
+\end{enumerate}
+
+\newpage
+
+\section{What Prerequisites Have You Taken?}
+
+The prerequisites for this course are
+\begin{itemize}
+    \item MATH 54 (Linear Algebra \& Differential Equations),
+    \item CS 70 (Discrete Mathematics \& Probability Theory), and
+    \item MATH 53 (Multivariable Calculus).
+\end{itemize}
+
+Please fill out the following Google form: \url{https://forms.gle/gLgvN769ZxoDNzn59} to tell us which of these courses, or their equivalents, you have taken. If you are unsure of course material overlap, please refer to the MATH 54, CS 70 websites (\url{http://www.sp22.eecs70.org/}, \url{https://lin-lin.github.io/MATH54/}), and the MATH 53 textbook (\textit{Multivariable Calculus} by James Stewart). \textbf{For the response to this question, write the secret word revealed at the end of the form.}
+
+The course material this semester will rely on knowledge from these prerequisite courses. If you feel shaky on this material, please use the first week to reacquaint yourself with it. We expect you to handle this review on your own; we will not prioritize questions about prerequisite material in office hours.
+
+\vspace{1em}
+\noindent\textbf{Solution:} The secret word is: \texttt{PinkpantheR}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Orthogonality}
+
+Let $\vec{x}, \vec{y} \in \RR^n$ be two linearly independent unit-norm vectors; that is, $\|\vec{x}\|_2 = \|\vec{y}\|_2 = 1$.
+
+\begin{keyconcept}
+\textbf{Orthogonality} means two vectors have zero inner product: $\vec{a}^\top \vec{b} = 0$. Geometrically, they are perpendicular. An \textbf{orthonormal basis} is a set of mutually orthogonal unit vectors that span the space.
+\end{keyconcept}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the vectors $\vec{u} = \vec{x} - \vec{y}$ and $\vec{v} = \vec{x} + \vec{y}$ are orthogonal.
+
+    \textbf{Solution:} We need to show $\vec{u}^\top \vec{v} = 0$. Expanding the inner product:
+    \begin{equation}
+        (\vec{x} - \vec{y})^\top (\vec{x} + \vec{y}) = \vec{x}^\top \vec{x} + \vec{x}^\top \vec{y} - \vec{y}^\top \vec{x} - \vec{y}^\top \vec{y}.
+    \end{equation}
+    The cross terms $\vec{x}^\top \vec{y}$ and $\vec{y}^\top \vec{x}$ are equal (since $\vec{a}^\top \vec{b} = \vec{b}^\top \vec{a}$ for any real vectors), so they cancel:
+    \begin{equation}
+        = \vec{x}^\top \vec{x} - \vec{y}^\top \vec{y} = \|\vec{x}\|_2^2 - \|\vec{y}\|_2^2 = 1 - 1 = 0.
+    \end{equation}
+
+    \begin{intuition}
+    This is the vector analogue of the algebraic identity $(a - b)(a + b) = a^2 - b^2$. The cross terms cancel because real inner products are symmetric. The result depends \emph{only} on the norms being equal---$\vec{x}$ and $\vec{y}$ do not need to be orthogonal to each other!
+    \end{intuition}
+
+    \item Find an orthonormal basis for $\spn(\vec{x}, \vec{y})$, the subspace spanned by $\vec{x}$ and $\vec{y}$.
+
+    \textbf{Solution:}
+
+    We seek an orthonormal basis for $S = \spn(\vec{x}, \vec{y})$. Since $\vec{x}, \vec{y}$ are linearly independent, we know $\dim(S) = 2$. We present two main approaches.
+
+    \textbf{\underline{Approach 1: Symmetric Basis (using sum and difference)}} \quad From Part (a), we know that $\vec{u} = \vec{x} - \vec{y}$ and $\vec{v} = \vec{x} + \vec{y}$ are orthogonal. To show they form a basis for $S$, we must verify that $\spn(\vec{u}, \vec{v}) = \spn(\vec{x}, \vec{y})$. We can justify this in three ways:
+
+    \begin{itemize}
+        \item \textbf{Justification A:} Let $\vec{z} \in \spn(\vec{x}, \vec{y})$, so $\vec{z} = \lambda \vec{x} + \mu \vec{y}$. We can rewrite this in terms of $\vec{u}$ and $\vec{v}$ as $\vec{z} = \alpha \vec{u} + \beta \vec{v}$ by solving for $\alpha, \beta$:
+        \begin{equation}
+            \alpha = \frac{\lambda - \mu}{2}, \quad \beta = \frac{\lambda + \mu}{2}.
+        \end{equation}
+        Thus, any vector in $\spn(\vec{x}, \vec{y})$ is in $\spn(\vec{u}, \vec{v})$.
+
+        \item \textbf{Justification B:} We can express $\vec{x}$ and $\vec{y}$ directly in terms of $\vec{u}$ and $\vec{v}$:
+        \begin{equation}
+            \vec{x} = \frac{\vec{u} + \vec{v}}{2}, \quad \vec{y} = \frac{\vec{v} - \vec{u}}{2}.
+        \end{equation}
+        Since $\vec{x}, \vec{y}$ are linear combinations of $\vec{u}, \vec{v}$ (and vice versa), their spans are identical.
+
+        \item \textbf{Justification C:} Since $\vec{u}$ and $\vec{v}$ are orthogonal (and non-zero), they are linearly independent. Thus, $\spn(\vec{u}, \vec{v})$ is a 2-dimensional subspace. Since $\vec{u}, \vec{v}$ consist of linear combinations of $\vec{x}, \vec{y}$, we know $\spn(\vec{u}, \vec{v}) \subseteq \spn(\vec{x}, \vec{y})$. Since $\spn(\vec{x}, \vec{y})$ is also 2-dimensional, the subspace must be equal to itself.
+    \end{itemize}
+
+    \textbf{Conclusion:} The vectors $\vec{u}, \vec{v}$ form an orthogonal basis. To get an \textit{orthonormal} basis, we normalize them:
+    \begin{equation}
+        \left( \frac{\vec{x} - \vec{y}}{\|\vec{x} - \vec{y}\|_2}, \frac{\vec{x} + \vec{y}}{\|\vec{x} + \vec{y}\|_2} \right).
+    \end{equation}
+
+    \begin{pitfall}
+    Don't forget the normalization step! Orthogonal $\neq$ orthonormal. The vectors $\vec{u}$ and $\vec{v}$ are orthogonal but generally \emph{not} unit-norm (their norms depend on the angle between $\vec{x}$ and $\vec{y}$).
+    \end{pitfall}
+
+    \textbf{\underline{Approach 2: Gram-Schmidt Process}} \quad Alternatively, we can construct an orthonormal basis from $(\vec{x}, \vec{y})$ directly using the Gram-Schmidt algorithm.
+
+    \begin{enumerate}[label=\roman*.]
+        \item Set the first basis vector as $\vec{z}_1 = \vec{x}$ (since $\|\vec{x}\|_2 = 1$).
+        \item Construct the second vector $\vec{z}_2$ by projecting $\vec{y}$ onto $\vec{x}$, removing that component, and normalizing:
+        \begin{equation}
+            \vec{z}_2 = \frac{\vec{y} - (\vec{y}^\top \vec{x})\vec{x}}{\|\vec{y} - (\vec{y}^\top \vec{x})\vec{x}\|_2}.
+        \end{equation}
+    \end{enumerate}
+
+    The set $(\vec{z}_1, \vec{z}_2)$ forms a valid orthonormal basis.
+
+    \begin{intuition}
+    \textbf{Gram-Schmidt in words:} Take $\vec{y}$, subtract off the part that points along $\vec{x}$ (i.e., its projection $(\vec{y}^\top \vec{x})\vec{x}$), and what remains is purely perpendicular to $\vec{x}$. Then normalize to get a unit vector.
+
+    \textbf{Why two approaches?} Approach 1 exploits the special structure of equal-norm vectors (symmetric sum/difference trick). Approach 2 (Gram-Schmidt) is the general-purpose algorithm that works for any set of linearly independent vectors---you'll use it repeatedly throughout this course.
+    \end{intuition}
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Least Squares}
+
+The Michaelis-Menten model for enzyme kinetics relates the rate $y$ of an enzymatic reaction to the concentration $x$ of a substrate, as follows:
+\begin{equation}
+    y = \frac{\beta_1 x}{\beta_2 + x},
+\end{equation}
+for constants $\beta_1, \beta_2 > 0$.
+
+\begin{keyconcept}
+\textbf{Linearization trick:} The Michaelis-Menten equation is nonlinear in $x$ and the parameters $\beta_1, \beta_2$. The key idea is to apply a change of variables (here, taking reciprocals) so that the relationship becomes \emph{linear} in the new variables. This lets us use least squares, which only works for linear models.
+\end{keyconcept}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the model can be expressed as a linear relation between the values $1/y = y^{-1}$ and $1/x = x^{-1}$. Specifically, give an equation of the form $y^{-1} = w_1 + w_2 x^{-1}$, specifying the values of $w_1$ and $w_2$ in terms of $\beta_1$ and $\beta_2$.
+
+    \textbf{Solution:} Inverting each side of the equation, we have
+    \begin{align}
+        y^{-1} &= \left( \frac{\beta_1 x}{\beta_2 + x} \right)^{-1} \\
+        &= \frac{\beta_2 + x}{\beta_1 x} \\
+        &= \frac{\beta_2}{\beta_1 x} + \frac{x}{\beta_1 x} \\
+        &= \frac{\beta_2}{\beta_1} x^{-1} + \frac{1}{\beta_1} \\
+        &= \underbrace{\frac{1}{\beta_1}}_{w_1} + \underbrace{\frac{\beta_2}{\beta_1}}_{w_2} x^{-1}.
+    \end{align}
+
+    \begin{result}
+    The linearized form is $y^{-1} = w_1 + w_2 x^{-1}$ with $w_1 = \dfrac{1}{\beta_1}$ and $w_2 = \dfrac{\beta_2}{\beta_1}$.
+    \end{result}
+
+    \item In general, reaction parameters $\beta_1$ and $\beta_2$ (and, thus, $w_1$ and $w_2$) are not known a priori and must be fit from data --- for example, using least squares. Suppose you collect $m$ measurements $(x_i, y_i)$, $i = 1, \ldots, m$ over the course of a reaction. Formulate the least squares problem
+    \begin{equation}
+        \vec{w}^\star = \argmin_{\vec{w}} \|X\vec{w} - \vec{y}\|_2^2,
+    \end{equation}
+    where $\vec{w}^\star = \begin{bmatrix} w_1^\star & w_2^\star \end{bmatrix}^\top$, and you must specify $X \in \RR^{m \times 2}$ and $\vec{y} \in \RR^m$. Specifically, your solution should include explicit expressions for $X$ and $\vec{y}$ as a function of $(x_i, y_i)$ values and a final expression for $\vec{w}^\star$ in terms of $X$ and $\vec{y}$, which should contain only matrix multiplications, transposes, and inverses. Assume without loss of generality that $x_1 \neq x_2$.
+
+    \textbf{Solution:} From part (a), each measurement gives us a linear equation:
+    \[
+        y_i^{-1} = w_1 \cdot 1 + w_2 \cdot x_i^{-1}, \quad i = 1, \ldots, m.
+    \]
+    Stacking all $m$ equations into matrix form $X\vec{w} = \vec{y}$, we set:
+    \begin{equation}
+        X = \begin{bmatrix} 1 & x_1^{-1} \\ 1 & x_2^{-1} \\ \vdots & \vdots \\ 1 & x_m^{-1} \end{bmatrix} \in \RR^{m \times 2}, \quad \vec{y} = \begin{bmatrix} y_1^{-1} \\ y_2^{-1} \\ \vdots \\ y_m^{-1} \end{bmatrix} \in \RR^m.
+    \end{equation}
+
+    \begin{intuition}
+    Each row of $X$ corresponds to one data point. The first column is all 1's (for the intercept $w_1$), and the second column contains the transformed $x$-values ($x_i^{-1}$). The target vector $\vec{y}$ contains the transformed $y$-values ($y_i^{-1}$). This is exactly the same structure as fitting a line $y = w_1 + w_2 x$ via linear regression.
+    \end{intuition}
+
+    To solve this least squares problem, we note that the optimal residual vector $X\vec{w}^\star - \vec{y}$ must be orthogonal to $\Range(X)$ by the orthogonality principle, and we have
+    \begin{equation}
+        X^\top(X\vec{w}^\star - \vec{y}) = 0.
+    \end{equation}
+
+    This is the \textbf{normal equation}. Since $x_1 \neq x_2$, the columns of $X$ are linearly independent, so $X^\top X \in \RR^{2 \times 2}$ is invertible. Rearranging:
+    \begin{equation}
+        \vec{w}^\star = (X^\top X)^{-1} X^\top \vec{y}.
+    \end{equation}
+
+    \begin{pitfall}
+    The $\vec{y}$ in the least squares formulation is \emph{not} the original measurements---it's the vector of reciprocals $y_i^{-1}$. Similarly, $X$ contains reciprocals $x_i^{-1}$, not the raw $x_i$ values. The change of variables from part (a) must be applied to the data before fitting.
+    \end{pitfall}
+
+    \item Assume that we have used the above procedure to calculate values for $w_1^\star$ and $w_2^\star$, and we now want to estimate $\widehat{\vec{\beta}} = \begin{bmatrix} \hat{\beta}_1 & \hat{\beta}_2 \end{bmatrix}^\top$. Write an expression for $\widehat{\vec{\beta}}$ in terms of $w_1^\star$ and $w_2^\star$.
+
+    \textbf{Solution:} To calculate $\widehat{\vec{\beta}}$, we reverse the mapping from part (a):
+    \begin{align}
+        w_1 = \frac{1}{\beta_1} &\implies \hat{\beta}_1 = \frac{1}{w_1^\star}, \\
+        w_2 = \frac{\beta_2}{\beta_1} &\implies \hat{\beta}_2 = \hat{\beta}_1 \cdot w_2^\star = \frac{w_2^\star}{w_1^\star}.
+    \end{align}
+
+    \begin{result}
+    $\widehat{\vec{\beta}} = \begin{bmatrix} \dfrac{1}{w_1^\star} & \dfrac{w_2^\star}{w_1^\star} \end{bmatrix}^\top$.
+    \end{result}
+\end{enumerate}
+
+\vspace{1em}
+\noindent\textit{NOTE}: This problem was taken (with some edits) from the textbook \textit{Optimization Models} by Calafiore and El Ghaoui.
+
+\begin{intuition}
+\textbf{Big picture:} This problem illustrates a three-step workflow you'll see throughout EECS 127:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Linearize:} Transform a nonlinear model into a linear one via change of variables.
+    \item \textbf{Solve:} Apply least squares (the normal equation) to find optimal parameters.
+    \item \textbf{Recover:} Map back to the original parameters via the inverse transformation.
+\end{enumerate}
+The least squares closed-form $\vec{w}^\star = (X^\top X)^{-1} X^\top \vec{y}$ is one of the most important formulas in this course.
+\end{intuition}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Subspaces and Dimensions}
+
+Consider the set $\mathcal{S}$ of points $(x_1, x_2, x_3) \in \RR^3$ such that
+\begin{equation}
+    x_1 + 2x_2 + 3x_3 = 0, \quad 3x_1 + 2x_2 + x_3 = 0.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Find a $2 \times 3$ matrix $A$ for which $\mathcal{S}$ is exactly the null space of $A$.
+
+    \textbf{Solution:} Recall that the null space of $A$ is $\NN(A) = \{\vec{x} : A\vec{x} = \vec{0}\}$. Each equation gives one row of $A$:
+    \begin{align}
+        x_1 + 2x_2 + 3x_3 &= 0 \quad \longrightarrow \quad \text{row 1: } [1 \;\; 2 \;\; 3] \\
+        3x_1 + 2x_2 + x_3 &= 0 \quad \longrightarrow \quad \text{row 2: } [3 \;\; 2 \;\; 1]
+    \end{align}
+    Stacking these into a matrix:
+    \begin{equation}
+        \begin{bmatrix} 1 & 2 & 3 \\ 3 & 2 & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}.
+    \end{equation}
+
+    \begin{result}
+    $A = \begin{bmatrix} 1 & 2 & 3 \\ 3 & 2 & 1 \end{bmatrix}$.
+    \end{result}
+
+    \item Determine the dimension of $\mathcal{S}$ and find a basis for it.
+
+    \textbf{Solution:} We solve the system by row reduction. Subtract $3 \times (\text{row 1})$ from row 2:
+    \begin{equation}
+        \begin{bmatrix} 1 & 2 & 3 \\ 3 & 2 & 1 \end{bmatrix} \xrightarrow{R_2 - 3R_1}
+        \begin{bmatrix} 1 & 2 & 3 \\ 0 & -4 & -8 \end{bmatrix} \xrightarrow{R_2 / (-4)}
+        \begin{bmatrix} 1 & 2 & 3 \\ 0 & 1 & 2 \end{bmatrix}.
+    \end{equation}
+
+    From row 2: $x_2 = -2x_3$. Back-substituting into row 1: $x_1 + 2(-2x_3) + 3x_3 = 0 \implies x_1 = x_3$.
+
+    Letting $x_3 = t$ (free variable), the general solution is:
+    \begin{equation}
+        \vec{x} = t \begin{bmatrix} 1 \\ -2 \\ 1 \end{bmatrix}, \quad t \in \RR.
+    \end{equation}
+
+    \begin{result}
+    $\dim(\mathcal{S}) = 1$, and a basis for $\mathcal{S}$ is $\left\{\begin{bmatrix} 1 & -2 & 1 \end{bmatrix}^\top\right\}$.
+    \end{result}
+
+    \begin{intuition}
+    \textbf{Why dimension 1?} The rank-nullity theorem gives $\dim(\NN(A)) = n - \rank(A) = 3 - 2 = 1$. Each independent equation ``removes one degree of freedom'' from $\RR^3$. Two independent equations in 3 unknowns leave a 1-dimensional solution space (a line through the origin).
+    \end{intuition}
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Vector Spaces and Rank}
+
+The \textit{rank} of a $m \times n$ matrix $A$, $\rank(A)$, is the dimension of its \textit{range}, also called span, and denoted $\Range(A) := \{A\vec{x} : \vec{x} \in \RR^n\}$.
+
+\begin{keyconcept}
+\textbf{Rank} measures the ``information content'' of a matrix---how many independent directions the matrix can map to. Key facts: $\rank(A) \leq \min(m, n)$, and a matrix is full rank when this bound is tight.
+\end{keyconcept}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Assume that $A \in \RR^{m \times n}$ takes the form $A = \vec{u}\vec{v}^\top$, with $\vec{u} \in \RR^m$, $\vec{v} \in \RR^n$, and $\vec{u}, \vec{v} \neq \vec{0}$. (Note that a matrix of this form is known as a \textit{dyad}.) Find the rank of $A$.
+
+    \textit{HINT: Consider the quantity $A\vec{x}$ for arbitrary $\vec{x}$, i.e., what happens when you multiply any vector by matrix $A$.}
+
+    \textbf{Solution:} For any $\vec{x} \in \RR^n$, use the associativity of matrix multiplication:
+    \begin{equation}
+        A\vec{x} = (\vec{u}\vec{v}^\top)\vec{x} = \vec{u}\underbrace{(\vec{v}^\top \vec{x})}_{\text{scalar } \alpha \in \RR} = \alpha \, \vec{u}.
+    \end{equation}
+    No matter what $\vec{x}$ we choose, the output $A\vec{x}$ is always a scalar multiple of $\vec{u}$. Since $\vec{v} \neq \vec{0}$, we can always find some $\vec{x}$ making $\alpha \neq 0$, so $\vec{u}$ is indeed reachable.
+
+    Therefore $\Range(A) = \spn(\vec{u})$, which is 1-dimensional, so $\rank(A) = 1$.
+
+    \begin{intuition}
+    A dyad $\vec{u}\vec{v}^\top$ is a ``projection-then-scale'' machine: it projects any input onto $\vec{v}$ (via the dot product $\vec{v}^\top \vec{x}$), then scales $\vec{u}$ by that amount. All outputs lie on the line through $\vec{u}$---hence rank 1. This is the simplest nontrivial matrix.
+    \end{intuition}
+
+    \item Show that for arbitrary $A, B \in \RR^{m \times n}$,
+    \begin{equation}
+        \rank(A + B) \leq \rank(A) + \rank(B),
+    \end{equation}
+    i.e., the rank of the sum of two matrices is less than or equal to the sum of their ranks.
+
+    \textit{HINT: First, show that $\Range(A + B) \subseteq \Range(A) + \Range(B)$, meaning that any vector in the range of $A + B$ can be expressed as the sum of two vectors, each in the range of $A$ and $B$, respectively. Remember that for any matrix $A$, $\Range(A)$ is a subspace, and for any two subspaces $S_1$ and $S_2$, $\dim(S_1 + S_2) \leq \dim(S_1) + \dim(S_2)$.\footnote{This fact can be proved by taking a basis of $S_1$ and extending it to a basis of $S_2$ (during which we can only add \textit{at most} $\dim(S_2)$ basis vectors). This extended basis must now also be a basis of $S_1 + S_2$. Thus, $\dim(S_1 + S_2) \leq \dim(S_1) + \dim(S_2)$.} (Note that the sum of vector spaces $S_1 + S_2$ is not equivalent to $S_1 \cup S_2$, but is defined as $S_1 + S_2 := \{\vec{s}_1 + \vec{s}_2 | \vec{s}_1 \in S_1, \vec{s}_2 \in S_2\}$.)}
+
+    \textbf{Solution:}
+
+    \textbf{Step 1: Show $\Range(A + B) \subseteq \Range(A) + \Range(B)$.}
+
+    Given any vector $\vec{v} \in \Range(A + B)$, there exists $\vec{x} \in \RR^n$ such that:
+    \begin{equation}
+        \vec{v} = (A + B)\vec{x} = \underbrace{A\vec{x}}_{\in \Range(A)} + \underbrace{B\vec{x}}_{\in \Range(B)}.
+    \end{equation}
+    So $\vec{v}$ is a sum of a vector in $\Range(A)$ and a vector in $\Range(B)$, which means $\vec{v} \in \Range(A) + \Range(B)$.
+
+    \textbf{Step 2: Apply the dimension inequality.}
+
+    Since $\Range(A + B) \subseteq \Range(A) + \Range(B)$, taking dimensions:
+    \begin{equation}
+        \dim(\Range(A + B)) \leq \dim(\Range(A) + \Range(B)).
+    \end{equation}
+
+    \textbf{Step 3: Use the subspace sum dimension bound.}
+
+    For any two subspaces, $\dim(S_1 + S_2) \leq \dim(S_1) + \dim(S_2)$, so:
+    \begin{equation}
+        \dim(\Range(A) + \Range(B)) \leq \dim(\Range(A)) + \dim(\Range(B)).
+    \end{equation}
+
+    \textbf{Step 4: Chain the inequalities.}
+
+    Combining Steps 2 and 3 and using $\rank(\cdot) = \dim(\Range(\cdot))$:
+    \begin{equation}
+        \rank(A + B) \leq \rank(A) + \rank(B).
+    \end{equation}
+
+    \begin{intuition}
+    Adding matrices can only ``mix'' their ranges---the outputs of $A + B$ are sums of outputs from $A$ and $B$ individually. You can't create genuinely new directions this way, so the rank can't exceed the total number of independent directions from both matrices. (In fact, if $A$ and $B$ share range directions, the inequality is strict.)
+    \end{intuition}
+
+    \item Consider an $m \times n$ matrix $A$ that takes the form $A = UV^\top$, with $U \in \RR^{m \times k}$, $V \in \RR^{n \times k}$. Show that the rank of $A$ is less than or equal to $k$. \textit{HINT: Use parts 6(a) and 6(b), and remember that this decomposition can also be written as the} dyadic expansion
+    \begin{equation}
+        A = UV^\top = \begin{bmatrix} \vec{u}_1 & \ldots & \vec{u}_k \end{bmatrix} \begin{bmatrix} \vec{v}_1^\top \\ \vdots \\ \vec{v}_k^\top \end{bmatrix} = \sum_{i=1}^{k} \vec{u}_i \vec{v}_i^\top,
+    \end{equation}
+    \textit{for} $U = \begin{bmatrix} \vec{u}_1 & \ldots & \vec{u}_k \end{bmatrix}$ \textit{and} $V = \begin{bmatrix} \vec{v}_1 & \ldots & \vec{v}_k \end{bmatrix}$.
+
+    \textbf{Solution:} We apply the sub-additivity of rank from (b) repeatedly, ``peeling off'' one dyad at a time. By part (a), each dyad $\vec{u}_i \vec{v}_i^\top$ has rank at most 1. So:
+    \begin{equation}
+        \rank(A) = \rank\left(\sum_{i=1}^{k} \vec{u}_i \vec{v}_i^\top\right) \leq \rank\left(\sum_{i=1}^{k-1} \vec{u}_i \vec{v}_i^\top\right) + \underbrace{\rank\left(\vec{u}_k \vec{v}_k^\top\right)}_{\leq\, 1} \leq \ldots \leq k,
+    \end{equation}
+    as desired.
+
+    \begin{intuition}
+    \textbf{Why this matters:} This result says that any matrix expressible as $UV^\top$ with ``thin'' factors ($k$ columns) has rank $\leq k$. This is the foundation of \textbf{low-rank approximation} (e.g., SVD truncation, PCA). If you can write a large $m \times n$ matrix as a product of two small matrices, you've compressed it---and the rank tells you the effective dimensionality.
+
+    \textbf{Connection to SVD:} Later in the course, you'll learn that \emph{every} matrix $A$ can be decomposed as $A = U\Sigma V^\top$, where the number of nonzero singular values equals $\rank(A)$. This problem is building the intuition for that decomposition.
+    \end{intuition}
+\end{enumerate}
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\newpage
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE}: If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\noindent\footnotesize{\copyright{} UCB EECS 127/227AT, Spring 2026. \scriptsize{All Rights Reserved. This may not be publicly shared without explicit permission.}}
+
+\end{document}

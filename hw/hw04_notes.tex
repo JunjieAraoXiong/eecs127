@@ -1,0 +1,668 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 4}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\diag}{diag}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[6pt]
+{\LARGE\bfseries Homework 4 --- Solutions}
+\end{center}
+
+\medskip
+
+\section{Gradients, Jacobians, and Hessians}
+
+The \textbf{gradient} of a scalar-valued function $g\colon \RR^n \to \RR$ is the column vector of length $n$, denoted as $\nabla g$, containing the derivatives of components of $g$ with respect to the input variables:
+\begin{equation}
+(\nabla g(\vec{x}))_i = \frac{\partial g}{\partial x_i}(\vec{x}), \quad i = 1, \ldots n.
+\end{equation}
+
+The \textbf{Hessian} of a scalar-valued function $g\colon \RR^n \to \RR$ is the $n \times n$ matrix, denoted as $\nabla^2 g$, containing the second derivatives of components of $g$ with respect to the input variables:
+\begin{equation}
+(\nabla^2 g(\vec{x}))_{ij} = \frac{\partial^2 g}{\partial x_i \partial x_j}(\vec{x}), \quad i = 1, \ldots, n, \quad j = 1, \ldots, n.
+\end{equation}
+
+The \textbf{Jacobian} of a vector-valued function $\vec{g}\colon \RR^n \to \RR^m$ is the $m \times n$ matrix, denoted as $D\vec{g}$, containing the derivatives of components of $\vec{g}$ with respect to the input variables:
+\begin{equation}
+(D\vec{g}(\vec{x}))_{ij} = \frac{\partial g_i}{\partial x_j}(\vec{x}), \quad i = 1, \ldots, m, \quad j = 1, \ldots, n.
+\end{equation}
+
+For the remainder of the class, we will repeatedly have to take gradients, Hessians and Jacobians of functions we are trying to optimize. This exercise serves as a warm up for future problems.
+
+For the first two parts, suppose $A \in \RR^{n \times n}$ is a square matrix whose entries are denoted $a_{ij}$ and whose rows are denoted $\vec{a}_1^\top, \ldots, \vec{a}_n^\top$, and $\vec{b} \in \RR^n$ is a vector whose entries are denoted $b_i$.
+
+\begin{enumerate}[label=(\alph*)]
+\item Compute the Jacobians for the following functions.
+\begin{enumerate}[label=\roman*.]
+    \item $\vec{g}(\vec{x}) = A\vec{x}$.
+
+    \textbf{Solution:} We compute each partial derivative and reconstitute $D\vec{g}$ at the end. That is,
+    \begin{align}
+    [D\vec{g}(\vec{x})]_{jk} &= \frac{\partial g_j}{\partial x_k}(\vec{x}) \\
+    &= \frac{\partial (A\vec{x})_j}{\partial x_k} \\
+    &= \frac{\partial (\vec{a}_j^\top \vec{x})}{\partial x_k} \\
+    &= (\vec{a}_j)_k \\
+    &= a_{jk} \\
+    &= [A]_{jk},
+    \end{align}
+    where $[A]_{jk}$ is the $(j,k)$th entry of $A$. Thus $D\vec{g}(\vec{x}) = A$.
+
+    \item $\vec{g}(\vec{x}) = f(\vec{x})\vec{x}$ where $f : \RR^n \mapsto \RR$ is differentiable.
+
+    \textbf{Solution:} We again compute each partial derivative using the scalar product rule, obtaining
+    \begin{align}
+    [D\vec{g}(\vec{x})]_{jk} &= \frac{\partial g_j}{\partial x_k}(\vec{x}) \\
+    &= \frac{\partial (f(\vec{x}) x_j)}{\partial x_k} \\
+    &= f(\vec{x})\frac{\partial x_j}{\partial x_k} + x_j \frac{\partial f}{\partial x_k}(\vec{x}) \\
+    &= x_j [\nabla f(\vec{x})]_k + \begin{cases} f(\vec{x}), & \text{if } j = k \\ 0, & \text{if } j \neq k. \end{cases}
+    \end{align}
+
+    This gives a Jacobian whose entries are
+    \begin{align}
+    [D\vec{g}(\vec{x})]_{jk} &= x_j [\nabla f(\vec{x})]_k, \quad \forall\, j \neq k, \\
+    [D\vec{g}(\vec{x})]_{jj} &= x_j [\nabla f(\vec{x})]_k + f(\vec{x}), \quad \forall\, j.
+    \end{align}
+
+    For the purpose of self-grades it is fine to stop here. But one can also write the Jacobian as
+    \begin{equation}
+    D\vec{g}(\vec{x}) = \vec{x}[\nabla f(\vec{x})]^\top + f(\vec{x})I.
+    \end{equation}
+
+    \item $\vec{g}(\vec{x}) = f(A\vec{x} + \vec{b})\vec{x}$ where $f : \RR^n \mapsto \RR$ is differentiable.
+
+    \textbf{Solution:} We compute each partial derivative using the scalar product rule and chain rule, obtaining
+    \begin{align}
+    [D\vec{g}(\vec{x})]_{jk} &= \frac{\partial g_j}{\partial x_k}(\vec{x}) \\
+    &= \frac{\partial f(A\vec{x} + \vec{b}) x_j}{\partial x_k} \\
+    &= f(A\vec{x} + \vec{b})\frac{\partial x_j}{\partial x_k} + x_j \frac{\partial f(A\vec{x} + \vec{b})}{\partial x_k} \\
+    &= f(A\vec{x} + \vec{b})\frac{\partial x_j}{\partial x_k} + x_j \sum_{\ell=1}^{n} \frac{\partial f(A\vec{x} + \vec{b})}{\partial (A\vec{x} + \vec{b})_\ell} \frac{\partial (A\vec{x} + \vec{b})_\ell}{\partial x_k} \\
+    &= f(A\vec{x} + \vec{b})\frac{\partial x_j}{\partial x_k} + x_j \sum_{\ell=1}^{n} [\nabla f(A\vec{x} + \vec{b})]_\ell \cdot (\vec{a}_\ell)_k \\
+    &= f(A\vec{x} + \vec{b})\frac{\partial x_j}{\partial x_k} + x_j \sum_{\ell=1}^{n} [\nabla f(A\vec{x} + \vec{b})]_\ell \cdot a_{\ell k} \\
+    &= f(A\vec{x} + \vec{b})\frac{\partial x_j}{\partial x_k} + x_j \sum_{\ell=1}^{n} [\nabla f(A\vec{x} + \vec{b})]_\ell \cdot [A^\top]_{k\ell} \\
+    &= f(A\vec{x} + \vec{b})\frac{\partial x_j}{\partial x_k} + x_j [A^\top \nabla f(A\vec{x} + \vec{b})]_k \\
+    &= x_j [A^\top \nabla f(A\vec{x} + \vec{b})]_k + \begin{cases} f(A\vec{x} + \vec{b}), & \text{if } j = k \\ 0, & \text{if } j \neq k. \end{cases}
+    \end{align}
+
+    This gives a Jacobian whose entries are
+    \begin{align}
+    [D\vec{g}(\vec{x})]_{jk} &= x_j [A^\top \nabla f(A\vec{x} + \vec{b})]_k, \quad \forall\, j \neq k, \\
+    [D\vec{g}(\vec{x})]_{jj} &= x_j [A^\top \nabla f(A\vec{x} + \vec{b})]_k + f(A\vec{x} + \vec{b}), \quad \forall\, j.
+    \end{align}
+
+    But one can also write the Jacobian as
+    \begin{align}
+    D\vec{g}(\vec{x}) &= \vec{x}[A^\top \nabla f(A\vec{x} + \vec{b})]^\top + f(A\vec{x} + \vec{b})I \\
+    &= \vec{x}[\nabla f(A\vec{x} + \vec{b})]^\top A + f(A\vec{x} + \vec{b})I.
+    \end{align}
+\end{enumerate}
+
+\item Compute the gradients and Hessians for the following functions.
+\begin{enumerate}[label=\roman*.]
+    \item $g_1(\vec{x}) = \vec{x}^\top A \vec{x}$.
+
+    \textbf{Solution:} We have
+    \begin{align}
+    g_1(\vec{x}) &= \vec{x}^\top A \vec{x} \\
+    &= \vec{x}^\top \begin{bmatrix} \vec{a}_1^\top \\ \vdots \\ \vec{a}_n^\top \end{bmatrix} \vec{x} \\
+    &= \vec{x}^\top \begin{bmatrix} \vec{a}_1^\top \vec{x} \\ \vdots \\ \vec{a}_n^\top \vec{x} \end{bmatrix} \\
+    &= \sum_{i=1}^n x_i (\vec{a}_i^\top \vec{x}).
+    \end{align}
+
+    Taking the derivative with respect to any $x_j$ yields
+    \begin{align}
+    \frac{\partial g_1}{\partial x_j}(\vec{x}) &= \frac{\partial}{\partial x_j} \sum_{i=1}^n x_i (\vec{a}_i^\top \vec{x}) \\
+    &= \frac{\partial}{\partial x_j}\left[x_j(\vec{a}_j^\top \vec{x}) + \sum_{\substack{i=1\\i\neq j}}^n x_i(\vec{a}_i^\top \vec{x})\right] \\
+    &= \frac{\partial}{\partial x_j} x_j(\vec{a}_j^\top \vec{x}) + \sum_{\substack{i=1\\i\neq j}}^n \frac{\partial}{\partial x_j} x_i(\vec{a}_i^\top \vec{x}) \\
+    &= x_j \frac{\partial}{\partial x_j}(\vec{a}_j^\top \vec{x}) + \vec{a}_j^\top \vec{x} + \sum_{\substack{i=1\\i\neq j}}^n x_i \frac{\partial}{\partial x_j}(\vec{a}_i^\top \vec{x}) \\
+    &= x_j (\vec{a}_j)_j + \vec{a}_j^\top \vec{x} + \sum_{\substack{i=1\\i\neq j}}^n x_i (\vec{a}_i)_j \\
+    &= \vec{a}_j^\top \vec{x} + \sum_{i=1}^n x_i (\vec{a}_i)_j \\
+    &= \sum_{i=1}^n a_{ji} x_i + \sum_{i=1}^n a_{ij} x_i \\
+    &= (A\vec{x})_j + (A^\top \vec{x})_j \\
+    &= [(A + A^\top)\vec{x}]_j.
+    \end{align}
+
+    Thus we have
+    \begin{equation}
+    \nabla g_1(\vec{x}) = (A + A^\top)\vec{x}.
+    \end{equation}
+
+    For the Hessian, notice that
+    \begin{align}
+    [\nabla^2 g_1(\vec{x})]_{jk} &= \frac{\partial^2 g_1}{\partial x_j\, \partial x_k}(\vec{x}) \\
+    &= \frac{\partial [\nabla g_1]_j}{\partial x_k}(\vec{x}) \\
+    &= \frac{\partial}{\partial x_k}\left[\sum_{i=1}^n a_{ji} x_i + \sum_{i=1}^n a_{ij} x_i\right] \\
+    &= \left[\sum_{i=1}^n \frac{\partial}{\partial x_k} a_{ji} x_i + \sum_{i=1}^n \frac{\partial}{\partial x_k} a_{ij} x_i\right] \\
+    &= a_{jk} + a_{kj} \\
+    &= (A + A^\top)_{jk}.
+    \end{align}
+
+    Thus we have
+    \begin{equation}
+    \nabla^2 g_1(\vec{x}) = A + A^\top.
+    \end{equation}
+
+    Notice the important special case that if $A$ is symmetric then $\nabla g_1(\vec{x}) = 2A\vec{x}$ and $\nabla^2 g_1(\vec{x}) = 2A$.
+
+    \item $g_2(\vec{x}) = \|\vec{x}\|_2^2$.
+
+    \textbf{Solution:} We take $A = I$ in $g_1$, obtaining
+    \begin{equation}
+    \nabla g_2(\vec{x}) = 2\vec{x} \qquad \text{and} \qquad \nabla^2 g_2(\vec{x}) = 2I.
+    \end{equation}
+
+    \item $g_3(\vec{x}) = g_2(A\vec{x} - \vec{b}) = \|A\vec{x} - \vec{b}\|_2^2$. (Use the chain rule and the Jacobians computed in part 1(a).)
+
+    \textbf{Solution:} As required, we use the chain rule: we compute
+    \begin{align}
+    \nabla g_3(\vec{x}) &= [Dg_3(\vec{x})]^\top \\
+    &= ([\nabla g_2(A\vec{x} - \vec{b})]^\top [D(A\vec{x} - \vec{b})])^\top \\
+    &= [D(A\vec{x} - \vec{b})]^\top [\nabla g_2(A\vec{x} - \vec{b})] \\
+    &= [A]^\top [2(A\vec{x} - \vec{b})] \\
+    &= 2A^\top(A\vec{x} - \vec{b}).
+    \end{align}
+
+    For the Hessian, note that
+    \begin{align}
+    \nabla^2 g_3(\vec{x}) &= D[\nabla g_3(\vec{x})] \\
+    &= D[2A^\top(A\vec{x} - \vec{b})] \\
+    &= 2D[A^\top A \vec{x} - A^\top \vec{b}] \\
+    &= 2A^\top A.
+    \end{align}
+
+    \item $g_4(\vec{x}) = \log\!\left(\sum_{i=1}^n e^{x_i}\right)$.
+
+    \textbf{Solution:} We use component-wise derivatives and the scalar-valued chain rule:
+    \begin{align}
+    \frac{\partial g_4}{\partial x_j}(\vec{x}) &= \frac{\partial}{\partial x_j}\log\left(\sum_{i=1}^n e^{x_i}\right) \\
+    &= \frac{\frac{\partial}{\partial x_j}\sum_{i=1}^n e^{x_i}}{\sum_{i=1}^n e^{x_i}} \\
+    &= \frac{\sum_{i=1}^n \frac{\partial}{\partial x_j} e^{x_i}}{\sum_{i=1}^n e^{x_i}} \\
+    &= \frac{e^{x_j}}{\sum_{i=1}^n e^{x_i}}.
+    \end{align}
+
+    Thus the gradient is of the form
+    \begin{equation}
+    \nabla g_4(\vec{x}) = \begin{bmatrix} \partial g_4 / \partial x_1\;(\vec{x}) \\ \vdots \\ \partial g_4 / \partial x_n\;(\vec{x}) \end{bmatrix} = \frac{1}{\sum_{i=1}^n e^{x_i}} \begin{bmatrix} e^{x_1} \\ \vdots \\ e^{x_n} \end{bmatrix}.
+    \end{equation}
+
+    The Hessian is computed using more component-wise derivatives and the scalar quotient rule:
+    \begin{align}
+    \frac{\partial^2 g_4}{\partial x_j\,\partial x_k}(\vec{x}) &= \frac{\partial}{\partial x_k}\left(\frac{\partial g_4}{\partial x_j}\right)(\vec{x}) \\
+    &= \frac{\partial}{\partial x_k}\frac{e^{x_j}}{\sum_{i=1}^n e^{x_i}} \\
+    &= \frac{(\sum_{i=1}^n e^{x_i})\frac{\partial}{\partial x_k}e^{x_j} - e^{x_j}\frac{\partial}{\partial x_k}(\sum_{i=1}^n e^{x_i})}{(\sum_{i=1}^n e^{x_i})^2} \\
+    &= \frac{(\sum_{i=1}^n e^{x_i})\frac{\partial}{\partial x_k}e^{x_j} - e^{x_j} e^{x_k}}{(\sum_{i=1}^n e^{x_i})^2} \\
+    &= -\frac{e^{x_j + x_k}}{(\sum_{i=1}^n e^{x_i})^2} + \begin{cases} \frac{e^{x_k}}{\sum_{i=1}^n e^{x_i}}, & \text{if } j = k \\ 0, & \text{if } j \neq k. \end{cases}
+    \end{align}
+
+    This is the $(i,j)$th coordinate of the Hessian, whose entries can be defined as
+    \begin{align}
+    [\nabla^2 g_4(\vec{x})]_{jk} &= -\frac{e^{x_j + x_k}}{(\sum_{i=1}^n e^{x_i})^2} \quad \forall\, j \neq k \\
+    \text{and} \qquad [\nabla^2 g_4(\vec{x})]_{jj} &= \frac{e^{x_k}}{\sum_{i=1}^n e^{x_i}} - \frac{e^{x_j + x_k}}{(\sum_{i=1}^n e^{x_i})^2} \quad \forall\, j.
+    \end{align}
+
+    For the purpose of self-grades, the above solution is fine, but we can also write the Hessian as
+    \begin{equation}
+    \nabla^2 g_4(\vec{x}) = \diag(\nabla g_4(\vec{x})) - [\nabla g_4(\vec{x})][\nabla g_4(\vec{x})]^\top
+    \end{equation}
+    where $\diag(\cdot)\colon \RR^n \to \RR^{n \times n}$ forms a diagonal matrix whose diagonal entries are the entries of the input vector, i.e.,
+    \begin{equation}
+    \diag(\vec{v}) = \begin{bmatrix} v_1 & & \\ & \ddots & \\ & & v_n \end{bmatrix}.
+    \end{equation}
+
+    \item $g_5(\vec{x}) = g_4(A\vec{x} - \vec{b}) = \log\!\left(\sum_{i=1}^n e^{\vec{a}_i^\top \vec{x} - b_i}\right)$. (Use the chain rule and the Jacobians computed in part 1(a); you can use the gradient $\nabla g_4$ and Hessian $\nabla^2 g_4$ in your answer without having to rewrite it.)
+
+    \textbf{Solution:} As prompted, we use the chain rule to compute the gradient:
+    \begin{align}
+    \nabla g_5(\vec{x}) &= (Dg_5(\vec{x}))^\top \\
+    &= ([Dg_4(A\vec{x} - \vec{b})][D(A\vec{x} - \vec{b})])^\top \\
+    &= ([Dg_4(A\vec{x} - \vec{b})]A)^\top \\
+    &= A^\top [Dg_4(A\vec{x} - \vec{b})]^\top \\
+    &= A^\top [\nabla g_4(A\vec{x} - \vec{b})].
+    \end{align}
+
+    To compute the Hessian, we write
+    \begin{align}
+    \nabla^2 g_5(\vec{x}) &= D(\nabla g_5)(\vec{x}) \\
+    &= D(A^\top[\nabla g_4(A\vec{x} - \vec{b})]).
+    \end{align}
+
+    To evaluate this product, we look component-by-component and use a multivariate chain rule:
+    \begin{align}
+    [D(A^\top[\nabla g_4(A\vec{x} - \vec{b})])]_{jk} &= \frac{\partial}{\partial x_k}(A^\top[\nabla g_4(A\vec{x} - \vec{b})])_j \\
+    &= \frac{\partial}{\partial x_k}\sum_{i=1}^n a_{ij} [\nabla g_4(A\vec{x} - \vec{b})]_i \\
+    &= \sum_{i=1}^n a_{ij} \frac{\partial}{\partial x_k}[\nabla g_4(A\vec{x} - \vec{b})]_i \\
+    &= \sum_{i=1}^n a_{ij} \sum_{\ell=1}^n \frac{\partial [\nabla g_4(A\vec{x} - \vec{b})]_i}{\partial (A\vec{x} - \vec{b})_\ell} \frac{\partial (A\vec{x} - \vec{b})_\ell}{\partial x_k} \\
+    &= \sum_{i=1}^n a_{ij} \sum_{\ell=1}^n [\nabla^2 g_4(A\vec{x} - \vec{b})]_{i\ell} [A]_{\ell k} \\
+    &= \sum_{i=1}^n a_{ij} ([\nabla^2 g_4(A\vec{x} - \vec{b})]A)_{ik} \\
+    &= \sum_{i=1}^n [A^\top]_{ji} ([\nabla^2 g_4(A\vec{x} - \vec{b})]A)_{ik} \\
+    &= (A^\top [\nabla^2 g_4(A\vec{x} - \vec{b})]A)_{jk}.
+    \end{align}
+
+    Thus,
+    \begin{equation}
+    \nabla^2 g_5(\vec{x}) = A^\top [\nabla^2 g_4(A\vec{x} - \vec{b})]A.
+    \end{equation}
+
+    \item $g_6(\vec{x}) = e^{\|\vec{x}\|_2^2} = e^{g_2(\vec{x})}$. (Use the chain rule and the Jacobians computed in part 1(a).)
+
+    \textbf{Solution:} We use the multivariable chain rule, obtaining
+    \begin{align}
+    \nabla g_6(\vec{x}) &= (Dg_6(\vec{x}))^\top \\
+    &= ([D\exp(g_2(\vec{x}))][Dg_2(\vec{x})])^\top \\
+    &= [Dg_2(\vec{x})]^\top [D\exp(g_2(\vec{x}))]^\top \\
+    &= [\nabla g_2(\vec{x})][e^{g_2(\vec{x})}]^\top \\
+    &= [2\vec{x}][e^{g_2(\vec{x})}] \\
+    &= 2e^{\|\vec{x}\|_2^2}\vec{x},
+    \end{align}
+    since the transpose of a scalar is a scalar. For the Hessian, we obtain
+    \begin{align}
+    \nabla^2 g_6(\vec{x}) &= D(\nabla g_6)(\vec{x}) \\
+    &= D(2e^{\|\vec{x}\|_2^2}\vec{x}).
+    \end{align}
+
+    Notice that the function being differentiated is of the form $f(\vec{x})\vec{x}$, for $f(\vec{x}) = 2e^{\|\vec{x}\|_2^2}$. Thus we obtain
+    \begin{align}
+    \nabla^2 g_6(\vec{x}) &= D(f(\vec{x})\vec{x}) \\
+    &= \vec{x}[\nabla f(\vec{x})]^\top + f(\vec{x})I.
+    \end{align}
+
+    It just remains to compute $\nabla f(\vec{x})$, which we compute componentwise using the scalar chain rule, and obtain
+    \begin{align}
+    [\nabla f(\vec{x})]_j &= \frac{\partial f}{\partial x_j}(\vec{x}) \\
+    &= \frac{\partial}{\partial x_j}(2e^{\|\vec{x}\|_2^2}) \\
+    &= 2e^{\|\vec{x}\|_2^2}\frac{\partial \|\vec{x}\|_2^2}{\partial x_j} \\
+    &= 2e^{\|\vec{x}\|_2^2}[\nabla \|\vec{x}\|_2^2]_j \\
+    &= 2e^{\|\vec{x}\|_2^2}[2\vec{x}]_j \\
+    &= 4x_j e^{\|\vec{x}\|_2^2}.
+    \end{align}
+
+    Thus we have
+    \begin{equation}
+    \nabla f(\vec{x}) = 4e^{\|\vec{x}\|_2^2}\vec{x}.
+    \end{equation}
+
+    This gives
+    \begin{align}
+    \nabla^2 g_6(\vec{x}) &= 4e^{\|\vec{x}\|_2^2}\vec{x}\vec{x}^\top + 2e^{\|\vec{x}\|_2^2}I \\
+    &= 2e^{\|\vec{x}\|_2^2}(I + 2\vec{x}\vec{x}^\top).
+    \end{align}
+
+    \item $g_7(\vec{x}) = e^{\|A\vec{x} - \vec{b}\|_2^2} = g_6(A\vec{x} - \vec{b})$. (Use the chain rule and the Jacobians computed in part 1(a); you can use the gradient $\nabla g_6$ and Hessian $\nabla^2 g_6$ in your answer without having to rewrite it.)
+
+    \textbf{Solution:} Notice that in part 1(b)v, we did not use any specific functional properties of $g_4$, $\nabla g_4$, or $\nabla^2 g_5$ to determine $\nabla g_5$ and $\nabla^2 g_5$. Using the exact same analysis, we can conclude that
+    \begin{equation}
+    \nabla g_7 = A^\top[\nabla g_6(A\vec{x} - \vec{b})], \qquad \text{and} \qquad \nabla^2 g_7 = A^\top[\nabla^2 g_6(A\vec{x} - \vec{b})]A.
+    \end{equation}
+\end{enumerate}
+
+Consider the case now where all vectors and matrices above are scalar; do your answers above make sense? (No need to answer this in your submission.)
+
+\item Plot/hand-draw the level sets of the following functions:
+\begin{enumerate}[label=\roman*.]
+    \item $g(x_1, x_2) = \dfrac{x_1^2}{4} + \dfrac{x_2^2}{9}$
+    \item $g(x_1, x_2) = x_1 x_2$
+\end{enumerate}
+
+Also point out the gradient directions in the level-set diagram. Additionally, compute the first and second order Taylor series approximation around the point $(1,1)$ for each function and comment on how accurately they approximate the true function.
+
+\textbf{Solution:} Figures~1 and 2 contain the level sets and gradient directions for the given functions.
+
+\begin{enumerate}[label=\roman*.]
+    \item We first compute the first and second order partial derivatives of $g$ as follows:
+    \begin{align}
+    \frac{\partial g}{\partial x_1}(x_1, x_2) &= \frac{x_1}{2}, \qquad \frac{\partial g}{\partial x_2}(x_1, x_2) = \frac{2x_2}{9}, \\
+    \frac{\partial^2 g}{\partial x_1^2}(x_1, x_2) &= \frac{1}{2}, \qquad \frac{\partial^2 g}{\partial x_2 x_1}(x_1, x_2) = 0, \\
+    \frac{\partial^2 g}{\partial x_2^2}(x_1, x_2) &= \frac{2}{9}, \qquad \frac{\partial^2 g}{\partial x_1 x_2}(x_1, x_2) = 0.
+    \end{align}
+
+    The gradient of $g$ is then given by,
+    \begin{equation}
+    \nabla g(x_1, x_2) = \begin{bmatrix} \frac{\partial g}{\partial x_1}(1,1) \\[4pt] \frac{\partial g}{\partial x_2}(1,1) \end{bmatrix},
+    \end{equation}
+    and the Hessian matrix is given by,
+    \begin{equation}
+    H(x_1, x_2) = \begin{bmatrix} \frac{\partial^2 g}{\partial x_1^2}(x_1, x_2) & \frac{\partial^2 g}{\partial x_1 x_2}(x_1, x_2) \\[4pt] \frac{\partial^2 g}{\partial x_2 x_1}(x_1, x_2) & \frac{\partial^2 g}{\partial x_2^2}(x_1, x_2) \end{bmatrix}.
+    \end{equation}
+
+    The first order Taylor series approximation around $(1,1)$ can be computed as:
+    \begin{align}
+    g(x_1, x_2) &\approx g(1,1) + (\nabla g(1,1))^\top \begin{bmatrix} x_1 - 1 \\ x_2 - 1 \end{bmatrix} \\
+    &= \frac{13}{36} + \frac{x_1}{2} - \frac{1}{2} + \frac{2x_2}{9} - \frac{2}{9} = \frac{x_1}{2} + \frac{2x_2}{9} - \frac{13}{36}.
+    \end{align}
+
+    The second order Taylor series approximation around $(1,1)$ can be computed as:
+    \begin{align}
+    g(x_1, x_2) &\approx g(1,1) + (\nabla g(1,1))^\top \begin{bmatrix} x_1 - 1 \\ x_2 - 1 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} x_1 - 1 & x_2 - 1 \end{bmatrix} H(1,1) \begin{bmatrix} x_1 - 1 \\ x_2 - 1 \end{bmatrix} \\
+    &= \frac{x_1}{2} + \frac{2x_2}{9} - \frac{13}{36} + \frac{1}{2}\left(\frac{1}{2}(x_1 - 1)^2 + \frac{2}{9}(x_2 - 1)^2\right) \\
+    &= \frac{(x_1 - 1)^2}{4} + \frac{(x_2 - 1)^2}{9} + \frac{x_1}{2} + \frac{2x_2}{9} - \frac{13}{36} \\
+    &= \frac{x_1^2}{4} + \frac{x_2^2}{9}
+    \end{align}
+
+    The original function at $(1.1, 1.1)$ takes the value 0.437. The first order approximation returns, evaluated at $(1.1, 1.1)$: $\frac{1.1}{2} + \frac{2 \cdot 2}{9} - \frac{13}{36} = 0.433$. Additionally, observe that the second order approximation simplifies to return the original function!
+
+    \item We follow the same steps as in the previous part of the problem. The partial derivatives for this $g$ are given by:
+    \begin{align}
+    \frac{\partial g}{\partial x_1}(x_1, x_2) &= x_2, \qquad \frac{\partial g}{\partial x_2}(x_1, x_2) = x_1, \\
+    \frac{\partial^2 g}{\partial x_1^2}(x_1, x_2) &= 0, \qquad \frac{\partial^2 g}{\partial x_2 x_1}(x_1, x_2) = 1, \\
+    \frac{\partial^2 g}{\partial x_2^2}(x_1, x_2) &= 0, \qquad \frac{\partial^2 g}{\partial x_1 x_2}(x_1, x_2) = 1.
+    \end{align}
+
+    The first order Taylor series approximation around $(1,1)$ can be computed as:
+    \begin{align}
+    g(x_1, x_2) &\approx g(1,1) + (\nabla g(1,1))^\top \begin{bmatrix} x_1 - 1 \\ x_2 - 1 \end{bmatrix} \\
+    &= 1 + x_1 - 1 + x_2 - 1 = x_1 + x_2 - 1.
+    \end{align}
+
+    The second order Taylor series approximation around $(1,1)$ can be computed as:
+    \begin{align}
+    g(x_1, x_2) &\approx g(1,1) + (\nabla g(1,1))^\top \begin{bmatrix} x_1 - 1 \\ x_2 - 1 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} x_1 - 1 & x_2 - 1 \end{bmatrix} H(1,1) \begin{bmatrix} x_1 - 1 \\ x_2 - 1 \end{bmatrix} \\
+    &= x_1 + x_2 - 1 + \frac{1}{2}(2(x_1 - 1)(x_2 - 1)) \\
+    &= (x_1 - 1)(x_2 - 1) + x_1 + x_2 - 1 \\
+    &= x_1 x_2
+    \end{align}
+
+    The original function evaluated at $(1.1, 1.1)$ is 1.21. The first order approximation around $(1.1, 1.1)$ is 1.2, but the second order approximation again exactly represents the function!
+\end{enumerate}
+\end{enumerate}
+
+\section{Neural Networks and Backpropagation}
+
+Neural networks are parametric functions that have been widely used to fit complex patterns in vision and natural languages. Given some training data of the form $(\vec{x}_i, y_i)$, a neural network $\mathcal{N}$ is trained to minimize a \emph{loss function} on the data. This is often done using \emph{gradient descent}, an optimization method we will cover later in this class. Gradient descent requires us to compute the gradients of the loss function with respect to the parameters of the neural network. In practice, computational frameworks for neural networks compute the gradients automatically and efficiently via \emph{back-propagation}, which uses the chain rule to recursively compute the gradients of the loss function. In this problem, we study a toy neural network trained on a single data point $(\vec{x}, y)$.
+
+In particular, consider the following simplified three-layer neural network $\mathcal{N}$, representing a map from $\RR^d$ to $\RR$ whose parameters are $(\vec{w}_1, w_2, w_3) \in \RR^d \times \RR \times \RR$:
+\begin{align}
+p_1 &= \vec{w}_1^\top \vec{x} \\
+h_1 &= \sigma(p_1) \\
+p_2 &= w_2 h_1 \\
+h_2 &= \sigma(p_2) \\
+z &= w_3 h_2,
+\end{align}
+where $\sigma : \RR \to \RR$ is a nonlinear function (also called the ``activation function''), whose derivative is denoted by $\sigma' : \RR \to \RR$.
+
+We want the output of the network $z = \mathcal{N}(\vec{x})$ to match the true label $y$. A natural choice of the loss function encouraging this behavior is the squared loss:
+\begin{equation}
+L(y, z) \doteq \frac{1}{2}(y - z)^2.
+\end{equation}
+
+In the parts that follow, we will compute the derivative of $L$ with respect to the parameters $\vec{w}_1, w_2, w_3$.
+
+\begin{enumerate}[label=(\alph*)]
+\item Compute the following gradients and partial derivatives sequentially from left-to-right:
+\begin{equation}
+\frac{\partial L}{\partial z}, \quad \frac{\partial L}{\partial w_3}, \quad \frac{\partial L}{\partial h_2}, \quad \frac{\partial L}{\partial p_2}, \quad \frac{\partial L}{\partial w_2}, \quad \frac{\partial L}{\partial h_1}, \quad \frac{\partial L}{\partial p_1}, \quad \nabla_{\vec{w}_1} L, \quad \nabla_{\vec{x}} L.
+\end{equation}
+
+Here $\nabla_{\vec{x}} L$ is the gradient whose entries are the derivatives of $L$ with respect to the entries of $\vec{x}$, etc. We compute the first 4 derivatives for you.
+\begin{equation}
+\frac{\partial L}{\partial z} = z - y, \quad \frac{\partial L}{\partial w_3} = \frac{\partial L}{\partial z} h_2, \quad \frac{\partial L}{\partial h_2} = \frac{\partial L}{\partial z} w_3, \quad \frac{\partial L}{\partial p_2} = \frac{\partial L}{\partial h_2} \sigma'(p_2)
+\end{equation}
+
+Note how $\frac{\partial L}{\partial w_3}$ can be calculated using $\frac{\partial L}{\partial z}$ and $\frac{\partial L}{\partial p_2}$ can be calculated using $\frac{\partial L}{\partial h_2}$. In numerical computation, the result of $\frac{\partial L}{\partial z}$ and $\frac{\partial L}{\partial h_2}$ can thus be reused. This technique of saving computations for calculating the derivatives of a neural network is called \emph{back-propagation}.
+
+Use the chain rule to calculate the 5 remaining derivatives $\frac{\partial L}{\partial w_2}$, $\frac{\partial L}{\partial h_1}$, $\frac{\partial L}{\partial p_1}$, $\nabla_{\vec{w}_1} L$, and $\nabla_{\vec{x}} L$.
+
+\textbf{Solution:} We compute each term via chain rule.
+\begin{align}
+\frac{\partial L}{\partial w_2} &= \frac{\partial L}{\partial p_2} h_1 \\
+\frac{\partial L}{\partial h_1} &= \frac{\partial L}{\partial p_2} w_2 \\
+\frac{\partial L}{\partial p_1} &= \frac{\partial L}{\partial h_1} \sigma'(p_1) \\
+\nabla_{\vec{w}_1} L &= \frac{\partial L}{\partial p_1} \vec{x} \\
+\nabla_{\vec{x}} L &= \frac{\partial L}{\partial p_1} \vec{w}_1
+\end{align}
+
+\item Now suppose that Equation~(8) is written as
+\begin{equation}
+z' = w_3 h_2 + h_1.
+\end{equation}
+
+That is, we define a new neural network $\mathcal{N}'$ with parameters $(\vec{w}_1, w_2, w_3) \in \RR^d \times \RR \times \RR$ as follows.
+\begin{align}
+p_1 &= \vec{w}_1^\top \vec{x} \\
+h_1 &= \sigma(p_1) \\
+p_2 &= w_2 h_1 \\
+h_2 &= \sigma(p_2) \\
+z' &= w_3 h_2 + h_1.
+\end{align}
+
+This introduces a change in the network architecture, called the \emph{skip connection}.
+
+Again, compute the following gradients and partial derivatives with respect to the loss function $L(y, z') = \frac{1}{2}(y - z')^2$:
+\begin{equation}
+\frac{\partial L}{\partial z'}, \quad \frac{\partial L}{\partial w_3}, \quad \frac{\partial L}{\partial h_2}, \quad \frac{\partial L}{\partial p_2}, \quad \frac{\partial L}{\partial w_2}, \quad \frac{\partial L}{\partial h_1}, \quad \frac{\partial L}{\partial p_1}, \quad \nabla_{\vec{w}_1} L, \quad \nabla_{\vec{x}} L.
+\end{equation}
+
+We compute the first 4 derivatives for you.
+\begin{equation}
+\frac{\partial L}{\partial z'} = z' - y, \quad \frac{\partial L}{\partial w_3} = \frac{\partial L}{\partial z'} h_2, \quad \frac{\partial L}{\partial h_2} = \frac{\partial L}{\partial z'} w_3, \quad \frac{\partial L}{\partial p_2} = \frac{\partial L}{\partial h_2} \sigma'(p_2).
+\end{equation}
+
+Use the chain rule to calculate the 5 remaining derivatives $\frac{\partial L}{\partial w_2}$, $\frac{\partial L}{\partial h_1}$, $\frac{\partial L}{\partial p_1}$, $\nabla_{\vec{w}_1} L$, and $\nabla_{\vec{x}} L$.
+
+\textbf{Solution:}
+\begin{align}
+\frac{\partial L}{\partial w_2} &= \frac{\partial L}{\partial p_2} h_1 \\
+\frac{\partial L}{\partial h_1} &= \frac{\partial L}{\partial z'}\frac{\partial z'}{\partial h_1} = \frac{\partial L}{\partial z'}\left(1 + w_3 \frac{\partial h_2}{\partial h_1}\right) = \frac{\partial L}{\partial z'}\left(1 + w_3 \sigma'(p_2) w_2\right) = \frac{\partial L}{\partial z'}(1 + w_3 \sigma'(p_2) w_2) \\
+\frac{\partial L}{\partial p_1} &= \frac{\partial L}{\partial z'}\frac{\partial z'}{\partial p_1} = \frac{\partial L}{\partial z'}\left(w_3 \frac{\partial h_2}{\partial h_1}\frac{\partial h_1}{\partial p_1} + \frac{\partial h_1}{\partial p_1}\right) = \frac{\partial L}{\partial z'}(w_3 \sigma'(p_2) w_2 \sigma'(p_1) + \sigma'(p_1)) \\
+\nabla_{\vec{w}_1} L &= \frac{\partial L}{\partial p_1} \vec{x} \\
+\nabla_{\vec{x}} L &= \frac{\partial L}{\partial p_1} \vec{w}_1
+\end{align}
+
+\item In optimizing a neural network using gradient descent, we need the gradient of the loss function with respect to the parameters of the network. Please express $\frac{\partial L}{\partial w_3}$, $\frac{\partial L}{\partial w_2}$, and $\nabla_{\vec{w}_1} L$ for $\mathcal{N}$ and $\mathcal{N}'$ respectively with no dependence on partial derivatives of other variables. We compute $\frac{\partial L}{\partial w_3}$ for you, as follows.
+
+\begin{itemize}
+    \item For $\mathcal{N}$, we have $\frac{\partial L}{\partial w_3} = \frac{\partial L}{\partial z} h_2 = (z - y) h_2$.
+    \item For $\mathcal{N}'$, we have $\frac{\partial L}{\partial w_3} = \frac{\partial L}{\partial z'} h_2 = (z' - y) h_2$.
+\end{itemize}
+
+Express the remaining derivatives $\frac{\partial L}{\partial w_2}$ and $\nabla_{\vec{w}_1} L$ within $\mathcal{N}$ and $\mathcal{N}'$.
+
+\textbf{Solution:} For $\mathcal{N}$, we have
+\begin{align}
+\frac{\partial L}{\partial w_2} &= \frac{\partial L}{\partial p_2} h_1 \\
+&= \frac{\partial L}{\partial h_2}\sigma'(p_2) h_1 \\
+&= \frac{\partial L}{\partial z} w_3 \sigma'(p_2) h_1 \\
+&= (z - y) w_3 \sigma'(p_2) h_1
+\end{align}
+\begin{align}
+\nabla_{\vec{w}_1} L &= \frac{\partial L}{\partial p_1}\vec{x} \\
+&= \frac{\partial L}{\partial h_1}\sigma'(p_1)\vec{x} \\
+&= \frac{\partial L}{\partial p_2} w_2 \sigma'(p_1)\vec{x} \\
+&= \frac{\partial L}{\partial h_2}\sigma'(p_2) w_2 \sigma'(p_1)\vec{x} \\
+&= \frac{\partial L}{\partial z} w_3 \sigma'(p_2) w_2 \sigma'(p_1)\vec{x} \\
+&= (z - y) w_3 \sigma'(p_2) w_2 \sigma'(p_1)\vec{x}.
+\end{align}
+
+For $\mathcal{N}'$, we have
+\begin{align}
+\frac{\partial L}{\partial w_2} &= \frac{\partial L}{\partial p_2} h_1 \\
+&= \frac{\partial L}{\partial h_2}\sigma'(p_2) h_1 \\
+&= \frac{\partial L}{\partial z'} w_3 \sigma'(p_2) h_1 \\
+&= (z' - y) w_3 \sigma'(p_2) h_1
+\end{align}
+\begin{align}
+\nabla_{\vec{w}_1} L &= \frac{\partial L}{\partial p_1}\vec{x} \\
+&= \frac{\partial L}{\partial z'}(w_3 \sigma'(p_2) w_2 \sigma'(p_1) + \sigma'(p_1))\vec{x} \\
+&= (z' - y)(w_3 \sigma'(p_2) w_2 \sigma'(p_1) + \sigma'(p_1))\vec{x} \\
+&= (z' - y)(w_3 \sigma'(p_2) w_2 + 1)\sigma'(p_1)\vec{x}.
+\end{align}
+
+\item Many activation functions $\sigma$ have the property that $\sigma' \leq 1$. For example, the sigmoid function $\sigma(p) = \frac{1}{1+e^{-p}}$ is sometimes used as an activation function. Its derivative, $\sigma'(p) = \frac{e^{-p}}{(1+e^{-p})^2}$ has the range $(0, 1/4]$. That is, $\sigma' < 1$. Consider the case when $\sigma'$ is much smaller than 1, such that $\sigma'(p)\sigma'(q) \approx 0$ for any $p, q$, but $\sigma'(p) \not\approx 0$ for any $p$. Consider the derivatives $\frac{\partial L}{\partial w_3}$, $\frac{\partial L}{\partial w_2}$, and $\nabla_{\vec{w}_1} L$ within the neural network $\mathcal{N}$; with the above approximations, which of them will approximately be zero? Also answer this question for the neural network $\mathcal{N}'$.
+
+\textit{NOTE}: Some of the above gradients will indeed be approximately zero, and this is called the \emph{vanishing gradient} problem in deep learning.
+
+\textbf{Solution:} Yes, $\nabla_{\vec{w}_1} L$ for $\mathcal{N}$ involves a product of $\sigma'$s and thus approximately vanishes. But all other derivatives don't go to zero for both $\mathcal{N}$ and $\mathcal{N}'$, including $\nabla_{\vec{w}_1} L$ for $\mathcal{N}'$.
+
+Notably, $\nabla_{\vec{w}_1} L$ does not go to zero for $\mathcal{N}'$ because the network architecture of $\mathcal{N}'$ includes a skip connection that adds $h_1$ to the last layer $z'$, adding a $+1$ in the gradient expression.
+\end{enumerate}
+
+\section{PCA and Senate Voting Data}
+
+In this problem, we consider a matrix of senate voting data, which we manipulate in Python. The data is contained in a $n \times d$ data matrix $X$, where each row corresponds to a senator and each column to a bill. Each entry of $X$ is either $1$, $-1$ or $0$, depending on whether the senator voted for the bill, against the bill, or abstained, respectively. Please compute your answers using the Google Colab \texttt{senator\_pca.ipynb}. The sub-parts of this problem can be answered in the notebook itself in the space provided and can be submitted as an attachment to this PDF using the ``File > Print > Download as PDF'' feature that Google Colab supports. To use Google Colab, you need to make your own private copy of the starter code. Please follow these steps:
+
+\textbf{Open the Link}: Click this link. This will open the Google Colab notebook in ``read-only'' mode.
+
+\textbf{Make Your Own Copy}: Do not try to type in the notebook yet. Instead, go to the top menu and click File > Save a copy in Drive.
+
+\textbf{Start Coding}: A new tab will open with your personal copy of the notebook and you can safely begin writing your code.
+
+\begin{enumerate}[label=(\alph*)]
+\item Suppose we want to assign a \emph{score} to each senator based on their voting pattern, and then observe the empirical variance of these scores. To describe this, let us choose a $\vec{a} \in \RR^d$ and a scalar $b \in \RR$. We define the score for senator $i$ as:
+\begin{equation}
+f(\vec{x}_i, \vec{a}, b) = \vec{x}_i^\top \vec{a} + b, \quad i = 1, 2, \ldots, n.
+\end{equation}
+
+Note that $\vec{x}_i^\top$ denotes the $i^{\text{th}}$ row of $X$ and is a row vector of length $d$, as in the previous problem.
+
+Let us denote by $\vec{z} = f(X, \vec{a}, b)$ the column vector of length $n$ obtained by stacking the scores for each senator. Then
+\begin{equation}
+\vec{z} = f(X, \vec{a}, b) = X\vec{a} + b\vec{1} \in \RR^n
+\end{equation}
+where $\vec{1}$ is a vector with all entries equal to 1. Let us denote the mean value of $\vec{z}$ by $\mu(\vec{z}) = \frac{1}{n}\vec{1}^\top \vec{z}$. Let $\vec{\mu}(X) \in \RR^d$ denote the vector containing the mean of each column of $X$. Then
+\begin{align}
+\mu(\vec{z}) &= \frac{1}{n}\sum_{i=1}^n z_i \\
+&= \frac{1}{n}\sum_{i=1}^n \left(\vec{a}^\top \vec{x}_i + b\right) \\
+&= \vec{a}^\top \left(\frac{1}{n}\sum_{i=1}^n \vec{x}_i\right) + b \\
+&= \vec{a}^\top \vec{\mu}(X) + b
+\end{align}
+
+The empirical variance of the scores can then be obtained as
+\begin{align}
+\sigma^2(\vec{z}) &= \frac{1}{n}(\vec{z} - \mu(\vec{z})\vec{1})^\top(\vec{z} - \mu(\vec{z})\vec{1}) \\
+&= \frac{1}{n}((X\vec{a} + b\vec{1}) - (\vec{a}^\top \vec{\mu}(X) + b)\vec{1})^\top((X\vec{a} + b\vec{1}) - (\vec{a}^\top \vec{\mu}(X) + b)\vec{1}) \\
+&= \frac{1}{n}(X\vec{a} + b\vec{1} - (\vec{a}^\top \vec{\mu}(X))\vec{1} - b\vec{1})^\top(X\vec{a} + b\vec{1} - (\vec{a}^\top \vec{\mu}(X))\vec{1} - b\vec{1}) \\
+&= \frac{1}{n}(X\vec{a} - (\vec{a}^\top \vec{\mu}(X))\vec{1})^\top(X\vec{a} - (\vec{a}^\top \vec{\mu}(X))\vec{1}) \\
+&= \frac{1}{n}(X\vec{a} - \vec{1}\vec{\mu}(X)^\top \vec{a})^\top(X\vec{a} - \vec{1}\vec{\mu}(X)^\top \vec{a}) \\
+&= \frac{1}{n}((X - \vec{1}\vec{\mu}(X)^\top)\vec{a})^\top((X - \vec{1}\vec{\mu}(X)^\top)\vec{a}) \\
+&= \frac{1}{n}\vec{a}^\top (X - \vec{1}\vec{\mu}(X)^\top)^\top(X - \vec{1}\vec{\mu}(X)^\top)\vec{a}.
+\end{align}
+
+Note that this variance is therefore a function of the ``centered'' data matrix $X - \vec{1}\vec{\mu}(X)^\top$ in which the mean of each column is zero. It also does not depend on $b$.
+
+For the remainder of this problem, we assume that the data has been pre-centered (i.e., $\vec{\mu}(X) = \vec{0}$); note that this has been pre-computed for you in the code notebook. Assume also that $b = 0$, so that $\mu(\vec{z}) = 0$.
+
+Defining $f(X, \vec{a}) \doteq f(X, \vec{a}, 0)$ and replacing $\vec{z}$ with $f(X, \vec{a})$, we can then write the simpler empirical variance formula
+\begin{equation}
+\sigma^2(f(X, \vec{a})) = \frac{1}{n}\vec{a}^\top X^\top X \vec{a}.
+\end{equation}
+
+Suppose we restrict $\vec{a}$ to have unit-norm. In the provided code, find the maximum empirical variance $\sigma^2(f(X, \vec{a}))$ over all unit-norm $\vec{a}$, and find the $\vec{a}$ that maximizes it.
+
+\textbf{Solution:} The vector $\vec{a}$ can be computed as the first principal component of the data matrix $X$. For the full solution, see the notebook. (Vector $\vec{a}$ is the $542 \times 1$ column vector \texttt{a\_1}, and the maximum variance is just under 150.)
+
+As a side note, computing PCA by finding the direction of maximum variance is only one possible way of conceptualizing the computation; it's also equivalent to minimixing the reconstruction error in a lower-dimensional space. We'll explore this equivalence further in a future homework!
+
+\item We next consider party affiliation as a predictor for how a senator will vote. Follow the instructions in the notebook to compute the mean voting vector for each party and relate it to the direction of maximum variance.
+
+\textbf{Solution:} For solution, see Google Colab link.
+
+\item Recall from problem 1 that given a vector $\vec{z} = X\vec{u}$ (i.e., the vector of scalar projections of each row of $X$ along $\vec{u}$), we can compute its empirical variance as
+\begin{equation}
+\sigma^2(\vec{z}) = \vec{u}^\top \Sigma \vec{u},
+\end{equation}
+where $\Sigma(X) = \frac{X^\top X}{n}$ is the empirical covariance matrix of $X$. We will show in a future homework problem that the variance along each principal component $\vec{a}_i$ is precisely its corresponding eigenvalue of $\Sigma(X)$, i.e., $\lambda_i\{\Sigma(X)\}$. (For now, just note that this fact should make intuitive sense, since PCA is searching for directions of maximum variance of the data, and these occur along the covariance matrix's eigenvectors.)
+
+In the Notebook, compute the sum of the variance along $\vec{a}_1$ and $\vec{a}_2$ and plot the data projected on the $\vec{a}_1$--$\vec{a}_2$ plane.
+
+\textbf{Solution:} For solution, see Google Colab link.
+
+\item Suppose we want to find the bills that are most and least contentious --- i.e., those that have high variability in senators' votes, and those for which voting was almost unanimous. Follow the instructions in the notebook to compute a measure of ``contentiousness'' for each bill, plot the vote counts for exemplar bills, and comment on the voting trends.
+
+\textbf{Solution:} For solution, see Google Colab link.
+
+\item Suppose we want to infer the political affiliations of two senators whose voting records are known to us. Follow the instructions in the notebook to infer the political affiliation of the Green and Grey colored senators using PCA.
+
+\textbf{Solution:} For solution, see Google Colab link.
+
+\item Finally, we can use the defined score $f(X, \vec{a}, b)$, computed along the first principal component $\vec{a}_1$ to classify the most and least ``extreme'' senators based on their voting record. Follow the instructions in the Notebook to compute these scores and comment on their relationship to partisan affiliation.
+
+\textbf{Solution:} For solution, see Google Colab link.
+\end{enumerate}
+
+\section{SVD Transformation}
+
+In this problem we will interpret the linear map defined by matrix $A \in \RR^{n \times n}$ by looking at its singular value decomposition, $A = UDV^\top$. Recall that here $U, D, V \in \RR^{n \times n}$ and $U, V$ are orthonormal matrices while $D$ is a diagonal matrix. We will first look at how $V^\top$, $D$ and $U$ each separately transform the unit circle $C = \{(x,y) \in \RR^2 \mid x^2 + y^2 \leq 1\}$ and then look at their effect as a whole. This problem has an associated Google Colab, \texttt{svd\_transformation.ipynb} that contains parts (b, c, d, e) of the problem. These sub-parts can be answered in the space provided in the notebook itself and can be submitted as an attachment to the solution PDF using the ``File > Print > Download as PDF'' feature that Google Colab supports. To use Google Colab, you need to make your own private copy of the starter code. Please follow these steps:
+
+\textbf{Open the Link}: Click this link. This will open the Google Colab notebook in ``read-only'' mode.
+
+\textbf{Make Your Own Copy}: Do not try to type in the notebook yet. Instead, go to the top menu and click File > Save a copy in Drive.
+
+\textbf{Start Coding}: A new tab will open with your personal copy of the notebook and you can safely begin writing your code.
+
+\begin{enumerate}[label=(\alph*)]
+\item Let $\vec{x} \in \RR^n$ and $\vec{z} = V^\top \vec{x}$. Show that $\vec{x} = \sum_{i=1}^n z_i \vec{v}_i$, where $\vec{z} = \begin{bmatrix} z_1 & \cdots & z_n \end{bmatrix}^\top$ and $V = \begin{bmatrix} \vec{v}_1 & \cdots & \vec{v}_n \end{bmatrix}$. This shows that $\vec{z}$ is the vector of coordinates that represents $\vec{x}$ in the basis defined by the columns of $V$.
+
+\textbf{Solution:} Since the columns of $V$ form a basis for $\RR^n$, we can represent $\vec{x} \in \RR^n$ as $V\vec{z}$ for some $\vec{z}$ in $\RR^n$. Then,
+\begin{align}
+V^\top \vec{x} &= V^\top V \vec{z} \\
+&= \vec{z}.
+\end{align}
+The last equality follows since $V$ is an orthonormal matrix.
+\end{enumerate}
+
+For the rest of the problem we restrict ourselves to the case where $A \in \RR^{2 \times 2}$ and move to the notebook.
+
+\textbf{Solution:} The solutions for the rest of the parts can be found in the Google Colab link.
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE}: If you didn't work with anyone, you can put ``none'' as your answer.
+
+\end{document}

@@ -1,0 +1,107 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT}
+\fancyhead[R]{\small Discussion 4}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{lcr}
+\textbf{EECS 127/227AT} & Optimization Models in Engineering & UC Berkeley \\
+\textbf{Discussion 4} & & Spring 2026
+\end{tabular}
+\end{center}
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\section{Gradient of the Cross Entropy Loss}
+
+Consider the data $(\vec{x}_i, y_i)$ for $i = 1, \ldots, n$ where $\vec{x}_i \in \RR^d$ and $y_i \in \{0, 1\}$. Consider the parameter vector $\vec{w} \in \RR^d$. For each $i \in \{1, \ldots, n\}$, define the \emph{logistic function} $p_i \colon \RR^d \mapsto \RR$ given as
+\begin{equation}
+p_i(\vec{w}) = \frac{1}{1 + e^{-\vec{w}^\top \vec{x}_i}}.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Find the gradient of the function $p_i(\vec{w})$.
+
+\vspace{8cm}
+
+\item For $i \in \{1, \ldots, n\}$, the \emph{cross entropy} of $p \in [0,1]$ against $y_i$ is defined as
+\begin{equation}
+H_i(p) \doteq -y_i \log(p) - (1 - y_i) \log(1 - p).
+\end{equation}
+Find the gradient of the function $\ell_i(\vec{w}) \doteq H_i(p_i(\vec{w}))$ with respect to $\vec{w}$.
+
+\vspace{8cm}
+
+\item Define the cross-entropy loss function as the sum of the cross entropy functions over the entire data set:
+\begin{equation}
+\ell(\vec{w}) = \sum_{i=1}^{n} \ell_i(\vec{w}).
+\end{equation}
+Find the gradient of the function $\ell(\vec{w})$.
+\end{enumerate}
+
+\newpage
+
+\section{Gradients and Hessians}
+
+The \emph{gradient} of a scalar-valued function $g \colon \RR^n \to \RR$, is the column vector of length $n$, denoted as $\nabla g$, containing the derivatives of components of $g$ with respect to the variables:
+\begin{equation}
+(\nabla g(\vec{x}))_i = \frac{\partial g}{\partial x_i}(\vec{x}), \quad i = 1, \ldots n.
+\end{equation}
+
+The \emph{Hessian} of a scalar-valued function $g \colon \RR^n \to \RR$, is the $n \times n$ matrix, denoted as $\nabla^2 g$, containing the second derivatives of components of $g$ with respect to the variables:
+\begin{equation}
+(\nabla^2 g(\vec{x}))_{ij} = \frac{\partial^2 g}{\partial x_i \, \partial x_j}(\vec{x}), \quad i = 1, \ldots, n, \quad j = 1, \ldots, n.
+\end{equation}
+
+For the remainder of the class, we will repeatedly have to take gradients and Hessians of functions we are trying to optimize. This exercise serves as a warm up for future problems. Compute the gradients and Hessians for the following functions:
+
+\begin{enumerate}[label=(\alph*)]
+\item Compute the gradient and Hessian (with respect to $\vec{x}$) for $g(\vec{x}) = \vec{y}^\top A \vec{x}$, where $A \in \RR^{m \times n}$ is a constant matrix and $\vec{y} \in \RR^m$ is a constant vector.
+
+\vspace{5cm}
+
+\item Compute the gradient and Hessian of $h(\vec{x}) = \displaystyle\sum_{i=1}^{n} (x_i \log(x_i) - x_i)$ for $\vec{x} \in \RR^n_{++}$ and establish that the Hessian is positive semi-definite (as we will see soon in lecture, this establishes that $h$ is a convex function).
+
+\emph{NOTE:} In fact, the Hessian is positive definite.
+
+\vspace{5cm}
+
+\item Compute the gradient and Hessian of $g(\vec{x}) = e^{\vec{a}^\top \vec{x} + b}$ for $\vec{a}, \vec{x} \in \RR^n$, $b \in \RR$ and establish that the Hessian is positive semi-definite.
+\end{enumerate}
+
+\vfill
+\begin{center}
+\small \copyright\ UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+\end{center}
+
+\end{document}

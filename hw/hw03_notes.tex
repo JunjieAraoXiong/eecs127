@@ -1,0 +1,475 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 3}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\area}{area}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[6pt]
+{\LARGE\bfseries Homework 3 --- Solutions}
+\end{center}
+
+\section{Norms}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that the following inequalities hold for any vector $\vec{x} \in \RR^n$:
+\begin{equation}
+\frac{1}{\sqrt{n}} \|\vec{x}\|_2 \leq \|\vec{x}\|_\infty \leq \|\vec{x}\|_2 \leq \|\vec{x}\|_1 \leq \sqrt{n}\, \|\vec{x}\|_2 \leq n\, \|\vec{x}\|_\infty.
+\end{equation}
+
+\textit{NOTE}: We can interpret different norms as different ways of computing distance between two points $\vec{x}, \vec{y} \in \RR^2$. The $\ell^2$ norm is the distance as the crow flies (i.e.\ point-to-point distance), the $\ell^1$ norm, also known as the Manhattan distance is the distance you would have to cover if you were to navigate from $\vec{x}$ to $\vec{y}$ via a rectangular street grid, and the $\ell^\infty$ norm is the maximum distance that you have to travel in either the north-south or the east-west direction.
+
+\textbf{Solution:} We have
+\begin{equation}
+\|\vec{x}\|_2^2 = \sum_{i=1}^{n} x_i^2 \leq n \cdot \max_i\, x_i^2 = n \cdot \|\vec{x}\|_\infty^2.
+\end{equation}
+Also, $\|\vec{x}\|_\infty \leq \sqrt{x_1^2 + \ldots + x_n^2} = \|\vec{x}\|_2$. The inequality $\|\vec{x}\|_2 \leq \|\vec{x}\|_1$ is obtained after squaring both sides, and checking that
+\begin{equation}
+\sum_{i=1}^{n} x_i^2 \leq \sum_{i=1}^{n} x_i^2 + \sum_{i \neq j} |x_i x_j| = \left( \sum_{i=1}^{n} |x_i| \right)^2 = \|\vec{x}\|_1^2.
+\end{equation}
+The condition $\|\vec{x}\|_1 \leq \sqrt{n}\, \|\vec{x}\|_2$ is due to the Cauchy--Schwarz inequality
+\begin{equation}
+\left| \vec{z}^\top \vec{y} \right| \leq \|\vec{y}\|_2 \cdot \|\vec{z}\|_2,
+\end{equation}
+applied to the two vectors $y = \begin{bmatrix} 1 & \cdots & 1 \end{bmatrix}^\top$ and $\vec{z} = |\vec{x}| = \begin{bmatrix} |x_1| & \cdots & |x_n| \end{bmatrix}$.
+
+Finally, $\sqrt{n}\, \|\vec{x}\|_2 \leq n\, \|\vec{x}\|_\infty$ is achieved by an algebraic manipulation of the first derived bound using the fact that $\sqrt{n} = \frac{n}{\sqrt{n}}$.
+
+\item We define the $\ell^0$ norm of the vector $\vec{x}$ as the number of non-zero elements in $\vec{x}$, denoted by $\|\vec{x}\|_0$. Show that for any non-zero vector $x$,
+\begin{equation}
+\|\vec{x}\|_0 \geq \frac{\|\vec{x}\|_1^2}{\|\vec{x}\|_2^2}.
+\end{equation}
+Find all vectors $\vec{x}$ for which the lower bound is attained.
+
+\textbf{Solution:} Let us apply the Cauchy--Schwarz inequality with $\vec{z} = \vec{x}$ again, and with $\vec{y}$ a vector with $y_i = \sign(x_i)$ if $x_i \neq 0$, and $y_i = 0$ otherwise. We have $\|\vec{y}\|_2 = \sqrt{k}$, with $k = \|\vec{x}\|_0$. Hence
+\begin{equation}
+\left| \vec{z}^\top \vec{y} \right| = \|\vec{x}\|_1 \leq \|\vec{y}\|_2 \cdot \|\vec{z}\|_2 = \sqrt{k} \cdot \|\vec{x}\|_2,
+\end{equation}
+which proves the result. The bound is attained for vectors with $k$ non-zero elements, all with the same magnitude.
+\end{enumerate}
+
+\section{Diagonalization and Singular Value Decomposition}
+
+Let matrix $A = \begin{bmatrix} 0 & 1 \\ \frac{1}{2} & \frac{1}{2} \end{bmatrix}$.
+
+\begin{enumerate}[label=(\alph*)]
+\item Compute the eigenvalues and associated eigenvectors of $A$.
+
+\textbf{Solution:} Eigenvalues can be computed by first calculating $A$'s characteristic polynomial:
+\begin{align}
+\det(sI - A) &= \det\left( \begin{bmatrix} s & -1 \\ -\frac{1}{2} & s - \frac{1}{2} \end{bmatrix} \right) \\
+&= s\left(s - \frac{1}{2}\right) - (-1)\left(-\frac{1}{2}\right) \\
+&= s^2 - \frac{1}{2}s - \frac{1}{2} \\
+&= \left(s - \frac{1}{4}\right)^2 - \frac{1}{16} - \frac{1}{2} \\
+&= \left(s - \frac{1}{4}\right)^2 - \frac{9}{16} \\
+&= \left(s - \frac{1}{4} - \frac{3}{4}\right)\left(s - \frac{1}{4} + \frac{3}{4}\right) \\
+&= (s - 1)\left(s + \frac{1}{2}\right).
+\end{align}
+The eigenvalues of $A$ are thus $\lambda_1 = 1$ and $\lambda_2 = -\frac{1}{2}$, the values of $s$ at which $\det(sI - A) = 0$.
+
+The eigenvectors associated with each eigenvalue $\lambda$ can be calculated as values of $\vec{x} = \begin{bmatrix} x_a \\ x_b \end{bmatrix}$ for which $A\vec{x} = \lambda\vec{x}$, namely:
+\begin{equation}
+A\vec{x} = \begin{bmatrix} 0 & 1 \\ \frac{1}{2} & \frac{1}{2} \end{bmatrix} \begin{bmatrix} x_a \\ x_b \end{bmatrix} = \begin{bmatrix} x_b \\ \frac{x_a + x_b}{2} \end{bmatrix}
+\end{equation}
+\begin{equation}
+A\vec{x}_1 = \vec{x}_1 \iff x_b = x_a \iff \vec{x}_1 = \alpha_1 \begin{bmatrix} 1 \\ 1 \end{bmatrix},\; \alpha_1 \neq 0 \in \RR.
+\end{equation}
+\begin{equation}
+A\vec{x}_2 = -\frac{1}{2}\vec{x}_2 \iff x_b = -\frac{1}{2}x_a \iff \vec{x}_2 = \alpha_2 \begin{bmatrix} 1 \\ -\frac{1}{2} \end{bmatrix},\; \alpha_2 \neq 0 \in \RR.
+\end{equation}
+Note that the expressions above are valid eigenvectors for any nonzero values of $\alpha_1$ and $\alpha_2$.
+
+\item Express $A$ as $P\Lambda P^{-1}$, where $\Lambda$ is a diagonal matrix and $PP^{-1} = I$. State $P$, $\Lambda$, and $P^{-1}$ explicitly.
+
+\textbf{Solution:} Combining the calculations in part 2(a), we have that
+\begin{equation}
+A \begin{bmatrix} \vec{x}_1 & \vec{x}_2 \end{bmatrix} = \begin{bmatrix} \lambda_1 \vec{x}_1 & \lambda_2 \vec{x}_2 \end{bmatrix} = \begin{bmatrix} \vec{x}_1 & \vec{x}_2 \end{bmatrix} \begin{bmatrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{bmatrix}.
+\end{equation}
+For our calculations, we will use the eigenvalues and eigenvectors from part 2(a) with $\alpha_1 = \alpha_2 = 1$. (Your calculations may differ here; any nonzero values for $\alpha_1$ and $\alpha_2$ are permissible, and will result in scaled values of $P$ and $P^{-1}$.) Filling in eigenvalue and eigenvector values, we have:
+\begin{equation}
+A \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix} = \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & -\frac{1}{2} \end{bmatrix},
+\end{equation}
+and rearranging,
+\begin{equation}
+A = \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix}^{-1}.
+\end{equation}
+Calculating the latter inverse explicitly, we have
+\begin{equation}
+\begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix}^{-1} = -\frac{2}{3} \begin{bmatrix} -\frac{1}{2} & -1 \\ -1 & 1 \end{bmatrix} = \begin{bmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{2}{3} & -\frac{2}{3} \end{bmatrix} \quad \text{because } \begin{bmatrix} a & b \\ c & d \end{bmatrix}^{-1} = \frac{1}{ad - bc} \begin{bmatrix} d & -b \\ -c & a \end{bmatrix}
+\end{equation}
+so finally,
+\begin{equation}
+A = P\Lambda P^{-1} = \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{2}{3} & -\frac{2}{3} \end{bmatrix}.
+\end{equation}
+This is known as the \textit{eigenvalue decomposition}, or \textit{eigendecomposition}, of matrix $A$; for a more extensive description of this decomposition, see Calafiore \& El Ghaoui section 3.5.
+
+\item Compute $\lim_{k\to\infty} A^k$.
+
+\textbf{Solution:} Using the diagonalization of $A$ from part 2(b), we have:
+\begin{align}
+A &= P\Lambda P^{-1} \\
+A^k &= (P\Lambda P^{-1})^k \\
+&= (P\Lambda P^{-1})(P\Lambda P^{-1}) \cdots (P\Lambda P^{-1}) \qquad (k \text{ times}) \\
+&= P\Lambda \underbrace{P^{-1}P}_{I} \Lambda P^{-1} \cdots P\Lambda P^{-1} \\
+&= P\Lambda^k P^{-1} \\
+&= \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & -\frac{1}{2} \end{bmatrix}^k \begin{bmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{2}{3} & -\frac{2}{3} \end{bmatrix} \\
+&= \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} 1^k & 0 \\ 0 & \left(-\frac{1}{2}\right)^k \end{bmatrix} \begin{bmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{2}{3} & -\frac{2}{3} \end{bmatrix}.
+\end{align}
+Finally, because $\lim_{k\to\infty} \left(-\frac{1}{2}\right)^k = 0$, we have
+\begin{equation}
+\lim_{k\to\infty} A^k = \begin{bmatrix} 1 & 1 \\ 1 & -\frac{1}{2} \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{2}{3} & -\frac{2}{3} \end{bmatrix} = \begin{bmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{1}{3} & \frac{2}{3} \end{bmatrix} = \frac{1}{3} \begin{bmatrix} 1 & 2 \\ 1 & 2 \end{bmatrix}.
+\end{equation}
+
+\item Give the singular values $\sigma_1$ and $\sigma_2$ of $A$.
+
+\textbf{Solution:} Each singular value $\sigma_i$ of $A$ can be calculated as $\sigma_i = \sqrt{\lambda_i(AA^\top)} = \sqrt{\lambda_i(A^\top A)}$. (This is because $A$'s singular value decomposition, canonically written $A = U\Sigma V^\top$, can be multiplied by a transposed version to give $AA^\top = U\Sigma^2 U^\top$, where $\Sigma^2$ is a diagonal matrix containing the squared singular values of $A$ and $UU^\top = I$. For a thorough treatment of SVD, see Calafiore \& El Ghaoui chapter 5.)
+
+To find $A$'s singular values, we thus perform the same calculation used in part 2(a) to find each $\lambda_i(AA^\top) = \sigma_i^2$:
+\begin{equation}
+AA^\top = \begin{bmatrix} 0 & 1 \\ \frac{1}{2} & \frac{1}{2} \end{bmatrix} \begin{bmatrix} 0 & \frac{1}{2} \\ 1 & \frac{1}{2} \end{bmatrix} = \frac{1}{2} \begin{bmatrix} 2 & 1 \\ 1 & 1 \end{bmatrix}.
+\end{equation}
+\begin{align}
+\det\left(sI - AA^\top\right) &= \det\left( \begin{bmatrix} s - 1 & -\frac{1}{2} \\ -\frac{1}{2} & s - \frac{1}{2} \end{bmatrix} \right) \\
+&= (s-1)\left(s - \frac{1}{2}\right) - \left(-\frac{1}{2}\right)\left(-\frac{1}{2}\right) \\
+&= s^2 - s - \frac{1}{2}s + \frac{1}{2} - \frac{1}{4} \\
+&= s^2 - \frac{3}{2}s + \frac{1}{4} \\
+&= \left(s - \frac{3}{4}\right)^2 - \frac{9}{16} + \frac{1}{4} \\
+&= \left(s - \frac{3}{4}\right)^2 - \frac{5}{16} \\
+&= \left(s - \frac{3}{4} - \frac{\sqrt{5}}{4}\right)\left(s - \frac{3}{4} + \frac{\sqrt{5}}{4}\right) \\
+&= \left(s - \frac{3 + \sqrt{5}}{4}\right)\left(s - \frac{3 - \sqrt{5}}{4}\right) \\
+&= (s - \sigma_1^2)(s - \sigma_2^2).
+\end{align}
+Thus, the singular values of $A$ are $\sigma_1 = \frac{\sqrt{3+\sqrt{5}}}{2}$ and $\sigma_2 = \frac{\sqrt{3-\sqrt{5}}}{2}$.
+\end{enumerate}
+
+\section{Interpreting the Data Matrix}
+
+When working in many fields, you'll often find yourself working with a \textit{data matrix} $X$. Notation can vary --- sometimes it has dimensions $\RR^{m\times n}$, while others it has dimensions $\RR^{n\times d}$, for example --- and interpreting its precise meaning can often be confusing. In this problem, we lead you through an example of data matrix interpretation and manipulation.
+
+First, what exactly is a data matrix? As the name suggests, it is a collection of \textit{data points}. Suppose you are collecting data about courses offered in the EECS department in Fall 2022. Each course has certain quantifiable attributes, or \textit{features}, that you are interested in. Possible examples of features are the number of students in the course, the number of GSIs in the course, the number of units the course is worth, the size of the classroom that the course was taught in, the difficulty rating of the course on a numerical (1-5) scale, and so on. Suppose there were a total of 20 courses, and that for each course, we have 10 features. This gives us 20 data points, where each data point is a 10-dimensional vector. We can arrange these data points in a matrix of size $20 \times 10$.
+
+Generalizing the above, suppose we have $n$ data points, with each point containing values for $d$ features. Our data matrix $X$ would then be of size $n \times d$, i.e., $X \in \RR^{n \times d}$. We can interpret $X$ in the following two (equivalent) ways:
+\begin{equation}
+X = \begin{bmatrix} \leftarrow & \vec{x}_1^\top & \rightarrow \\ \leftarrow & \vec{x}_2^\top & \rightarrow \\ & \vdots & \\ \leftarrow & \vec{x}_n^\top & \rightarrow \end{bmatrix} = \begin{bmatrix} \uparrow & \uparrow & \cdots & \uparrow \\ \vec{f}_1 & \vec{f}_2 & \cdots & \vec{f}_d \\ \downarrow & \downarrow & \cdots & \downarrow \end{bmatrix}.
+\end{equation}
+Here, $\vec{x}_i \in \RR^d$, $i = 1, 2, \ldots, n$, and $\vec{x}_i^\top$ is a row vector that contains values of different features for the $i$-th data point. Also, $\vec{f}_j \in \RR^n$, $j = 1, 2, \ldots, d$, and $\vec{f}_j$ is a column vector that contains values of the $j$-th feature for different data points.
+
+In the remainder of this problem, we explore how we can interpret and use $X$. For subproblems that require answers in Python, assume $X$ is stored as a $n \times d$ NumPy array \texttt{X}.
+
+\begin{enumerate}[label=(\alph*)]
+\item We first introduce the \textit{empirical mean} of each feature. Let $k \geq 1$ be a positive integer, and define $\vec{1}$ to be the vector with 1 in every entry. The empirical mean of a vector $\vec{y} \in \RR^k$ is defined as
+\begin{equation}
+\mu(\vec{y}) \doteq \frac{1}{k} \vec{1}^\top \vec{y} = \frac{1}{k} \sum_{i=1}^{k} y_i.
+\end{equation}
+Suppose we want to compute a vector that contains the empirical mean of each feature, i.e., all the $\mu(\vec{f}_j)$'s. What is the length of the vector of empirical means? Which of the following Python commands will generate this vector?
+\begin{enumerate}[label=\roman*.]
+\item \texttt{mu = numpy.mean(X, axis = 0)}
+\item \texttt{mu = numpy.mean(X, axis = 1)}
+\end{enumerate}
+
+\textbf{Solution:} The vector containing the empirical mean of each feature has length $d$, the number of features. It can be calculated via:
+\begin{enumerate}[label=\roman*.]
+\item \texttt{mu = numpy.mean(X, axis = 0)}
+\end{enumerate}
+
+\item The next quantity we will discuss is the \textit{empirical variance}, and through it, the \textit{empirical standard deviation}. The empirical variance of a vector $\vec{y} \in \RR^k$ is defined as
+\begin{equation}
+\sigma^2(\vec{y}) \doteq \frac{1}{k} \left\| \vec{y} - \mu(\vec{y})\vec{1} \right\|_2^2 = \frac{1}{k} \sum_{i=1}^{k} (y_i - \mu(\vec{y}))^2.
+\end{equation}
+As the choice of notation would have you expect, the empirical standard deviation is defined as
+\begin{equation}
+\sigma(\vec{y}) \doteq \sqrt{\sigma^2(\vec{y})}.
+\end{equation}
+Suppose we want to compute a vector that contains the empirical standard deviation of each feature, i.e., all the $\sigma(\vec{f}_j)$'s. What is the length of this vector? Which of the following Python commands will generate this vector?
+\begin{enumerate}[label=\roman*.]
+\item \texttt{sigma = numpy.std(X, axis = 0)}
+\item \texttt{sigma = numpy.std(X, axis = 1)}
+\end{enumerate}
+
+\textbf{Solution:} As above, the vector has length $d$, and can be computed via
+\begin{enumerate}[label=\roman*.]
+\item \texttt{sigma = numpy.std(X, axis = 0)}
+\end{enumerate}
+
+\item Suppose we want to modify \texttt{X} so that each feature vector is ``\textit{centered}'', i.e., has zero empirical mean. How would you achieve this using Python code?
+
+\textbf{Solution:} To achieve a ``centered'' data matrix, we need to subtract the mean of each feature vector from every value in the vector. We can accomplish this in Python code via:
+\begin{itemize}
+\item \texttt{X\_centered = X - numpy.mean(X, axis = 0)}
+\end{itemize}
+
+\item Suppose we want to modify \texttt{X} so that each feature vector is ``\textit{standardized}'', i.e., has zero empirical mean with empirical variance equal to 1. How would you achieve this using Python code?
+
+\textit{NOTE}: This standardization technique is a very common data pre-processing step.
+
+\textbf{Solution:} To achieve a ``standardized'' data matrix, we need to subtract the mean of each feature vector from every value in the vector, then divide these new values by their corresponding standard deviation. We can accomplish this in Python code via:
+\begin{itemize}
+\item \texttt{X\_centered = X - numpy.mean(X, axis = 0)}
+\item \texttt{X\_std = X\_centered / numpy.std(X\_centered, axis = 0)}
+\end{itemize}
+Note that the standard deviation of feature vectors described by \texttt{X} and \texttt{X\_centered} is the same, so the second line could also read:
+\begin{itemize}
+\item \texttt{X\_std = X\_centered / numpy.std(X, axis = 0)}
+\end{itemize}
+
+\item The last quantity we will discuss is the \textit{empirical covariance}. For two vectors $\vec{w}, \vec{y} \in \RR^k$, the empirical covariance is defined as
+\begin{equation}
+\sigma(\vec{w}, \vec{y}) \doteq \frac{1}{k} \left( \vec{w} - \mu(\vec{w})\vec{1} \right)^\top \left( \vec{y} - \mu(\vec{y})\vec{1} \right) = \frac{1}{k} \sum_{i=1}^{k} (w_i - \mu(\vec{w}))(y_i - \mu(\vec{y})).
+\end{equation}
+What is $\sigma(\vec{y}, \vec{y})$ in terms of the empirical statistics we have previously defined (e.g.\ mean, variance, and/or standard deviation)?
+
+\textbf{Solution:} We have
+\begin{equation}
+\sigma(\vec{y}, \vec{y}) = \frac{1}{k} \left( \vec{y} - \mu(\vec{y})\vec{1} \right)^\top \left( \vec{y} - \mu(\vec{y})\vec{1} \right) = \frac{1}{k} \left\| \vec{y} - \mu(\vec{y})\vec{1} \right\|_2^2 = \sigma^2(\vec{y}).
+\end{equation}
+In words, this means that the empirical covariance between a vector and itself is just its empirical variance.
+
+\item For the remainder of this problem, assume that the data matrix is centered, so every feature has zero empirical mean; that is, $\mu(\vec{f}_j) = 0$ for every $j$.
+
+Let $\Sigma(X) \in \RR^{d \times d}$ denote the \textit{empirical covariance matrix} of $X$. This matrix contains the empirical covariance of each pair of feature vectors $(\vec{f}_i, \vec{f}_j)$. Correspondingly it is defined entry-wise as
+\begin{equation}
+\Sigma(X)_{i,j} \doteq \sigma(\vec{f}_i, \vec{f}_j).
+\end{equation}
+First, show that
+\begin{equation}
+\Sigma(X) = \frac{X^\top X}{n}.
+\end{equation}
+Second, show that
+\begin{equation}
+\frac{X^\top X}{n} = \frac{1}{n} \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top.
+\end{equation}
+Therefore, (49) entails that $\Sigma(X)$ can be represented in two ways.
+
+\textit{HINT: One way to show two matrices are equal is to show that for all $i, j$, their $(i,j)$-th entries are equal.}
+
+\textbf{Solution:} We assume that every feature has zero empirical mean (i.e., $\mu(\vec{f}_i) = 0$ for every $i$), so our expression for each pairwise empirical covariance simplifies to
+\begin{equation}
+\Sigma(X)_{i,j} = \sigma(\vec{f}_i, \vec{f}_j) = \frac{1}{n} \vec{f}_i^\top \vec{f}_j.
+\end{equation}
+Now, we have that
+\begin{align}
+\frac{1}{n} X^\top X &= \frac{1}{n} \begin{bmatrix} \vec{f}_1 & \cdots & \vec{f}_d \end{bmatrix}^\top \begin{bmatrix} \vec{f}_1 & \cdots & \vec{f}_d \end{bmatrix} \\
+&= \frac{1}{n} \begin{bmatrix} \vec{f}_1^\top \\ \vdots \\ \vec{f}_d^\top \end{bmatrix} \begin{bmatrix} \vec{f}_1 & \cdots & \vec{f}_d \end{bmatrix} \\
+&= \frac{1}{n} \begin{bmatrix} \vec{f}_1^\top \vec{f}_1 & \cdots & \vec{f}_1^\top \vec{f}_d \\ \vdots & \ddots & \vdots \\ \vec{f}_d^\top \vec{f}_1 & \cdots & \vec{f}_d^\top \vec{f}_d \end{bmatrix} \\
+&= \begin{bmatrix} \sigma(\vec{f}_1, \vec{f}_1) & \cdots & \sigma(\vec{f}_1, \vec{f}_d) \\ \vdots & \ddots & \vdots \\ \sigma(\vec{f}_d, \vec{f}_1) & \cdots & \sigma(\vec{f}_d, \vec{f}_d) \end{bmatrix} \\
+&= \Sigma(X).
+\end{align}
+
+Next, one can show that both expressions given for $\Sigma(X)$ are the same by algebraic manipulation:
+\begin{align}
+\frac{1}{n} \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top &= \frac{1}{n} \sum_{i=1}^{n} (X^\top \vec{e}_i)(X^\top \vec{e}_i)^\top \\
+&= \frac{1}{n} \sum_{i=1}^{n} X^\top \vec{e}_i \vec{e}_i^\top X \\
+&= \frac{1}{n} X^\top \left( \sum_{i=1}^{n} \vec{e}_i \vec{e}_i^\top \right) X \\
+&= \frac{1}{n} X^\top I_n X \\
+&= \frac{1}{n} X^\top X,
+\end{align}
+where $\vec{e}_i$ is the $i$-th standard basis vector.
+
+\item In this class, we consider three different interpretations of the term ``projection''. We define them explicitly here for this problem.
+
+Consider vectors $\vec{a}$ and $\vec{b}$ in $\RR^n$. Let $\vec{b}$ be unit norm (i.e., $\left\| \vec{b} \right\|_2^2 = \vec{b}^\top \vec{b} = 1$). We define the following:
+\begin{enumerate}[label=\roman*.]
+\item The \textbf{vector projection} of $\vec{a}$ on $\vec{b}$ is given by $(\vec{a}^\top \vec{b})\vec{b}$. The vector projection is a vector in $\RR^n$.
+\item The \textbf{scalar projection} of $\vec{a}$ on $\vec{b}$ is given by $\vec{a}^\top \vec{b}$. The scalar projection is a scalar but can take both positive and negative values.
+\item The \textbf{projection length} of $\vec{a}$ on $\vec{b}$ is given by $\left| \vec{a}^\top \vec{b} \right|$ and is the absolute value of the scalar projection.
+\end{enumerate}
+
+Suppose we want to obtain a column vector $\vec{p} \in \RR^n$ whose $i$-th entry is the \textit{scalar} projection of data point $\vec{x}_i$ along the direction given by the unit vector $\vec{w}$. Show that $\vec{p}$ is given by
+\begin{equation}
+\vec{p} = X\vec{w}.
+\end{equation}
+
+\textbf{Solution:} Because $\vec{w}$ is a unit vector, the scalar projection of any vector $\vec{y} \in \RR^d$ onto $\vec{w}$ is $\vec{y}^\top \vec{w}$, as defined above. In the given equation, the $i$-th entry of $\vec{p}$ is $\vec{x}_i^\top \vec{w}$, precisely the scalar projection of each data point onto $\vec{w}$, as desired.
+
+\item Performing this kind of projection onto a unit vector $\vec{w}$ is at the heart of the PCA computation, which also requires computing the \textit{variance} of these scalar projections.
+
+Formally, for $i \in \{1, \ldots, n\}$, define $p_i \doteq \vec{x}_i^\top \vec{w}$, and define $\vec{p} \doteq \begin{bmatrix} p_1, \ldots, p_n \end{bmatrix}^\top$. Show that its empirical variance $\sigma^2(\vec{p})$ can be calculated as
+\begin{equation}
+\sigma^2(\vec{p}) = \frac{1}{n} \vec{w}^\top X^\top X \vec{w} = \vec{w}^\top \Sigma(X) \vec{w}.
+\end{equation}
+Recall that $X$ is centered.
+
+\textbf{Solution:} We first calculate an expression for $\mu(\vec{p})$:
+\begin{align}
+\mu(\vec{p}) &= \frac{1}{n} \sum_{i=1}^{n} p_i \\
+&= \frac{1}{n} \sum_{i=1}^{n} \vec{x}_i^\top \vec{w} \\
+&= \frac{1}{n} \sum_{i=1}^{n} \sum_{j=1}^{d} w_j (\vec{x}_i)_j \\
+&= \frac{1}{n} \sum_{i=1}^{n} \sum_{j=1}^{d} w_j (\vec{f}_j)_i \\
+&= \sum_{j=1}^{d} w_j \cdot \frac{1}{n} \sum_{i=1}^{n} (\vec{f}_j)_i \\
+&= \sum_{j=1}^{d} w_j \cdot \underbrace{\mu(\vec{f}_j)}_{=0} \\
+&= 0.
+\end{align}
+The underlined equality follows since every column of $X$ has zero empirical mean after centering.
+
+We now build an expression for $\sigma^2(\vec{p})$, showing that
+\begin{align}
+\sigma^2(\vec{p}) &= \frac{1}{n} \sum_{i=1}^{n} (p_i - \mu(\vec{p}))^2 \\
+&= \frac{1}{n} \sum_{i=1}^{n} (\vec{x}_i^\top \vec{w} - 0)^2 \\
+&= \frac{1}{n} \sum_{i=1}^{n} (\vec{w}^\top \vec{x}_i)^2 \\
+&= \frac{1}{n} \sum_{i=1}^{n} \vec{w}^\top \vec{x}_i \vec{x}_i^\top \vec{w} \\
+&= \frac{1}{n} \vec{w}^\top \left( \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top \right) \vec{w} \\
+&= \frac{1}{n} \vec{w}^\top X^\top X \vec{w} \\
+&= \vec{w}^\top \Sigma(X) \vec{w}
+\end{align}
+as desired, where the last equality is due to part 3(f).
+\end{enumerate}
+
+\section{Understanding Ellipses}
+
+Consider the Euclidean space $\RR^2$ with the orthogonal basis $\{\vec{e}_1, \vec{e}_2\}$. In this exercise, we study the ellipse
+\begin{equation}
+\mathcal{E} = \left\{ x_1 \vec{e}_1 + x_2 \vec{e}_2 \;\middle|\; x_1, x_2 \in \RR,\; \left( \sqrt{5}\, x_1 - \frac{3\sqrt{5}}{5} x_2 \right)^2 + \left( \frac{4\sqrt{5}}{5} x_2 \right)^2 \leq 8 \right\}.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that we can express the ellipse as $\mathcal{E} = \{\vec{x} \in \RR^2 \mid \vec{x}^\top A \vec{x} \leq 1\}$ for symmetric positive definite $A$, where
+\begin{equation}
+A = \frac{1}{8} \begin{bmatrix} 5 & -3 \\ -3 & 5 \end{bmatrix} = \frac{1}{2} \begin{bmatrix} 1 & 1 \\ -1 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & \frac{1}{4} \end{bmatrix} \begin{bmatrix} 1 & -1 \\ 1 & 1 \end{bmatrix}.
+\end{equation}
+
+\textbf{Solution:}
+\begin{align}
+\mathcal{E} &= \left\{ x_1 \vec{e}_1 + x_2 \vec{e}_2 \;\middle|\; x_1, x_2 \in \RR,\; \left( \sqrt{5}\, x_1 - \frac{3\sqrt{5}}{5} x_2 \right)^2 + \left( \frac{4\sqrt{5}}{5} x_2 \right)^2 \leq 8 \right\} \\
+&= \left\{ x_1 \vec{e}_1 + x_2 \vec{e}_2 \;\middle|\; x_1, x_2 \in \RR,\; 5x_1^2 + 5x_2^2 - 6x_1 x_2 \leq 8 \right\} \\
+&= \left\{ \vec{x} \in \RR^2 \;\middle|\; \vec{x}^\top A \vec{x} \leq 1 \right\},
+\end{align}
+for $A = \frac{1}{8} \begin{bmatrix} 5 & -3 \\ -3 & 5 \end{bmatrix}$.
+
+$A$ is symmetric and has positive eigenvalues and is thus positive definite.
+
+\item Show that the ellipse $\mathcal{E}$ can be viewed as a linear transformation of the unit disk by finding $B$ such that $\mathcal{E} = \{B\vec{v} \mid \|\vec{v}\|_2 \leq 1\}$. Is this $B$ unique?
+
+\textbf{Solution:} Since $A$ is symmetric, by Spectral Theorem we can write $A = U\Lambda U^\top$ for orthogonal matrix $U$ and diagonal matrix $\Lambda$.
+
+Observe that $C = \Lambda^{\frac{1}{2}} U^\top$ satisfies $A = C^\top C$ and is a square-root of $A$. Note that we can define $\Lambda^{1/2}$ since $A$ is positive definite. But this is not the only square-root. For any orthogonal matrix $V$, $C = V\Lambda^{\frac{1}{2}} U^\top$ satisfies $C^\top C = A$. If we restrict to a symmetric square-root then we can take $C = U\Lambda^{\frac{1}{2}} U^\top$. Note that in all cases we can define $B = C^{-1} = U\Lambda^{-\frac{1}{2}} V^\top$.
+
+We have,
+\begin{align}
+\mathcal{E} &= \{\vec{x} \in \RR,\; \vec{x}^\top A \vec{x} \leq 1\} \\
+&= \{\vec{x} \in \RR^2,\; \vec{x}^\top C^\top C \vec{x} \leq 1\} \\
+&= \{\vec{x} \in \RR^2,\; \|C\vec{x}\|_2^2 \leq 1\} \\
+&= \{C^{-1}\vec{v},\; \|\vec{v}\|_2^2 \leq 1,\; \vec{v} \in \RR^2\} \\
+&= \{B\vec{v},\; \|\vec{v}\|_2 \leq 1,\; \vec{v} \in \RR^2\}.
+\end{align}
+
+Another possible way to find $B$ is to remark that $C$ acts as a change of variables such that $v = Cx$, where $x = \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}$. Choosing $C = \frac{1}{\sqrt{46}} \begin{bmatrix} 5 & -3 \\ 0 & 4 \end{bmatrix}$ gives the result that $\left(\left(\sqrt{5}\,x_1 - \frac{3\sqrt{5}}{5}x_2\right)^2 + \left(\frac{4\sqrt{5}}{5}x_2\right)^2\right) = 8\|v\|_2^2$. Then, defining $B = C^{-1}$ lets us write that $x = Bv$. These two equalities relating $x$ and $v$ let us rewrite the matching parts of the original definition of $\mathcal{E}$ into an expression in the form that we wanted.
+
+\item Relate the length and direction of the semi-major and semi-minor axes of $\mathcal{E}$ to the singular values of $B$ (or eigenvalues of $A$).
+
+\textbf{Solution:} We have $B = U\Lambda^{\frac{1}{2}}V^\top$. So we can view the effect of $B$ on the unit disk as a rotation $V^\top$ followed by a scaling along the $x_1$ and $x_2$ axis (by diagonal entries of $\Lambda^{\frac{1}{2}}$ respectively), and followed by another rotation ($U$). The length of the semi axes of the ellipse is determined by the singular values of $B$ and the direction/angle is determined by the left singular vectors (columns of $U$).
+
+Since $A = U\Lambda U^\top$, we can find corresponding relations to eigenvalues and eigenvectors of $A$.
+
+\item Compute the area of $\mathcal{E}$.
+
+\textbf{Solution:} The area of $\mathcal{E}$ is:
+\begin{align}
+\area(\mathcal{E}) &= \area(\{B\vec{v} \in \RR^2 \mid \|\vec{v}\|_2 \leq 1\}) \\
+&= |\det(B)|\, \area(\{\vec{v} \in \RR^2 \mid \|\vec{v}\|_2 \leq 1\}) \\
+&= |\det(B)|\, \pi \\
+&= 2\pi.
+\end{align}
+\end{enumerate}
+
+\section{SVD Part 2}
+
+Consider $A$ to be the $4 \times 3$ matrix
+\begin{equation}
+A = \begin{bmatrix} \vec{a}_1 & \vec{a}_2 & \vec{a}_3 \end{bmatrix}
+\end{equation}
+where $\vec{a}_i$ for $i \in \{1, 2, 3\}$ form a set of \textit{orthogonal} vectors satisfying $\|\vec{a}_1\|_2 = 3$, $\|\vec{a}_2\|_2 = 2$, $\|\vec{a}_3\|_2 = 1$.
+
+\begin{enumerate}[label=(\alph*)]
+\item What is the compact SVD of $A$? Express it as $A = U\Sigma V^\top$, with $\Sigma$ the diagonal matrix of singular values ordered in decreasing fashion, and explicitly describe $U$ and $V$.
+
+\textbf{Solution:} The SVD of $A = U\Sigma V^\top$. Due to the orthogonality of the $\vec{a}_i$, we have that
+\begin{equation}
+A^\top A = V\Sigma^2 V^\top = \begin{bmatrix} 9 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 1 \end{bmatrix}
+\end{equation}
+Thus $V = I$ and $\Sigma = \diag(3, 2, 1)$. Finally we have that $U = A\Sigma^{-1}$ which becomes
+\begin{equation}
+U = \begin{bmatrix} \frac{\vec{a}_1}{3} & \frac{\vec{a}_2}{2} & \frac{\vec{a}_3}{1} \end{bmatrix}
+\end{equation}
+
+\item What is the dimension of the null space, $\dim(\NN(A))$?
+
+\textbf{Solution:} From part (a) all of the singular values of $A$ are non-zero. So the dimension of the null space is 0. Alternatively, all the columns of $A$ are orthogonal -- so no (non-zero) linear combination of them can equal zero.
+
+\item What is the rank of $A$, $\rank(A)$? Provide an orthonormal basis for the range of $A$.
+
+\textbf{Solution:} The rank of $A$ is simply the number of non-zero singular values. So $\rank(A) = 3$. The columns of $U$ (defined above) provide an orthonormal basis for the range of $A$.
+
+\item Let $I_3$ denote the $3 \times 3$ identity matrix. Consider the matrix $\tilde{A} = \begin{bmatrix} A \\ I_3 \end{bmatrix} \in \RR^{7 \times 3}$. What are the singular values of $\tilde{A}$ (in terms of the singular values of $A$)?
+
+\textbf{Solution:} We have that $\tilde{A}^\top \tilde{A} = A^\top A + I_3 = V(\Sigma^2 + I_3)V^\top$. Hence if we denote $\sigma_i$ as the singular values of $A$ then the singular values of $\tilde{A}$ are $\tilde{\sigma}_i = \sqrt{\sigma_i^2 + 1}$ which are $\sqrt{10}$, $\sqrt{5}$, $\sqrt{2}$.
+\end{enumerate}
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE}: If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\begin{center}
+\small \copyright\ UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+\end{center}
+
+\end{document}

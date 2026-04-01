@@ -1,0 +1,231 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Discussion 6}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+
+\begin{document}
+
+\begin{center}
+    {\Large\bfseries EECS 127/227AT \quad Optimization Models in Engineering}\\[0.5em]
+    {\large UC Berkeley \hfill Spring 2026}\\[1em]
+    {\LARGE\bfseries Discussion 6 --- Solutions}
+\end{center}
+
+\section{Linear Regression with Weights}
+
+In this problem, we discuss multiple interpretations of weighted linear regression.
+
+Let $A \in \RR^{m \times n}$ be a data matrix whose data points are the $m$ rows $\vec{a}_1^\top, \ldots, \vec{a}_m^\top \in \RR^n$. Suppose $m \geq n$ and $A$ has full column rank. Let $\vec{y} \in \RR^m$ be a vector of outputs, each corresponding to a data point. Let $\vec{w} \in \RR^m_{++}$ be a vector of \emph{positive} real numbers, also called weights, each corresponding to a data point---output pair. We are interested in the following least-squares type optimization problem:
+\begin{equation}
+    \min_{\vec{x} \in \RR^n} \sum_{i=1}^{m} w_i (\vec{a}_i^\top \vec{x} - y_i)^2.
+\end{equation}
+In general, assigning a high weight $w_i$ means that we want our learned linear predictor $\vec{a}_i^\top \vec{x}$ to achieve a close value to $y_i$; that is, we believe this data point is significant or important to get right.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Show that the problem in Equation~(1) is equivalent to the problem:
+    \begin{equation}
+        \min_{\vec{x} \in \RR^n} \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2
+    \end{equation}
+    where $W \doteq \operatorname{diag}(\vec{w}) \in \RR^{m \times m}$ is a diagonal matrix whose diagonal entries are the entries of $\vec{w}$.
+
+    \textbf{Solution:} We have
+    \begin{align}
+        \sum_{i=1}^{m} w_i (\vec{a}_i^\top \vec{x} - y_i)^2
+        &= \left\| \begin{bmatrix} w_1^{1/2}(\vec{a}_1^\top \vec{x} - y_1) \\ \vdots \\ w_m^{1/2}(\vec{a}_m^\top \vec{x} - y_m) \end{bmatrix} \right\|_2^2 \\
+        &= \left\| \begin{bmatrix} w_1^{1/2} & & \\ & \ddots & \\ & & w_m^{1/2} \end{bmatrix} \begin{bmatrix} \vec{a}_1^\top \vec{x} - y_1 \\ \vdots \\ \vec{a}_m^\top \vec{x} - y_m \end{bmatrix} \right\|_2^2 \\
+        &= \left\| W^{1/2} \begin{bmatrix} \vec{a}_1^\top \vec{x} - y_1 \\ \vdots \\ \vec{a}_m^\top \vec{x} - y_m \end{bmatrix} \right\|_2^2 \\
+        &= \left\| W^{1/2} \left( \begin{bmatrix} \vec{a}_1^\top \vec{x} \\ \vdots \\ \vec{a}_m^\top \vec{x} \end{bmatrix} - \begin{bmatrix} y_1 \\ \vdots \\ y_m \end{bmatrix} \right) \right\|_2^2 \\
+        &= \left\| W^{1/2} \left( \begin{bmatrix} \vec{a}_1^\top \\ \vdots \\ \vec{a}_m^\top \end{bmatrix} \vec{x} - \vec{y} \right) \right\|_2^2 \\
+        &= \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2.
+    \end{align}
+
+    \item Using Equation~(2), compute the gradient (with respect to $\vec{x}$) of the objective function
+    \begin{equation}
+        f(\vec{x}) \doteq \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2.
+    \end{equation}
+
+    \textbf{Solution:} We have
+    \begin{align}
+        f(\vec{x}) &= \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2 \\
+        &= (A\vec{x} - \vec{y})^\top W (A\vec{x} - \vec{y}) \\
+        &= (A\vec{x} - \vec{y})^\top (WA\vec{x} - W\vec{y}) \\
+        &= \vec{x}^\top A^\top W A \vec{x} - \vec{y}^\top W A \vec{x} - \vec{x}^\top A^\top W \vec{y} + \vec{y}^\top W \vec{y} \\
+        &= \vec{x}^\top A^\top W A \vec{x} - 2\vec{x}^\top A^\top W \vec{y} + \vec{y}^\top W \vec{y}.
+    \end{align}
+    Therefore,
+    \begin{align}
+        \nabla_{\vec{x}} f(\vec{x}) &= \nabla_{\vec{x}} \left\{ \vec{x}^\top A^\top W A \vec{x} - 2\vec{x}^\top A^\top W \vec{y} + \vec{y}^\top W \vec{y} \right\} \\
+        &= 2A^\top W A \vec{x} - 2A^\top W \vec{y}.
+    \end{align}
+
+    \item Show that the optimal solution to Equation~(2) is given by
+    \begin{equation}
+        \vec{x}^\star_{\mathrm{WLR}} \doteq (A^\top W A)^{-1} A^\top W \vec{y}.
+    \end{equation}
+
+    \emph{HINT: There are multiple ways to do this problem; one uses the gradient that you just computed, and another finds the least squares solution of a particular linear system.}
+
+    \emph{HINT: If using the gradient method, you may assume that $f$ is minimized at any $\vec{x}^\star$ such that $\nabla_{\vec{x}} f(\vec{x}^\star) = \vec{0}$; this is because $f$ is convex, as we will see a little later in the course.}
+
+    \textbf{Solution:}
+
+    \textbf{Approach 1:} Using the gradient.
+
+    Since $W_{ii} = w_i > 0$, $W$ is positive definite. Thus, the Hessian of the objective function, i.e.,
+    \begin{equation}
+        \nabla_{\vec{x}}^2 f(\vec{x}) = 2A^\top W A
+    \end{equation}
+    is everywhere positive definite (one can show this formally by the matrix's Rayleigh coefficient). Thus $f$ is convex and to find the optimal solution it suffices to set the gradient to $\vec{0}$. We have
+    \begin{align}
+        \vec{0} &\stackrel{\text{set}}{=} \nabla_{\vec{x}} f(\vec{x}^\star_{\mathrm{WLR}}) \\
+        &= 2A^\top W A \vec{x}^\star_{\mathrm{WLR}} - 2A^\top W \vec{y} \\
+        \implies A^\top W A \vec{x}^\star_{\mathrm{WLR}} &= A^\top W \vec{y} \\
+        \implies \vec{x}^\star_{\mathrm{WLR}} &= (A^\top W A)^{-1} A^\top W \vec{y}.
+    \end{align}
+
+    \textbf{Approach 2:} Using linear regression formula.
+
+    We have
+    \begin{equation}
+        f(\vec{x}) = \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2 = \left\| W^{1/2} A \vec{x} - W^{1/2} \vec{y} \right\|_2^2.
+    \end{equation}
+    Since $A$ has full rank and $W$ is a diagonal matrix of positive entries, $W^{1/2}A$ has full rank. Thus one can solve this system using the least squares formula, obtaining
+    \begin{equation}
+        \vec{x}^\star_{\mathrm{WLR}} = ((W^{1/2}A)^\top (W^{1/2}A))^{-1} (W^{1/2}A)^\top (W^{1/2}\vec{y}) = (A^\top W A)^{-1} A^\top W \vec{y}.
+    \end{equation}
+
+    \item Now we will look at this problem from a probabilistic interpretation. Suppose our output value $\vec{y}$ is noisy, and in particular there is some $\vec{x}_0$ such that for every $i$ we have $y_i = \vec{a}_i^\top \vec{x}_0 + u_i$, where $u_i$ is a random variable. Here we assume the $u_i$ are independent but \emph{not} identically distributed. In particular, we assume that for each $i$ we have that $u_i$ is distributed according to a Gaussian $\NN(0, \sigma_i^2)$ where $\sigma_i > 0$ is a known noise parameter for each data point $i$.
+
+    To recover $\vec{x}_0$ given data $A$ and $\vec{y}$, as well as the $\sigma_i^2$, we want to compute the maximum likelihood estimator (MLE). Show that the maximum likelihood problem
+    \begin{equation}
+        \operatorname*{argmax}_{\vec{x} \in \RR^n}\, p(\vec{y} \mid A, \vec{x})
+    \end{equation}
+    is equivalent to the weighted linear regression problem:
+    \begin{equation}
+        \operatorname*{argmin}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} w_i (\vec{a}_i^\top \vec{x} - y_i)^2.
+    \end{equation}
+    for some choice of $\vec{w}$. What choice of $\vec{w}$ makes them equivalent?
+
+    \emph{Note: Refer to Sec.~4.5 of the course reader for a discussion on MLE.}
+
+    \textbf{Solution:} We have
+    \begin{align}
+        \operatorname*{argmax}_{\vec{x} \in \RR^n}\, p(\vec{y} \mid A, \vec{x})
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \prod_{i=1}^{m} p(y_i \mid \vec{a}_i, \vec{x}) \\
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \log \left( \prod_{i=1}^{m} p(y_i \mid \vec{a}_i, \vec{x}) \right) \\
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} \log(p(y_i \mid \vec{a}_i, \vec{x})) \\
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} \log\!\left( \frac{1}{\sqrt{2\pi\sigma_i^2}}\, \mathrm{e}^{-(y_i - \vec{a}_i^\top \vec{x})^2 / (2\sigma_i^2)} \right) \\
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} \left\{ \log\!\left( \frac{1}{\sqrt{2\pi\sigma_i^2}} \right) + \log\!\left( \mathrm{e}^{-(y_i - \vec{a}_i^\top \vec{x})^2 / (2\sigma_i^2)} \right) \right\} \\
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \left\{ \sum_{i=1}^{m} \log\!\left( \frac{1}{\sqrt{2\pi\sigma_i^2}} \right) + \sum_{i=1}^{m} \log\!\left( \mathrm{e}^{-(y_i - \vec{a}_i^\top \vec{x})^2 / (2\sigma_i^2)} \right) \right\} \\
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} \log\!\left( \mathrm{e}^{-(y_i - \vec{a}_i^\top \vec{x})^2 / (2\sigma_i^2)} \right) \\
+        &= \operatorname*{argmax}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} -\frac{(y_i - \vec{a}_i^\top \vec{x})^2}{2\sigma_i^2} \\
+        &= \operatorname*{argmin}_{\vec{x} \in \RR^n} \sum_{i=1}^{m} \frac{(y_i - \vec{a}_i^\top \vec{x})^2}{2\sigma_i^2}.
+    \end{align}
+    This is the same format as the original weighted regression problem, with weights $\vec{w}$ given by $w_i = \dfrac{1}{2\sigma_i^2}$.
+
+    \item In addition to assigning weights to data points to place higher importance on getting those points right, sometimes we want to make sure that our learned $\vec{x}$ is close to some value $\vec{z} \in \RR^n$. This could be true, for example, if we had prior information that said $\vec{x}$ is close to $\vec{z}$.
+
+    In particular, we want to make sure that the quantity
+    \begin{equation}
+        \sum_{i=1}^{n} s_i (x_i - z_i)^2
+    \end{equation}
+    is small, where $\vec{s} \in \RR^n_{++}$ is a vector of \emph{positive} weights. We may add this term to the weighted least squares objective function, with a regularization parameter $\lambda \geq 0$, to create a modified objective function
+    \begin{equation}
+        g(\vec{x}) \doteq \left\| W^{1/2}(A\vec{x} - \vec{y}) \right\|_2^2 + \lambda \left\| S^{1/2}(\vec{x} - \vec{z}) \right\|_2^2
+    \end{equation}
+    where $S \doteq \operatorname{diag}(\vec{s}) \in \RR^{n \times n}$ is a diagonal matrix whose entries are the entries of $\vec{s}$. This formulation is called \emph{Tikhonov regression}.
+
+    Compute the gradient (with respect to $\vec{x}$) of $g$, and show that the optimal solution is
+    \begin{equation}
+        \vec{x}^\star_{\mathrm{TR}} \doteq (A^\top W A + \lambda S)^{-1}(A^\top W \vec{y} + \lambda S \vec{z}).
+    \end{equation}
+
+    \emph{HINT: You may assume that $g$ is minimized at any $\vec{x}^\star$ such that $\nabla_{\vec{x}} g(\vec{x}^\star) = \vec{0}$; this is because $g$ is convex, as we will see a little later in the course.}
+
+    \textbf{Solution:} We know that
+    \begin{align}
+        g(\vec{x}) &= f(\vec{x}) + \lambda \left\| S^{1/2}(\vec{x} - \vec{z}) \right\|_2^2 \\
+        \implies \nabla_{\vec{x}} g(\vec{x}) &= \nabla_{\vec{x}} f(\vec{x}) + \lambda \nabla_{\vec{x}} \left\| S^{1/2}(\vec{x} - \vec{z}) \right\|_2^2.
+    \end{align}
+    Now we can compute this rightmost term to get
+    \begin{align}
+        \nabla_{\vec{x}} \left\| S^{1/2}(\vec{x} - \vec{z}) \right\|_2^2
+        &= \nabla_{\vec{x}}\, (\vec{x} - \vec{z})^\top S (\vec{x} - \vec{z}) \\
+        &= \nabla_{\vec{x}}\, (\vec{x} - \vec{z})^\top (S\vec{x} - S\vec{z}) \\
+        &= \nabla_{\vec{x}}\, (\vec{x}^\top S \vec{x} - \vec{z}^\top S \vec{x} - \vec{x}^\top S \vec{z} + \vec{z}^\top \vec{z}) \\
+        &= \nabla_{\vec{x}}\, (\vec{x}^\top S \vec{x} - 2\vec{x}^\top S \vec{z} + \vec{z}^\top \vec{z}) \\
+        &= 2S\vec{x} - 2S\vec{z}.
+    \end{align}
+    Putting it all together, we have
+    \begin{align}
+        \nabla_{\vec{x}} g(\vec{x}) &= \nabla_{\vec{x}} f(\vec{x}) + \lambda \nabla_{\vec{x}} \left\| S^{1/2}(\vec{x} - \vec{z}) \right\|_2^2 \\
+        &= 2A^\top W A \vec{x} - 2A^\top W \vec{y} + 2\lambda S \vec{x} - 2\lambda S \vec{z}.
+    \end{align}
+    Now to find the optimal solution, we set the gradient to $\vec{0}$ and get
+    \begin{align}
+        \vec{0} &\stackrel{\text{set}}{=} \nabla_{\vec{x}} g(\vec{x}^\star_{\mathrm{TR}}) \\
+        &= 2A^\top W A \vec{x}^\star_{\mathrm{TR}} - 2A^\top W \vec{y} + 2\lambda S \vec{x}^\star_{\mathrm{TR}} - 2\lambda S \vec{z} \\
+        \implies (A^\top W A + \lambda S) \vec{x}^\star_{\mathrm{TR}} &= A^\top W \vec{y} + \lambda S \vec{z} \\
+        \implies \vec{x}^\star_{\mathrm{TR}} &= (A^\top W A + \lambda S)^{-1}(A^\top W \vec{y} + \lambda S \vec{z}).
+    \end{align}
+\end{enumerate}
+
+\section{Properties of Convex Functions}
+
+In this exercise, we examine convexity and what it represents graphically.
+
+\begin{enumerate}[label=(\alph*)]
+    \item In what region between $[0, 2\pi]$ is $\sin(x)$ a convex function? In what region between $[0, 2\pi]$ is $\sin(x)$ a concave function? Give a region between $[0, 2\pi]$ where $\sin(x)$ is neither convex nor concave.
+
+    \textbf{Solution:} The function $\sin(x)$ is convex (in fact, strictly convex) between $[\pi, 2\pi]$; similarly, it is concave (in fact, strictly concave) between $[0, \pi]$. It is non-convex and non-concave for any interval between $[0, 2\pi]$ that is not a subset of the two aforementioned intervals. Note that our interval could even be disjoint!
+
+    \item Plot $\sin(x)$ between $[0, 2\pi]$. For each of the 3 intervals defined above in part 2(a), draw a chord to illustrate graphically on what regions the function is convex, concave, and neither convex nor concave.
+
+    \textbf{Solution:}
+
+    In the region $[0, \pi]$, the function is concave and all chords (e.g., the blue chord above) lie below the function. In the region $[\pi, 2\pi]$, the function is convex and all chords (e.g., the black chord above) lie above the function. When considering the full region $[0, 2\pi]$, or any region that is not a subset of the two regions above, chords (like the example green chord above) do not lie strictly above or strictly below the function.
+
+    \item Show that for all $x \in [0, \frac{\pi}{2}]$,
+    \begin{equation}
+        \frac{2}{\pi}\, x \leq \sin x \leq x.
+    \end{equation}
+
+    \textbf{Solution:} From part 2(a), we know that $\sin(x)$ is concave on $[0, \frac{\pi}{2}]$, and thus every value lies below every tangent and above every chord that can be defined in the region.
+
+    In the region $[0, \frac{\pi}{2}]$, $\sin(x)$ can therefore be upper bounded by its tangent at $0$ (the identity function $f(x) = x$) and lower bounded by the chord between $(0, \sin(0))$ and $(\pi/2, \sin(\pi/2))$ (the linear function $\frac{2}{\pi}x$).
+
+    Note that we could establish different upper and lower bounds as well; all values of $\sin(x)$ lie below any tangent line of the function, and values within the span of a chord lie above that chord.
+\end{enumerate}
+
+\vfill
+\noindent\small\textcopyright{} UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+
+\end{document}

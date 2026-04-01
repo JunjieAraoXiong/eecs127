@@ -1,0 +1,243 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 3}
+\fancyhead[R]{\small Spring 2026}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\area}{area}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries EECS 127/227AT \quad Optimization Models in Engineering \quad UC Berkeley \quad Spring 2026}\\[6pt]
+{\LARGE\bfseries Homework 3}
+\end{center}
+
+\begin{tcolorbox}
+\textbf{This homework is due at 11 PM on February 13, 2026.}\\[4pt]
+\textbf{Submission Format:} Your homework submission should consist of a single PDF file that contains all of your answers (any handwritten answers should be scanned).
+\end{tcolorbox}
+
+\section{Norms}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that the following inequalities hold for any vector $\vec{x} \in \RR^n$:
+\begin{equation}
+\frac{1}{\sqrt{n}} \|\vec{x}\|_2 \leq \|\vec{x}\|_\infty \leq \|\vec{x}\|_2 \leq \|\vec{x}\|_1 \leq \sqrt{n}\, \|\vec{x}\|_2 \leq n\, \|\vec{x}\|_\infty.
+\end{equation}
+
+\textit{NOTE}: We can interpret different norms as different ways of computing distance between two points $\vec{x}, \vec{y} \in \RR^2$. The $\ell^2$ norm is the distance as the crow flies (i.e.\ point-to-point distance), the $\ell^1$ norm, also known as the Manhattan distance is the distance you would have to cover if you were to navigate from $\vec{x}$ to $\vec{y}$ via a rectangular street grid, and the $\ell^\infty$ norm is the maximum distance that you have to travel in either the north-south or the east-west direction.
+
+\item We define the $\ell^0$ norm of the vector $\vec{x}$ as the number of non-zero elements in $\vec{x}$, denoted by $\|\vec{x}\|_0$. Show that for any non-zero vector $x$,
+\begin{equation}
+\|\vec{x}\|_0 \geq \frac{\|\vec{x}\|_1^2}{\|\vec{x}\|_2^2}.
+\end{equation}
+Find all vectors $\vec{x}$ for which the lower bound is attained.
+\end{enumerate}
+
+\section{Diagonalization and Singular Value Decomposition}
+
+Let matrix $A = \begin{bmatrix} 0 & 1 \\ \frac{1}{2} & \frac{1}{2} \end{bmatrix}$.
+
+\begin{enumerate}[label=(\alph*)]
+\item Compute the eigenvalues and associated eigenvectors of $A$.
+\item Express $A$ as $P\Lambda P^{-1}$, where $\Lambda$ is a diagonal matrix and $PP^{-1} = I$. State $P$, $\Lambda$, and $P^{-1}$ explicitly.
+\item Compute $\lim_{k\to\infty} A^k$.
+\item Give the singular values $\sigma_1$ and $\sigma_2$ of $A$.
+\end{enumerate}
+
+\section{Interpreting the Data Matrix}
+
+When working in many fields, you'll often find yourself working with a \textit{data matrix} $X$. Notation can vary --- sometimes it has dimensions $\RR^{m\times n}$, while others it has dimensions $\RR^{n\times d}$, for example --- and interpreting its precise meaning can often be confusing. In this problem, we lead you through an example of data matrix interpretation and manipulation.
+
+First, what exactly is a data matrix? As the name suggests, it is a collection of \textit{data points}. Suppose you are collecting data about courses offered in the EECS department in Fall 2022. Each course has certain quantifiable attributes, or \textit{features}, that you are interested in. Possible examples of features are the number of students in the course, the number of GSIs in the course, the number of units the course is worth, the size of the classroom that the course was taught in, the difficulty rating of the course on a numerical (1-5) scale, and so on. Suppose there were a total of 20 courses, and that for each course, we have 10 features. This gives us 20 data points, where each data point is a 10-dimensional vector. We can arrange these data points in a matrix of size $20 \times 10$.
+
+Generalizing the above, suppose we have $n$ data points, with each point containing values for $d$ features. Our data matrix $X$ would then be of size $n \times d$, i.e., $X \in \RR^{n \times d}$. We can interpret $X$ in the following two (equivalent) ways:
+\begin{equation}
+X = \begin{bmatrix} \leftarrow & \vec{x}_1^\top & \rightarrow \\ \leftarrow & \vec{x}_2^\top & \rightarrow \\ & \vdots & \\ \leftarrow & \vec{x}_n^\top & \rightarrow \end{bmatrix} = \begin{bmatrix} \uparrow & \uparrow & \cdots & \uparrow \\ \vec{f}_1 & \vec{f}_2 & \cdots & \vec{f}_d \\ \downarrow & \downarrow & \cdots & \downarrow \end{bmatrix}.
+\end{equation}
+Here, $\vec{x}_i \in \RR^d$, $i = 1, 2, \ldots, n$, and $\vec{x}_i^\top$ is a row vector that contains values of different features for the $i$-th data point. Also, $\vec{f}_j \in \RR^n$, $j = 1, 2, \ldots, d$, and $\vec{f}_j$ is a column vector that contains values of the $j$-th feature for different data points.
+
+In the remainder of this problem, we explore how we can interpret and use $X$. For subproblems that require answers in Python, assume $X$ is stored as a $n \times d$ NumPy array \texttt{X}.
+
+\begin{enumerate}[label=(\alph*)]
+\item We first introduce the \textit{empirical mean} of each feature. Let $k \geq 1$ be a positive integer, and define $\vec{1}$ to be the vector with 1 in every entry. The empirical mean of a vector $\vec{y} \in \RR^k$ is defined as
+\begin{equation}
+\mu(\vec{y}) \doteq \frac{1}{k} \vec{1}^\top \vec{y} = \frac{1}{k} \sum_{i=1}^{k} y_i.
+\end{equation}
+Suppose we want to compute a vector that contains the empirical mean of each feature, i.e., all the $\mu(\vec{f}_j)$'s. What is the length of the vector of empirical means? Which of the following Python commands will generate this vector?
+\begin{enumerate}[label=\roman*.]
+\item \texttt{mu = numpy.mean(X, axis = 0)}
+\item \texttt{mu = numpy.mean(X, axis = 1)}
+\end{enumerate}
+
+\item The next quantity we will discuss is the \textit{empirical variance}, and through it, the \textit{empirical standard deviation}. The empirical variance of a vector $\vec{y} \in \RR^k$ is defined as
+\begin{equation}
+\sigma^2(\vec{y}) \doteq \frac{1}{k} \left\| \vec{y} - \mu(\vec{y})\vec{1} \right\|_2^2 = \frac{1}{k} \sum_{i=1}^{k} (y_i - \mu(\vec{y}))^2.
+\end{equation}
+As the choice of notation would have you expect, the empirical standard deviation is defined as
+\begin{equation}
+\sigma(\vec{y}) \doteq \sqrt{\sigma^2(\vec{y})}.
+\end{equation}
+Suppose we want to compute a vector that contains the empirical standard deviation of each feature, i.e., all the $\sigma(\vec{f}_j)$'s. What is the length of this vector? Which of the following Python commands will generate this vector?
+\begin{enumerate}[label=\roman*.]
+\item \texttt{sigma = numpy.std(X, axis = 0)}
+\item \texttt{sigma = numpy.std(X, axis = 1)}
+\end{enumerate}
+
+\item Suppose we want to modify \texttt{X} so that each feature vector is ``\textit{centered}'', i.e., has zero empirical mean. How would you achieve this using Python code?
+
+\item Suppose we want to modify \texttt{X} so that each feature vector is ``\textit{standardized}'', i.e., has zero empirical mean with empirical variance equal to 1. How would you achieve this using Python code?
+
+\textit{NOTE}: This standardization technique is a very common data pre-processing step.
+
+\item The last quantity we will discuss is the \textit{empirical covariance}. For two vectors $\vec{w}, \vec{y} \in \RR^k$, the empirical covariance is defined as
+\begin{equation}
+\sigma(\vec{w}, \vec{y}) \doteq \frac{1}{k} \left( \vec{w} - \mu(\vec{w})\vec{1} \right)^\top \left( \vec{y} - \mu(\vec{y})\vec{1} \right) = \frac{1}{k} \sum_{i=1}^{k} (w_i - \mu(\vec{w}))(y_i - \mu(\vec{y})).
+\end{equation}
+What is $\sigma(\vec{y}, \vec{y})$ in terms of the empirical statistics we have previously defined (e.g.\ mean, variance, and/or standard deviation)?
+
+\item For the remainder of this problem, assume that the data matrix is centered, so every feature has zero empirical mean; that is, $\mu(\vec{f}_j) = 0$ for every $j$.
+
+Let $\Sigma(X) \in \RR^{d \times d}$ denote the \textit{empirical covariance matrix} of $X$. This matrix contains the empirical covariance of each pair of feature vectors $(\vec{f}_i, \vec{f}_j)$. Correspondingly it is defined entry-wise as
+\begin{equation}
+\Sigma(X)_{i,j} \doteq \sigma(\vec{f}_i, \vec{f}_j).
+\end{equation}
+First, show that
+\begin{equation}
+\Sigma(X) = \frac{X^\top X}{n}.
+\end{equation}
+Second, show that
+\begin{equation}
+\frac{X^\top X}{n} = \frac{1}{n} \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top.
+\end{equation}
+Therefore, (10) entails that $\Sigma(X)$ can be represented in two ways.
+
+\textit{HINT: One way to show two matrices are equal is to show that for all $i, j$, their $(i,j)$-th entries are equal.}
+
+\item In this class, we consider three different interpretations of the term ``projection''. We define them explicitly here for this problem.
+
+Consider vectors $\vec{a}$ and $\vec{b}$ in $\RR^n$. Let $\vec{b}$ be unit norm (i.e., $\left\| \vec{b} \right\|_2^2 = \vec{b}^\top \vec{b} = 1$). We define the following:
+\begin{enumerate}[label=\roman*.]
+\item The \textbf{vector projection} of $\vec{a}$ on $\vec{b}$ is given by $(\vec{a}^\top \vec{b})\vec{b}$. The vector projection is a vector in $\RR^n$.
+\item The \textbf{scalar projection} of $\vec{a}$ on $\vec{b}$ is given by $\vec{a}^\top \vec{b}$. The scalar projection is a scalar but can take both positive and negative values.
+\item The \textbf{projection length} of $\vec{a}$ on $\vec{b}$ is given by $\left| \vec{a}^\top \vec{b} \right|$ and is the absolute value of the scalar projection.
+\end{enumerate}
+
+Suppose we want to obtain a column vector $\vec{p} \in \RR^n$ whose $i$-th entry is the \textit{scalar} projection of data point $\vec{x}_i$ along the direction given by the unit vector $\vec{w}$. Show that $\vec{p}$ is given by
+\begin{equation}
+\vec{p} = X\vec{w}.
+\end{equation}
+
+\item Performing this kind of projection onto a unit vector $\vec{w}$ is at the heart of the PCA computation, which also requires computing the \textit{variance} of these scalar projections.
+
+Formally, for $i \in \{1, \ldots, n\}$, define $p_i \doteq \vec{x}_i^\top \vec{w}$, and define $\vec{p} \doteq \begin{bmatrix} p_1, \ldots, p_n \end{bmatrix}^\top$. Show that its empirical variance $\sigma^2(\vec{p})$ can be calculated as
+\begin{equation}
+\sigma^2(\vec{p}) = \frac{1}{n} \vec{w}^\top X^\top X \vec{w} = \vec{w}^\top \Sigma(X) \vec{w}.
+\end{equation}
+Recall that $X$ is centered.
+\end{enumerate}
+
+\section{Understanding Ellipses}
+
+Consider the Euclidean space $\RR^2$ with the orthogonal basis $\{\vec{e}_1, \vec{e}_2\}$. In this exercise, we study the ellipse
+\begin{equation}
+\mathcal{E} = \left\{ x_1 \vec{e}_1 + x_2 \vec{e}_2 \;\middle|\; x_1, x_2 \in \RR,\; \left( \sqrt{5}\, x_1 - \frac{3\sqrt{5}}{5} x_2 \right)^2 + \left( \frac{4\sqrt{5}}{5} x_2 \right)^2 \leq 8 \right\}.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that we can express the ellipse as $\mathcal{E} = \{\vec{x} \in \RR^2 \mid \vec{x}^\top A \vec{x} \leq 1\}$ for symmetric positive definite $A$, where
+\begin{equation}
+A = \frac{1}{8} \begin{bmatrix} 5 & -3 \\ -3 & 5 \end{bmatrix} = \frac{1}{2} \begin{bmatrix} 1 & 1 \\ -1 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & \frac{1}{4} \end{bmatrix} \begin{bmatrix} 1 & -1 \\ 1 & 1 \end{bmatrix}.
+\end{equation}
+
+\item Show that the ellipse $\mathcal{E}$ can be viewed as a linear transformation of the unit disk by finding $B$ such that $\mathcal{E} = \{B\vec{v} \mid \|\vec{v}\|_2 \leq 1\}$. Is this $B$ unique?
+
+\item Relate the length and direction of the semi-major and semi-minor axes of $\mathcal{E}$ to the singular values of $B$ (or eigenvalues of $A$).
+
+\item Compute the area of $\mathcal{E}$.
+\end{enumerate}
+
+\section{SVD Part 2}
+
+Consider $A$ to be the $4 \times 3$ matrix
+\begin{equation}
+A = \begin{bmatrix} \vec{a}_1 & \vec{a}_2 & \vec{a}_3 \end{bmatrix}
+\end{equation}
+where $\vec{a}_i$ for $i \in \{1, 2, 3\}$ form a set of \textit{orthogonal} vectors satisfying $\|\vec{a}_1\|_2 = 3$, $\|\vec{a}_2\|_2 = 2$, $\|\vec{a}_3\|_2 = 1$.
+
+\begin{enumerate}[label=(\alph*)]
+\item What is the compact SVD of $A$? Express it as $A = U\Sigma V^\top$, with $\Sigma$ the diagonal matrix of singular values ordered in decreasing fashion, and explicitly describe $U$ and $V$.
+
+\item What is the dimension of the null space, $\dim(\NN(A))$?
+
+\item What is the rank of $A$, $\rank(A)$? Provide an orthonormal basis for the range of $A$.
+
+\item Let $I_3$ denote the $3 \times 3$ identity matrix. Consider the matrix $\tilde{A} = \begin{bmatrix} A \\ I_3 \end{bmatrix} \in \RR^{7 \times 3}$. What are the singular values of $\tilde{A}$ (in terms of the singular values of $A$)?
+\end{enumerate}
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE}: If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\begin{center}
+\small \copyright\ UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+\end{center}
+
+\end{document}

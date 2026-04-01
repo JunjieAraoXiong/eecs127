@@ -1,0 +1,273 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127/227AT Homework 5}
+\fancyhead[R]{\small 2026-02-23 13:58:10-08:00}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\argmax}{argmax}
+
+\begin{document}
+
+\begin{center}
+\begin{tabular}{lcr}
+\textbf{EECS 127/227AT} & Optimization Models in Engineering & \textbf{UC Berkeley} \quad \textbf{Spring 2026}
+\end{tabular}
+
+\medskip
+{\Large \textbf{Homework 5}}
+\end{center}
+
+\begin{tcolorbox}
+\textbf{This homework is due at 11 PM on February 27, 2026.}
+
+\textbf{Submission Format:} Your homework submission should consist of a single PDF file that contains all of your answers (any handwritten answers should be scanned).
+\end{tcolorbox}
+
+\section{Properties of the Frobenius Norm}
+
+The Frobenius norm of a matrix $P$ is defined as
+\begin{equation}
+\|P\|_F = \sqrt{\langle P,\, P \rangle} = \sqrt{\sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} P_{ij}^2},
+\end{equation}
+where for two matrices $P, Q \in \RR^{m \times n}$, the canonical inner product defined over this space is $\langle P,\, Q \rangle := \trace\!\left(P^\top Q\right) = \sum_{i,j} P_{ij} Q_{ij}$. The previous definition of the inner product is equivalent to interpreting the matrices $P$ and $Q$ as vectors of length $mn$ and taking the vector inner product of the respective $mn$-dimensional vectors. The Cauchy--Schwarz inequality for the inner product follows in a straightforward way from the Cauchy--Schwarz inequality for vectors:
+\begin{equation}
+\langle P,\, Q \rangle = \sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} P_{ij} Q_{ij}
+\le \left(\sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} P_{ij}^2\right)^{1/2}
+\left(\sum_{\substack{1 \le i \le m \\ 1 \le j \le n}} Q_{ij}^2\right)^{1/2}
+= \|P\|_F \, \|Q\|_F.
+\end{equation}
+
+\begin{enumerate}[label=(\alph*)]
+\item Show that the Frobenius norm satisfies all three properties of a norm.
+
+\textit{HINT: The easiest way to do this problem is to \textbf{not} look at the individual components $P_{ij}$, but instead use the inner product formulation $\|P\|_F = \sqrt{\langle P,\, P \rangle}$.}
+
+\item Write the Frobenius norm squared in terms of singular values.
+
+\textit{HINT: The cyclic property of traces might be helpful: $\trace(PQR) = \trace(RPQ) = \trace(QRP)$.}
+
+\item Express the Frobenius norm squared in terms of the $\ell_2$-norm of the columns of $P$ with $\vec{p}_i$ denoting column $i$. Concretely, prove $\|P\|_F^2 = \sum_{i=1}^{n} \|\vec{p}_i\|_2^2$ where $\vec{p}_i$ are the columns of $P$.
+\end{enumerate}
+
+\newpage
+
+\section{FTLA, SVD, Pseudoinverse, and Least-Squares}
+
+Let $A \in \RR^{m \times n}$ be a matrix, and let $\vec{y} \in \RR^m$. Let $r \doteq \rank(A)$, and let
+\begin{equation}
+A = U\Sigma V^\top = \begin{bmatrix} U_r & U_{m-r} \end{bmatrix}
+\begin{bmatrix} \Sigma_r & 0_{r \times (n-r)} \\ 0_{(m-r) \times r} & 0_{(m-r) \times (n-r)} \end{bmatrix}
+\begin{bmatrix} V_r^\top \\ V_{n-r}^\top \end{bmatrix}
+= U_r \Sigma_r V_r^\top = \sum_{i=1}^{r} \sigma_i \vec{u}_i \vec{v}_i^\top
+\end{equation}
+be an SVD of $A$. In this problem, we will prove some properties about the SVD, and then apply them to derive a unique solution to an optimization problem which generalizes minimum-norm and least-squares.
+
+\begin{enumerate}[label=(\alph*)]
+\item Prove that $\Range(A) = \Range(U_r)$ and that $\Range\!\left(A^\top\right) = \Range(V_r)$.
+
+\item Use the fundamental theorem of linear algebra to prove that $\NN(A) = \Range(V_{n-r})$ and $\NN\!\left(A^\top\right) = \Range(U_{m-r})$.
+\end{enumerate}
+
+Now, we will use the SVD to derive the unique solution to the \textit{least-norm least-squares} problem. That is, we want to use the SVD to find the unique vector in $\RR^n$ which solves the least-squares problem with minimum norm. More formally, we wish to solve the least-norm least-squares problem:
+\begin{equation}
+\min_{\vec{x} \in S} \|\vec{x}\|_2^2 \qquad \text{where} \qquad S \doteq \argmin_{\vec{x} \in \RR^n} \|A\vec{x} - \vec{y}\|_2^2.
+\end{equation}
+In words, we want to find the minimum-norm vector $\vec{x}$ in the set of all least-squares solutions $S$.\footnote{Here, the $\argmin$ is a set -- that is, it is the set of minimizers of the least-squares objective. A simpler example of this notation is that if $f(x) \doteq 0$ for all $x \in \RR$, then $\argmin_{x \in \RR} f(x) = \RR$. More information about this notation is contained in section 1.3 of the \href{https://eecs127.github.io/}{course reader}.} This problem generalizes both the traditional least-squares and minimum-norm problems.
+
+To solve the least-norm least-squares problem, we will use the SVD to define a concept called the \textit{pseudoinverse}. The matrix $A^\dagger \in \RR^{n \times m}$ is called a \textit{pseudoinverse} (sometimes a \textit{Moore--Penrose pseudoinverse}) of $A$, where
+\begin{equation}
+A^\dagger = V\Sigma^\dagger U^\top = \begin{bmatrix} V_r & V_{n-r} \end{bmatrix}
+\begin{bmatrix} \Sigma_r^{-1} & 0_{r \times (m-r)} \\ 0_{(n-r) \times r} & 0_{(n-r) \times (m-r)} \end{bmatrix}
+\begin{bmatrix} U_r^\top \\ U_{m-r}^\top \end{bmatrix}
+= V_r \Sigma_r^{-1} U_r^\top = \sum_{i=1}^{r} \frac{1}{\sigma_i} \vec{v}_i \vec{u}_i^\top.
+\end{equation}
+In this problem, we will show that $A^\dagger \vec{y}$ is the unique solution to the least-norm least-squares problem (4).
+
+\textit{NOTE:} In this problem, we do \textit{not} assume that $A$ has full column rank or full row rank --- in fact, $A$ could even be the matrix of all zeros --- so the least-squares solution we learn in class does not apply.
+
+\begin{enumerate}[label=(\alph*), resume]
+\item Show that $\vec{x} \in S$ if and only if $A^\top A \vec{x} = A^\top \vec{y}$ (these are the so-called \textit{normal equations}, which you may remember from our discussion on least-squares).
+
+\item Show that $S = \{A^\dagger \vec{y} + \vec{z} \mid \vec{z} \in \NN(A)\}$.
+
+\textit{HINT: First, show that $A^\dagger \vec{y} \in S$. Then show that for any two $\vec{x}_1, \vec{x}_2 \in S$, that $\vec{x}_1 - \vec{x}_2 \in \NN(A)$. Argue that this implies the conclusion.}
+
+\item Now show that $\{A^\dagger \vec{y}\} = \argmin_{\vec{x} \in S} \|\vec{x}\|_2^2$.
+
+\textit{HINT: Pick any $\vec{z} \in \NN(A)$. Show that $A^\dagger \vec{y}$ is orthogonal to $\vec{z}$. Then show that $\left\|A^\dagger \vec{y}\right\|_2^2 \le \left\|A^\dagger \vec{y} + \vec{z}\right\|_2^2$, with equality if and only if $\vec{z} = \vec{0}$. Argue that this implies the conclusion.}
+\end{enumerate}
+
+\newpage
+
+\section{Singular Values and Condition Number}
+
+\begin{enumerate}[label=(\alph*)]
+\item Let $A \in \RR^{m \times n}$ be a matrix. Show that
+\begin{equation}
+\max_{\vec{v}:\|\vec{v}\|_2 \le 1} \|A\vec{v}\|_2 = \sigma_{\max}\{A\},
+\end{equation}
+where $\sigma_{\max}\{A\}$ is the largest singular value of $A$.
+
+\item Let $A \in \RR^{n \times n}$ be an invertible matrix, let $\vec{y} \in \RR^n$ be a vector, and let $\Delta\vec{y} \in \RR^n$ be a vector (conceptually, we think of it as having small norm). Let $\vec{x}$ and $\Delta\vec{x}$ be such that
+\begin{align}
+A\vec{x} &= \vec{y} \\
+A(\vec{x} + \Delta\vec{x}) &= \vec{y} + \Delta\vec{y}.
+\end{align}
+Show that
+\begin{equation}
+\frac{\|\Delta\vec{x}\|_2}{\|\vec{x}\|_2} \le \kappa(A) \cdot \frac{\|\Delta\vec{y}\|_2}{\|\vec{y}\|_2},
+\end{equation}
+where $\kappa(A) \doteq \dfrac{\sigma_{\max}\{A\}}{\sigma_{\min}\{A\}}$ is called the \textit{condition number} of the matrix $A$. It reflects how much the estimate can change with respect to the perturbations $\Delta\vec{y}$ in the measurement $\vec{y}$.
+\end{enumerate}
+
+\newpage
+
+\section{PCA and low-rank compression}
+
+We have a data matrix $X = \begin{bmatrix} \vec{x}_1^\top \\ \vec{x}_2^\top \\ \vdots \\ \vec{x}_n^\top \end{bmatrix}$ of size $n \times d$ containing $n$ data points\footnote{Data matrices are sometimes represented as above, and sometimes as the transpose of the matrix here. Make sure you always check this, and recall that based on the definition of the data matrix, the definition of the covariance matrix also changes.}, $\vec{x}_1, \vec{x}_2, \ldots, \vec{x}_n$, with $\vec{x}_i \in \RR^d$. Note that $\vec{x}_i^\top$ is the $i$th row of $X$. Assume that the data matrix is centered, i.e.\ each column of $X$ is zero mean. In this problem, we will show equivalence between the following three problems:
+
+\begin{description}
+\item[$(P_1)$] Finding a line going through the origin that maximizes the variance of the scalar projections of the points on the line. Formally $P_1$ solves the problem:
+\begin{equation}
+\argmax_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \vec{u}^\top C \vec{u}
+\end{equation}
+with $C = \dfrac{1}{n} \displaystyle\sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top$ denoting the covariance matrix associated with the centered data.
+
+\item[$(P_2)$] Finding a line going through the origin that minimizes the sum of squares of the $\ell^2$ distances from the points to their vector projections. Formally $P_2$ solves the minimization problem:
+\begin{equation}
+\argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1} \sum_{i=1}^{n} \min_{v_i \in \RR} \|\vec{x}_i - v_i \vec{u}\|_2^2.
+\end{equation}
+Note that the vector projection of $\vec{x}$ on $\vec{u}$ is given by $v^\star \vec{u}$, where
+\begin{equation}
+v^\star = \argmin_{v \in \RR} \|\vec{x} - v\vec{u}\|_2^2,
+\end{equation}
+and we will show that $v^\star = \langle \vec{x},\, \vec{u} \rangle$ in part (a).
+
+\item[$(P_3)$] Finding a rank-one approximation to the data matrix. Formally $P_3$ solves the minimization problem:
+\begin{equation}
+\argmin_{Y : \rank(Y) \le 1} \|X - Y\|_F.
+\end{equation}
+\end{description}
+
+Note that loosely speaking, two problems are said to be ``equivalent'' if the solution of one can be ``easily'' translated to the solution of the other. Some form of ``easy'' translations include adding/subtracting a constant or some quantity depending on the data points.
+
+Note the significance of these results. $P_1$ is finding the first principal component of $X$, the direction that maximizes variance of scalar projections. $P_2$ says that this direction also minimizes the distances between the points to their vector projections along this direction. If we view the distances as errors in approximating the points by their projections along a line, then the error is minimized by choosing the line in the same direction as the first principal component. Finally $P_3$ tells us that finding a rank one matrix to best approximate the data matrix (in terms of error computed using Frobenius norm) is equivalent to finding the first principal component as well!
+
+\begin{enumerate}[label=(\alph*)]
+\item Consider the line $\mathcal{L} = \{\vec{x}_0 + a\vec{u} : a \in \RR\}$, with $\vec{x}_0 \in \RR^d$, $\vec{u}^\top \vec{u} = 1$. Recall that the vector projection of a point $\vec{x} \in \RR^d$ on to the line $\mathcal{L}$ is given by $\vec{z} = \vec{x}_0 + a^\star \vec{u}$, where $a^\star$ is given by:
+\begin{equation}
+a^\star = \argmin_a \|\vec{x}_0 + a\vec{u} - \vec{x}\|_2.
+\end{equation}
+Show that $a^\star = (\vec{x} - \vec{x}_0)^\top \vec{u}$. Use this to show that the square of the distance between $x$ and its vector projection on $\mathcal{L}$ is given by:
+\begin{equation}
+\|\vec{x} - \vec{z}\|_2^2 = \|\vec{x} - \vec{x}_0\|_2^2 - ((\vec{x} - \vec{x}_0)^\top \vec{u})^2.
+\end{equation}
+
+\item Show that $P_2$ is equivalent to $P_1$.
+
+\textit{HINT: Start with $P_2$ and using the result from part (a) show that it is equivalent to $P_1$.}
+
+\item Show that every matrix $Y \in \RR^{n \times d}$ with rank at most 1, can be expressed as $Y = \vec{v}\vec{u}^\top$ for some $\vec{v} \in \RR^n$, $\vec{u} \in \RR^d$ and $\|\vec{u}\|_2 = 1$.
+
+\item Show that $P_3$ is equivalent to $P_2$.
+
+\textit{HINT: Use the result from part (c) to show that $P_3$ is equivalent to:}
+\begin{equation}
+\argmin_{\vec{u} \in \RR^d : \vec{u}^\top \vec{u} = 1, \vec{v} \in \RR^n} \left\|X - \vec{v}\vec{u}^\top\right\|_F^2
+\end{equation}
+\textit{Prove that this is equivalent to $P_2$.}
+\end{enumerate}
+
+\newpage
+
+\section{Operator Norms}
+
+For a matrix $A \in \RR^{m \times n}$, the \textit{induced norm} or \textit{operator norm} $\|A\|_p$ is defined as
+\begin{equation}
+\|A\|_p \doteq \max_{\vec{x} \neq \vec{0}} \frac{\|A\vec{x}\|_p}{\|\vec{x}\|_p}.
+\end{equation}
+In this problem, we provide a characterization of the induced norm for certain values of $p$. Let $a_{ij}$ denote the $(i,j)$-th entry of $A$. Prove the following:
+
+\begin{enumerate}[label=(\alph*)]
+\item $\|A\|_2 = \sigma_{\max}\{A\}$, the maximum singular value of $A$. \textit{HINT: Consider connecting $\|A\|_2^2$ to a particular Rayleigh coefficient.}
+
+\item $\|A\|_1$ is the maximum absolute column sum of $A$,
+\begin{equation}
+\|A\|_1 = \max_{1 \le j \le n} \sum_{i=1}^{m} |a_{ij}|.
+\end{equation}
+\textit{HINT: Write $A\vec{x}$ as a linear combination of the columns of $A$ to obtain $\|A\vec{x}\|_1 = \|\sum_{i=1}^{n} x_i \cdot \vec{a}_i\|_1$, where $\vec{a}_i$ denotes the $i$-th column of $A$. Then apply triangle inequality to terms within the sum.}
+
+\item $\|A\|_\infty$ is the maximum absolute row sum of $A$,
+\begin{equation}
+\|A\|_\infty = \max_{1 \le i \le m} \sum_{j=1}^{n} |a_{ij}|.
+\end{equation}
+\textit{HINT: First write $\|A\vec{x}\|_\infty = \max_i \left|\sum_{j=1}^{n} a_{ij} x_j\right|$. Then apply triangle inequality and use the fact that $|x_j| \le \max_i |x_i|$, $\forall j$.}
+\end{enumerate}
+
+\newpage
+
+\section{Homework Process}
+
+With whom did you work on this homework? List the names and SIDs of your group members.
+
+\textit{NOTE:} If you didn't work with anyone, you can put ``none'' as your answer.
+
+\vfill
+\begin{center}
+\small \copyright\ UCB EECS 127/227AT, Spring 2026. All Rights Reserved. This may not be publicly shared without explicit permission.
+\end{center}
+
+\end{document}

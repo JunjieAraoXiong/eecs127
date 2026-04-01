@@ -1,0 +1,400 @@
+%==============================================================================
+% EECS 127 - Lecture 5: Linear Algebra Review - Principal Components Analysis, SVD
+%==============================================================================
+
+\documentclass[10pt, twocolumn]{article}
+\usepackage[margin=0.75in, columnsep=0.3in]{geometry}
+
+%------------------------------------------------------------------------------
+% REQUIRED PACKAGES
+%------------------------------------------------------------------------------
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc}
+
+%------------------------------------------------------------------------------
+% SPACING
+%------------------------------------------------------------------------------
+\linespread{1.08}
+\setlength{\parskip}{0.4ex plus 0.2ex minus 0.1ex}
+
+%------------------------------------------------------------------------------
+% BOX STYLES
+%------------------------------------------------------------------------------
+\tcbset{
+    boxrule=0.8pt,
+    colback=white,
+    colframe=black,
+    arc=0pt,
+    boxsep=3pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{result}{
+    boxrule=0pt,
+    colback=black!5,
+    colframe=white,
+    arc=0pt,
+    boxsep=2pt,
+    left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.5ex}{1ex}
+\titlespacing*{\subsection}{0pt}{1ex}{0.5ex}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist{itemsep=1pt, topsep=3pt, parsep=1pt, leftmargin=1.5em}
+
+%------------------------------------------------------------------------------
+% HEADER/FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small EECS 127}
+\fancyhead[R]{\small Lecture 5}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%------------------------------------------------------------------------------
+% THEOREM ENVIRONMENTS
+%------------------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\Range}{\mathcal{R}}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\spn}{span}
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\argmax}{argmax}
+\DeclareMathOperator{\diag}{diag}
+
+%==============================================================================
+
+\begin{document}
+
+\noindent
+\begin{minipage}{\linewidth}
+    \centering
+    \textbf{\Large Lecture 5: Linear Algebra Review - Principal Components Analysis, SVD} \\[0.5em]
+    \hrule
+\end{minipage}
+\vspace{1em}
+
+% Textbook: Chapter 2, Sections 2.5-2.6
+
+%==============================================================================
+\section{Principal Component Analysis}
+%==============================================================================
+
+In many applications, data lives in very high-dimensional spaces (thousands or millions of dimensions). \textbf{Principal Component Analysis} (PCA) is a technique to find the most important lower-dimensional structure in the data. Formally, given data in $\RR^d$, we want to find an underlying $p$-dimensional linear structure where $p \ll d$.
+
+%------------------------------------------------------------------------------
+\subsection{Data Matrix and Covariance Matrix}
+%------------------------------------------------------------------------------
+
+Suppose we have data points $\vec{x}_1, \ldots, \vec{x}_n \in \RR^d$. We assume the data is \textbf{zero-mean}: $\frac{1}{n} \sum_{i=1}^{n} \vec{x}_i = \vec{0}$.
+
+We organize these into a \textbf{data matrix} $X$ where data points form the rows:
+\begin{result}
+\[
+    X \triangleq \begin{pmatrix} \vec{x}_1^\top \\ \vdots \\ \vec{x}_n^\top \end{pmatrix} \!\in \RR^{n \times d}, \quad X^\top = \begin{pmatrix} \vec{x}_1 & \!\cdots\! & \vec{x}_n \end{pmatrix} \!\in \RR^{d \times n}
+\]
+\end{result}
+
+We define the \textbf{covariance matrix} $C \in \RR^{d \times d}$ by
+\[
+    C \triangleq \frac{1}{n} X^\top X = \frac{1}{n} \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top
+\]
+
+Since $X^\top X$ is symmetric, we have $C \in \mathbb{S}^d$ (the set of $d \times d$ symmetric matrices). By Lecture~4, $C$ has real eigenvalues and orthogonal eigenvectors.
+
+%------------------------------------------------------------------------------
+\subsection{The PCA Optimization Problem}
+%------------------------------------------------------------------------------
+
+We want to find a unit vector $\vec{w}_1 \in \RR^d$ (with $\|\vec{w}_1\|_2 = 1$) such that projecting the data onto $\vec{w}_1$ preserves as much structure as possible.
+
+\textbf{Step 1: Write the projection error.}
+
+The projection of $\vec{x}_i$ onto $\spn(\vec{w}_1)$ is $(\vec{w}_1^\top \vec{x}_i)\vec{w}_1$. The squared error for a single point is:
+\[
+    e_i^2 = \|\vec{x}_i - (\vec{w}_1^\top \vec{x}_i)\vec{w}_1\|_2^2
+\]
+
+The average error across all data points is:
+\[
+    \text{err}(\vec{w}_1) = \frac{1}{n} \sum_{i=1}^{n} \|\vec{x}_i - (\vec{w}_1^\top \vec{x}_i)\vec{w}_1\|_2^2
+\]
+
+\textbf{Step 2: Expand the error.}
+
+Since $\|\vec{w}_1\|_2 = 1$, expanding the squared norm gives:
+\begin{align*}
+    e_i^2 &= \|\vec{x}_i\|_2^2 - 2(\vec{x}_i^\top \vec{w}_1)^2 + (\vec{x}_i^\top \vec{w}_1)^2 \|\vec{w}_1\|_2^2 \\
+    &= \|\vec{x}_i\|_2^2 - (\vec{x}_i^\top \vec{w}_1)^2
+\end{align*}
+
+So the average error becomes:
+\[
+    \text{err}(\vec{w}_1) = \frac{1}{n} \sum_{i=1}^{n} \|\vec{x}_i\|_2^2 - \frac{1}{n} \sum_{i=1}^{n} (\vec{x}_i^\top \vec{w}_1)^2
+\]
+
+\textbf{Step 3: Convert minimization to maximization.}
+
+The first term $\frac{1}{n}\sum \|\vec{x}_i\|_2^2$ is a constant (it does not depend on $\vec{w}_1$). So minimizing the error is equivalent to:
+\begin{result}
+\[
+    \max_{\substack{\vec{w}_1 \in \RR^d \\ \|\vec{w}_1\|_2 = 1}} \frac{1}{n} \sum_{i=1}^{n} (\vec{x}_i^\top \vec{w}_1)^2
+\]
+\end{result}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Intuition:} Minimizing reconstruction error is equivalent to maximizing the variance of the projections. The best direction $\vec{w}_1$ is the one along which the data is most spread out.
+\end{tcolorbox}
+
+%------------------------------------------------------------------------------
+\subsection{Reduction to the Rayleigh Quotient}
+%------------------------------------------------------------------------------
+
+\textbf{Step 4: Rewrite in matrix form.}
+
+We can factor the objective using the covariance matrix:
+\begin{align*}
+    \frac{1}{n} \sum_{i=1}^{n} (\vec{x}_i^\top \vec{w}_1)^2 &= \frac{1}{n} \sum_{i=1}^{n} \vec{w}_1^\top \vec{x}_i \vec{x}_i^\top \vec{w}_1 \\
+    &= \vec{w}_1^\top \underbrace{\left(\frac{1}{n} \sum_{i=1}^{n} \vec{x}_i \vec{x}_i^\top\right)}_{C} \vec{w}_1 \\
+    &= \vec{w}_1^\top C \vec{w}_1
+\end{align*}
+
+The quantity $\vec{w}_1^\top C \vec{w}_1$ (for $\|\vec{w}_1\|_2 = 1$) is called the \textbf{Rayleigh quotient} of $C$ at $\vec{w}_1$.
+
+\textbf{Step 5: Solve via the spectral theorem.}
+
+Since $C \in \mathbb{S}^d$, by the spectral theorem we can write $C = U \Lambda U^\top$ where $U$ is orthogonal and $\Lambda = \diag(\lambda_1, \ldots, \lambda_d)$ with $\lambda_1 \ge \cdots \ge \lambda_d$.
+
+Substituting $\vec{y} = U^\top \vec{w}_1$ (note $\|\vec{y}\|_2 = \|\vec{w}_1\|_2 = 1$ since $U$ preserves norms):
+\[
+    \vec{w}_1^\top C \vec{w}_1 = \vec{y}^\top \Lambda \vec{y} = \sum_{i=1}^{d} \lambda_i y_i^2
+\]
+
+Since $\sum y_i^2 = 1$ and $y_i^2 \ge 0$, this is a convex combination of the eigenvalues. Therefore:
+
+\begin{result}
+\[
+    \lambda_{\min}(C) \le \vec{w}^\top C \vec{w} \le \lambda_{\max}(C) \quad \text{for all } \|\vec{w}\|_2 = 1
+\]
+\end{result}
+
+The upper bound is achieved when $\vec{y} = \vec{e}_1$ (all weight on the largest eigenvalue), i.e., when $\vec{w}_1 = U\vec{e}_1$ is the eigenvector corresponding to $\lambda_{\max}(C)$.
+
+%------------------------------------------------------------------------------
+\subsection{The First Principal Component}
+%------------------------------------------------------------------------------
+
+\begin{tcolorbox}
+\textbf{Theorem} (First Principal Component):
+
+The first principal component $\vec{w}_1^\star$ is the eigenvector of $C = \frac{1}{n}X^\top X$ corresponding to its largest eigenvalue $\lambda_{\max}(C)$. The minimum reconstruction error is:
+\[
+    \min_{\|\vec{w}_1\|_2 = 1} \text{err}(\vec{w}_1) = \frac{1}{n} \sum_{i=1}^{n} \|\vec{x}_i\|_2^2 - \lambda_{\max}(C)
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Higher principal components.} The second principal component $\vec{w}_2$ is found by repeating the same optimization, but restricting $\vec{w}_2 \perp \vec{w}_1$. This yields the eigenvector for the second-largest eigenvalue, and so on. The SVD (next section) provides a clean way to compute all principal components simultaneously.
+\end{tcolorbox}
+
+%==============================================================================
+\section{Singular Value Decomposition}
+%==============================================================================
+
+The \textbf{Singular Value Decomposition} (SVD) generalizes the eigendecomposition to \emph{any} matrix, not just symmetric or square ones. It is one of the most important tools in linear algebra and data science.
+
+%------------------------------------------------------------------------------
+\subsection{Definition}
+%------------------------------------------------------------------------------
+
+\begin{tcolorbox}
+\textbf{Definition} (SVD):
+
+Let $A \in \RR^{m \times n}$ have rank $r$. A \textbf{singular value decomposition} of $A$ is:
+\[
+    A = U \Sigma V^\top
+\]
+where:
+\begin{itemize}
+    \item $U \in \RR^{m \times m}$ is orthogonal, with columns $\vec{u}_1, \ldots, \vec{u}_m$ called \textbf{left singular vectors}
+    \item $V \in \RR^{n \times n}$ is orthogonal, with columns $\vec{v}_1, \ldots, \vec{v}_n$ called \textbf{right singular vectors}
+    \item $\Sigma \in \RR^{m \times n}$ has entries $\sigma_1 \ge \cdots \ge \sigma_r > 0$ on the diagonal and zeros elsewhere, where $\sigma_i$ are the \textbf{singular values}
+\end{itemize}
+\end{tcolorbox}
+
+%------------------------------------------------------------------------------
+\subsection{Three Forms of the SVD}
+%------------------------------------------------------------------------------
+
+The SVD can be written in three equivalent ways, each useful in different contexts.
+
+\textbf{Full SVD.} The definition above: $A = U\Sigma V^\top$ with $U \in \RR^{m \times m}$, $\Sigma \in \RR^{m \times n}$, $V \in \RR^{n \times n}$.
+
+If $A$ is \textbf{tall} ($m > n$) with full column rank $n$:
+\[
+    A = U \begin{pmatrix} \Sigma_n \\ 0_{(m-n) \times n} \end{pmatrix} V^\top
+\]
+
+If $A$ is \textbf{wide} ($m < n$) with full row rank $m$:
+\[
+    A = U \begin{pmatrix} \Sigma_m & 0_{m \times (n-m)} \end{pmatrix} V^\top
+\]
+
+\textbf{Compact SVD.} Keep only the $r$ nonzero singular values and their corresponding singular vectors:
+
+\begin{result}
+\[
+    A = U_r \Sigma_r V_r^\top
+\]
+\end{result}
+
+where $U_r \in \RR^{m \times r}$, $\Sigma_r = \diag(\sigma_1, \ldots, \sigma_r) \in \RR^{r \times r}$, $V_r \in \RR^{n \times r}$.
+
+\textbf{Dyadic SVD.} Express $A$ as a sum of rank-1 matrices (dyads):
+
+\begin{result}
+\[
+    A = \sum_{i=1}^{r} \sigma_i \vec{u}_i \vec{v}_i^\top
+\]
+\end{result}
+
+Each term $\sigma_i \vec{u}_i \vec{v}_i^\top$ is a rank-1 matrix called a \textbf{dyad}. The dyads are ordered by importance (largest $\sigma_i$ first).
+
+%------------------------------------------------------------------------------
+\subsection{Constructing the SVD}
+%------------------------------------------------------------------------------
+
+How do we actually find $U$, $\Sigma$, $V$? We use the eigendecomposition of $A^\top A$.
+
+\textbf{Step 1: Eigendecompose $A^\top A$.}
+
+The matrix $A^\top A \in \RR^{n \times n}$ is symmetric and positive semidefinite. It has rank $r$ and thus $r$ positive eigenvalues. Order them:
+\[
+    \lambda_1 \ge \cdots \ge \lambda_r > \lambda_{r+1} = \cdots = \lambda_n = 0
+\]
+with corresponding orthonormal eigenvectors $\vec{v}_1, \ldots, \vec{v}_n$. These are the \textbf{right singular vectors}.
+
+\textbf{Step 2: Compute singular values.}
+
+Define the singular values as the square roots of the eigenvalues:
+\begin{result}
+\[
+    \sigma_i \triangleq \sqrt{\lambda_i} > 0 \quad \text{for } i = 1, \ldots, r
+\]
+\end{result}
+
+\textbf{Step 3: Compute left singular vectors.}
+
+For $i = 1, \ldots, r$, define:
+\[
+    \vec{u}_i \triangleq \frac{A\vec{v}_i}{\sigma_i}
+\]
+
+This gives $r$ orthonormal vectors in $\RR^m$. To fill out $U \in \RR^{m \times m}$, extend $\{\vec{u}_1, \ldots, \vec{u}_r\}$ to an orthonormal basis for $\RR^m$ using Gram-Schmidt (the remaining $m - r$ vectors span $\NN(A^\top)$).
+
+\begin{theorem}
+In the SVD construction above, $\{\vec{u}_1, \ldots, \vec{u}_m\}$ is an orthonormal set and $A = U\Sigma V^\top$.
+\end{theorem}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Non-uniqueness.} The SVD is not unique. The Gram-Schmidt extension is arbitrary, repeated singular values allow different eigenvector choices, and even distinct eigenvalues only determine eigenvectors up to a sign $\vec{v} \mapsto -\vec{v}$.
+\end{tcolorbox}
+
+%------------------------------------------------------------------------------
+\subsection{Geometry of the SVD}
+%------------------------------------------------------------------------------
+
+The key geometric insight is that multiplying by $A$ is equivalent to three operations:
+\begin{enumerate}
+    \item \textbf{Rotate/reflect} by $V^\top$: maps the standard basis to the $V$-basis
+    \item \textbf{Scale} by $\Sigma$: stretches each axis by $\sigma_i$
+    \item \textbf{Rotate/reflect} by $U$: aligns the scaled axes in the output space
+\end{enumerate}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{Geometric picture:} $V^\top$ maps the unit circle to the unit circle (rotation). $\Sigma$ maps the unit circle to an axis-aligned ellipse with semi-axes $\sigma_1, \ldots, \sigma_r$. $U$ rotates this ellipse to its final orientation.
+\end{tcolorbox}
+
+\textbf{Action on a general vector.} To understand $A\vec{x}$, write $\vec{x}$ in the $V$-basis: $\vec{x} = \alpha_1 \vec{v}_1 + \cdots + \alpha_n \vec{v}_n$. Then by linearity:
+\[
+    A\vec{x} = \alpha_1 \sigma_1 \vec{u}_1 + \cdots + \alpha_r \sigma_r \vec{u}_r
+\]
+
+Components beyond $r$ are annihilated (they are in $\NN(A)$).
+
+\textbf{Maximum and minimum scaling.} Since $\sigma_1 \ge \cdots \ge \sigma_r > 0$:
+\begin{result}
+\[
+    \max_{\|\vec{x}\|_2 = 1} \|A\vec{x}\|_2 = \sigma_1, \qquad \min_{\substack{\|\vec{x}\|_2 = 1 \\ \vec{x} \notin \NN(A)}} \|A\vec{x}\|_2 = \sigma_r
+\]
+\end{result}
+
+The largest singular value $\sigma_1$ is the maximum stretching factor of $A$, and $\sigma_r$ is the minimum nonzero stretching factor. If $A$ is not full column rank, some nonzero vectors are sent to $\vec{0}$.
+
+%------------------------------------------------------------------------------
+\subsection{Connection to PCA}
+%------------------------------------------------------------------------------
+
+The SVD directly computes PCA. If $X \in \RR^{n \times d}$ is our zero-mean data matrix and we compute the SVD $X = U\Sigma V^\top$, then:
+
+\begin{itemize}
+    \item The covariance matrix is $C = \frac{1}{n}X^\top X = \frac{1}{n}V\Sigma^\top \Sigma V^\top = V \left(\frac{\Sigma^\top \Sigma}{n}\right) V^\top$
+    \item The columns of $V$ are the eigenvectors of $C$, i.e., the \textbf{principal components}
+    \item The eigenvalues of $C$ are $\lambda_i = \sigma_i^2 / n$
+    \item The first principal component is the column of $V$ corresponding to the largest singular value $\sigma_1$
+\end{itemize}
+
+\begin{tcolorbox}[colframe=black!50]
+\textbf{In practice:} We compute PCA by taking the SVD of $X$ (not by forming $X^\top X$ and eigendecomposing it). The SVD is numerically more stable and efficient.
+\end{tcolorbox}
+
+%==============================================================================
+
+\vfill
+
+\begin{center}
+\rule{0.5\linewidth}{0.4pt}
+
+\textit{Key Takeaways}
+\end{center}
+
+\begin{enumerate}
+    \item \textbf{PCA finds directions of maximum variance:} minimizing reconstruction error is equivalent to maximizing $\vec{w}^\top C \vec{w}$ subject to $\|\vec{w}\|_2 = 1$.
+    \item \textbf{Rayleigh quotient bound:} for $A \in \mathbb{S}^d$ and $\|\vec{w}\|_2 = 1$, we have $\lambda_{\min} \le \vec{w}^\top A \vec{w} \le \lambda_{\max}$, with extrema achieved by eigenvectors.
+    \item \textbf{First principal component} is the eigenvector of $C = \frac{1}{n}X^\top X$ for its largest eigenvalue.
+    \item \textbf{SVD decomposes any matrix:} $A = U\Sigma V^\top$ (full), $A = U_r \Sigma_r V_r^\top$ (compact), $A = \sum_{i=1}^{r} \sigma_i \vec{u}_i \vec{v}_i^\top$ (dyadic).
+    \item \textbf{SVD construction:} eigendecompose $A^\top A$ to get $V$ and $\sigma_i = \sqrt{\lambda_i}$, then $\vec{u}_i = A\vec{v}_i / \sigma_i$.
+    \item \textbf{Geometry:} the SVD decomposes $A$ into rotation--scaling--rotation; $\sigma_1$ is the maximum stretching factor.
+    \item \textbf{SVD computes PCA:} the columns of $V$ from the SVD of $X$ are the principal components.
+\end{enumerate}
+
+\end{document}

@@ -78,6 +78,7 @@
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\newtheorem{claim}{Claim}
 
 %------------------------------------------------------------------------------
 % CUSTOM COMMANDS
@@ -110,8 +111,7 @@
 Every optimization problem can be written in a unified format called the \textbf{standard form}. This makes it easier to classify problems, apply solution methods, and communicate with others.
 
 \begin{tcolorbox}
-\textbf{Definition 2} (Standard Form):
-
+\begin{definition}[Standard Form]
 An optimization problem in \textbf{standard form} is:
 \[
 \begin{aligned}
@@ -121,14 +121,14 @@ An optimization problem in \textbf{standard form} is:
 \end{aligned}
 \]
 where $\vec{x} \in \RR^n$ is the \textbf{decision variable}, $f_0$ is the \textbf{objective function}, $f_i$ are \textbf{inequality constraint functions}, and $h_j$ are \textbf{equality constraint functions}.
+\end{definition}
 \end{tcolorbox}
 
 The set of all points satisfying the constraints is called the \textbf{feasible set}:
 \begin{result}
-{\small
 \[
     \Omega = \{\vec{x} \in \RR^n : f_i(\vec{x}) \le 0 \; \forall i, \; h_j(\vec{x}) = 0 \; \forall j\}
-\]}
+\]
 \end{result}
 
 A point $\vec{x}^\star \in \Omega$ is a \textbf{solution} (or \textbf{minimizer}) if $f_0(\vec{x}^\star) \le f_0(\vec{x})$ for all $\vec{x} \in \Omega$.
@@ -139,17 +139,14 @@ A point $\vec{x}^\star \in \Omega$ is a \textbf{solution} (or \textbf{minimizer}
 
 Let us carefully define each piece:
 
-\textbf{Decision variable $\vec{x} \in \RR^n$:} The quantities we choose. We stack all decision variables into a single vector. For example, if we choose amounts $x_1, x_2, x_3$, then $\vec{x} = (x_1, x_2, x_3)^\top \in \RR^3$.
-
-\textbf{Objective function $f_0: \RR^n \to \RR$:} The quantity we want to minimize. Common objectives include cost, error, distance, or negative profit.
-
-\textbf{Inequality constraints $f_i(\vec{x}) \le 0$:} Restrictions that must hold with ``$\le$'' on the right. The standard form requires the right-hand side to be zero.
-
-\textbf{Equality constraints $h_j(\vec{x}) = 0$:} Restrictions that must hold with exact equality.
-
-\textbf{Feasible set $\Omega$:} All points satisfying every constraint. If $\Omega = \emptyset$, the problem is \textbf{infeasible}.
-
-\textbf{Solution $\vec{x}^\star$:} A feasible point achieving the smallest objective value.
+\begin{description}[style=nextline]
+    \item[Decision variable $\vec{x} \in \RR^n$] The quantities we choose. We stack all decision variables into a single vector. For example, if we choose amounts $x_1, x_2, x_3$, then $\vec{x} = (x_1, x_2, x_3)^\top \in \RR^3$.
+    \item[Objective function $f_0: \RR^n \to \RR$] The quantity we want to minimize. Common objectives include cost, error, distance, or negative profit.
+    \item[Inequality constraints $f_i(\vec{x}) \le 0$] Restrictions that must hold with ``$\le$'' on the right. The standard form requires the right-hand side to be zero.
+    \item[Equality constraints $h_j(\vec{x}) = 0$] Restrictions that must hold with exact equality.
+    \item[Feasible set $\Omega$] All points satisfying every constraint. If $\Omega = \emptyset$, the problem is \textbf{infeasible}.
+    \item[Solution $\vec{x}^\star$] A feasible point achieving the smallest objective value.
+\end{description}
 
 %------------------------------------------------------------------------------
 \subsection{Converting to Standard Form}
@@ -471,9 +468,12 @@ The defining property of orthogonal projection is:
 
 This means the residual is perpendicular to every vector in the column space.
 
-\textbf{Claim:} The projection $\vec{z}$ minimizes $\|\vec{y} - \vec{u}\|_2$ over all $\vec{u} \in \Range(A)$.
+\begin{claim}
+The projection $\vec{z}$ minimizes $\|\vec{y} - \vec{u}\|_2$ over all $\vec{u} \in \Range(A)$.
+\end{claim}
 
-\textbf{Proof:} Let $\vec{u} \in \Range(A)$ be any point in the column space. We want to show $\|\vec{y} - \vec{u}\|_2 \ge \|\vec{e}\|_2$.
+\begin{proof}
+Let $\vec{u} \in \Range(A)$ be any point in the column space. We want to show $\|\vec{y} - \vec{u}\|_2 \ge \|\vec{e}\|_2$.
 
 Write the difference as:
 \[
@@ -492,7 +492,8 @@ Since $\|\vec{z} - \vec{u}\|_2^2 \ge 0$, we conclude:
     \|\vec{y} - \vec{u}\|_2^2 \ge \|\vec{e}\|_2^2
 \]
 
-with equality if and only if $\vec{u} = \vec{z}$. \hfill $\square$
+with equality if and only if $\vec{u} = \vec{z}$.
+\end{proof}
 
 %------------------------------------------------------------------------------
 \subsection{Normal Equations}
@@ -537,12 +538,12 @@ The name ``normal equations'' comes from the fact that the residual $\vec{e}$ is
 %------------------------------------------------------------------------------
 
 \begin{tcolorbox}
-\textbf{Theorem 4} (Least Squares Solution):
-
+\begin{theorem}[Least Squares Solution]
 If $A \in \RR^{m \times n}$ has \textbf{full column rank} (i.e., $\rank(A) = n$), then $A^\top A$ is invertible and the unique solution to the least squares problem is:
 \[
     \vec{x}^\star = (A^\top A)^{-1} A^\top \vec{y}
 \]
+\end{theorem}
 \end{tcolorbox}
 
 \textbf{Why is $A^\top A$ invertible?}
@@ -600,11 +601,7 @@ When data is noisy, the exact system $A\vec{x} = \vec{y}$ has no solution (the p
 
 \vfill
 
-\begin{center}
-\rule{0.5\linewidth}{0.4pt}
-
-\textit{Key Takeaways}
-\end{center}
+\section*{Key Takeaways}
 
 \begin{enumerate}
     \item \textbf{Standard form unifies all problems:} minimize objective, all inequalities as $\le 0$, all equalities as $= 0$.
