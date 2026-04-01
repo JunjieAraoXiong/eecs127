@@ -1,4 +1,4 @@
-.DS_Store
+**/.DS_Store
 
 # LaTeX build artifacts
 *.aux
@@ -8,3 +8,10 @@
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+*.run.xml
+*.bcf
